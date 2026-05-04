@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chabad Tachanun Today</title>
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+  <style>
+    :root, [data-theme="light"] {
+      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+      --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem; --space-8: 2rem; --space-10: 2.5rem; --space-12: 3rem; --space-16: 4rem;
+      --color-bg: #f7f6f2; --color-surface: #f9f8f5; --color-surface-2: #fbfbf9; --color-surface-offset: #f3f0ec; --color-border: #d4d1ca; --color-divider: #dcd9d5;
+      --color-text: #28251d; --color-text-muted: #7a7974; --color-text-faint: #bab9b4; --color-text-inverse: #f9f8f4;
+      --color-primary: #01696f; --color-primary-hover: #0c4e54; --color-primary-highlight: #cedcd8; --color-success: #437a22; --color-success-highlight: #d4dfcc; --color-warning: #964219; --color-warning-highlight: #ddcfc6;
+      --radius-sm: 0.375rem; --radius-md: 0.5rem; --radius-lg: 0.75rem; --radius-xl: 1rem; --radius-full: 9999px;
+      --shadow-sm: 0 1px 2px rgba(30,28,24,0.06); --shadow-md: 0 6px 24px rgba(30,28,24,0.08);
+      --font-body: 'Satoshi', Inter, sans-serif; --font-display: 'Satoshi', Inter, sans-serif; --transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    [data-theme="dark"] {
+      --color-bg: #171614; --color-surface: #1c1b19; --color-surface-2: #201f1d; --color-surface-offset: #1d1c1a; --color-border: #393836; --color-divider: #262523;
+      --color-text: #cdccca; --color-text-muted: #797876; --color-text-faint: #5a5957; --color-text-inverse: #2b2a28;
+      --color-primary: #4f98a3; --color-primary-hover: #227f8b; --color-primary-highlight: #313b3b; --color-success: #6daa45; --color-success-highlight: #314128; --color-warning: #bb653b; --color-warning-highlight: #4b3931;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.2); --shadow-md: 0 12px 32px rgba(0,0,0,0.35);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: none; text-size-adjust: none; }
+    body {
+      margin: 0; min-height: 100dvh; font-family: var(--font-body); font-size: var(--text-base); line-height: 1.6; color: var(--color-text);
+      background: radial-gradient(circle at top left, color-mix(in srgb, var(--color-primary) 10%, transparent), transparent 30%), var(--color-bg);
+    }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    :focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; border-radius: var(--radius-sm); }
+    .shell { width: min(100%, 960px); margin: 0 auto; padding: var(--space-4); }
+    .skip-link { position: absolute; left: -9999px; top: var(--space-2); background: var(--color-primary); color: var(--color-text-inverse); padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); }
+    .skip-link:focus { left: var(--space-2); }
+    .topbar { display:flex; align-items:center; justify-content:space-between; gap:var(--space-4); padding-block:var(--space-4); }
+    .brand { display:inline-flex; align-items:center; gap:var(--space-3); text-decoration:none; font-size:var(--text-sm); font-weight:700; letter-spacing:.02em; }
+    .logo { width:2.5rem; height:2.5rem; border-radius:var(--radius-lg); background:var(--color-surface); border:1px solid color-mix(in srgb, var(--color-text) 12%, transparent); padding:.45rem; box-shadow:var(--shadow-sm); }
+    .theme-toggle { min-width:44px; min-height:44px; border-radius:var(--radius-full); border:1px solid color-mix(in srgb, var(--color-text) 12%, transparent); background:var(--color-surface); color:var(--color-text); display:grid; place-items:center; transition: transform var(--transition), background var(--transition); }
+    .theme-toggle:hover { transform: translateY(-1px); }
+    .hero { display:grid; gap:var(--space-6); padding-block:clamp(var(--space-6), 6vw, var(--space-12)); }
+    .eyebrow { display:inline-flex; align-items:center; gap:var(--space-2); padding:var(--space-2) var(--space-3); border-radius:var(--radius-full); background:color-mix(in srgb, var(--color-primary) 10%, var(--color-surface)); color:var(--color-primary); font-size:var(--text-xs); font-weight:700; letter-spacing:.08em; text-transform:uppercase; width:fit-content; }
+    h1 { margin:0; font-family:var(--font-display); font-size:var(--text-xl); line-height:1.08; max-width:15ch; }
+    .lede { margin:0; color:var(--color-text-muted); max-width:62ch; }
+    .grid { display:grid; gap:var(--space-4); }
+    @media (min-width: 840px) { .grid { grid-template-columns:1.45fr 1fr; align-items:start; } }
+    .panel { background:color-mix(in srgb, var(--color-surface) 92%, transparent); border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent); border-radius:var(--radius-xl); box-shadow:var(--shadow-md); backdrop-filter: blur(8px); }
+    .status-card { padding:var(--space-6); display:grid; gap:var(--space-5); }
+    .date-row { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; }
+    .date-chip { border-radius:var(--radius-full); padding:var(--space-2) var(--space-3); background:var(--color-surface-2); border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent); font-size:var(--text-sm); }
+    .status-grid { display:grid; gap:var(--space-4); }
+    @media (min-width: 560px) { .status-grid { grid-template-columns:1fr 1fr; } }
+    .status-box { padding:var(--space-4); border-radius:var(--radius-lg); background:var(--color-surface-2); border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent); }
+    .status-label { margin:0 0 var(--space-2); font-size:var(--text-xs); letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:var(--color-text-muted); }
+    .decision { font-size:clamp(2rem, 1.3rem + 4vw, 3.5rem); line-height:.95; letter-spacing:-.04em; font-weight:700; margin:0; }
+    .decision.say { color:var(--color-success); }
+    .decision.skip { color:var(--color-warning); }
+    .detail-copy, .reason-line, .notes li, .rule-note p { color:var(--color-text-muted); }
+    .reason-line { margin:var(--space-2) 0 0; }
+    .asterisk { font-size:.72em; vertical-align:top; margin-left:.08em; }
+    .inline-dropdown summary { cursor:pointer; color:var(--color-text-muted); list-style:none; }
+    .inline-dropdown summary::-webkit-details-marker { display:none; }
+    .inline-dropdown summary::after { content:' ▾'; }
+    .inline-dropdown[open] summary::after { content:' ▴'; }
+    .inline-dropdown p { margin:var(--space-2) 0 0; color:var(--color-text-muted); }
+    .detail-card { padding:var(--space-5); display:grid; gap:var(--space-4); }
+    .detail-card h2 { margin:0; font-size:var(--text-lg); line-height:1.15; }
+    .input-row { display:grid; gap:var(--space-3); }
+    .label { font-size:var(--text-xs); color:var(--color-text-muted); text-transform:uppercase; letter-spacing:.08em; font-weight:700; }
+    .date-control { position:relative; }
+    .date-control::after { content:'◷'; position:absolute; right:1rem; top:50%; transform:translateY(-50%); color:var(--color-text-muted); pointer-events:none; font-size:1rem; }
+    input[type="date"] {
+      appearance:none; -webkit-appearance:none; min-height:52px; width:100%; border-radius:var(--radius-lg); border:1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+      background:linear-gradient(180deg, var(--color-surface-2), var(--color-surface-offset)); color:var(--color-text); padding:.95rem 2.75rem .95rem 1rem; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator { opacity:0; position:absolute; inset:0; width:100%; height:100%; cursor:pointer; }
+    .action-row { display:flex; flex-wrap:wrap; gap:var(--space-3); }
+    .btn { min-height:44px; padding:0.8rem 1rem; border-radius:var(--radius-md); border:1px solid transparent; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:var(--space-2); transition:transform var(--transition), background var(--transition), border-color var(--transition); }
+    .btn:hover { transform:translateY(-1px); }
+    .btn-primary { background:var(--color-primary); color:var(--color-text-inverse); }
+    .btn-primary:hover { background:var(--color-primary-hover); }
+    details.rules-wrap { margin-top:var(--space-4); }
+    details summary { cursor:pointer; font-weight:700; }
+    .rules-panel { margin-top:var(--space-3); display:grid; gap:var(--space-4); }
+    .rules-panel ul { margin:0; padding-left:1.1rem; display:grid; gap:var(--space-2); }
+    .rule-note { padding:var(--space-4); border-radius:var(--radius-lg); background:var(--color-surface-2); border:1px solid color-mix(in srgb, var(--color-text) 8%, transparent); }
+    .rule-note h3 { margin:0 0 var(--space-2); font-size:var(--text-sm); }
+    .footer-note { margin-top:var(--space-6); padding:var(--space-4) 0 var(--space-8); font-size:var(--text-sm); color:var(--color-text-muted); border-top:1px solid var(--color-divider); }
+    .mono { font-variant-numeric: tabular-nums lining-nums; }
+    .hebrew-native { direction:rtl; unicode-bidi:plaintext; }
+    @media (max-width: 639px) { .status-card, .detail-card { padding:var(--space-4); } .decision { font-size:clamp(2rem, 1.5rem + 8vw, 3rem); } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; } }
+  </style>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to content</a>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Chabad Tachanun Today home">
+        <svg class="logo" viewBox="0 0 64 64" aria-hidden="true" fill="none">
+          <rect x="9" y="9" width="46" height="46" rx="14" stroke="currentColor" stroke-width="4"></rect>
+          <path d="M22 22h20M22 32h12M22 42h20" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"></path>
+        </svg>
+        <span>Chabad Tachanun Today</span>
+      </a>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch theme"></button>
+    </header>
+
+    <main id="main">
+      <section class="hero">
+        <div class="eyebrow">Daily Chabad check</div>
+        <div>
+          <h1>See whether there’s Tachanun today.</h1>
+          <p class="lede">According to Chabad custom</p>
+        </div>
+      </section>
+
+      <section class="grid" aria-label="Tachanun result and details">
+        <article class="panel status-card" aria-live="polite">
+          <div class="date-row">
+            <div class="date-chip mono" id="gregorianDate">—</div>
+            <div class="date-chip" id="hebrewDateEnglish">—</div>
+            <div class="date-chip hebrew-native" id="hebrewDateHebrew" lang="he">—</div>
+          </div>
+
+          <div class="status-grid">
+            <section class="status-box">
+              <p class="status-label">Shacharit</p>
+              <h2 id="shacharitAnswer" class="decision">Loading…</h2>
+              <div id="shacharitDetail" class="reason-line">Checking today’s rule.</div>
+            </section>
+            <section class="status-box">
+              <p class="status-label">Mincha</p>
+              <h2 id="minchaAnswer" class="decision">Loading…</h2>
+              <div id="minchaDetail" class="reason-line">Checking today’s rule.</div>
+            </section>
+          </div>
+        </article>
+
+        <aside class="panel detail-card">
+          <div>
+            <h2>Check another date</h2>
+            <p class="detail-copy">Use the civil calendar date. The app recalculates the Hebrew date locally in your browser.</p>
+          </div>
+          <div class="input-row">
+            <label for="dateInput" class="label">Secular date</label>
+            <div class="date-control">
+              <input id="dateInput" type="date" />
+            </div>
+          </div>
+          <div class="action-row">
+            <button id="todayBtn" class="btn btn-primary" type="button">Back to today</button>
+          </div>
+        </aside>
+      </section>
+
+      <section class="panel detail-card" style="margin-top: var(--space-4);">
+        <details class="rules-wrap">
+          <summary>Rules and notes</summary>
+          <div class="rules-panel">
+            <div class="rule-note">
+              <h3>Included omission dates</h3>
+              <ul id="rulesList"></ul>
+            </div>
+            <div class="rule-note">
+              <h3>Custom varies dates</h3>
+              <p id="variesNotes"></p>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section class="footer-note notes">
+        <ul>
+          <li>This version follows the fixed date-based Chabad schedule and does not try to detect situational cases such as a chosson or bris.</li>
+          <li>Hebrew dates are calculated in the browser with the internationalization API.</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      const root = document.documentElement;
+      const toggle = document.querySelector('[data-theme-toggle]');
+      let theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      function icon(name) {
+        return name === 'dark'
+          ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
+          : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+      }
+      function applyTheme(next) {
+        theme = next;
+        root.setAttribute('data-theme', theme);
+        toggle.innerHTML = icon(theme === 'dark' ? 'dark' : 'light');
+        toggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+      }
+      applyTheme(theme);
+      toggle.addEventListener('click', () => applyTheme(theme === 'dark' ? 'light' : 'dark'));
+    })();
+
+    const els = {
+      gregorianDate: document.getElementById('gregorianDate'),
+      hebrewDateEnglish: document.getElementById('hebrewDateEnglish'),
+      hebrewDateHebrew: document.getElementById('hebrewDateHebrew'),
+      shacharitAnswer: document.getElementById('shacharitAnswer'),
+      shacharitDetail: document.getElementById('shacharitDetail'),
+      minchaAnswer: document.getElementById('minchaAnswer'),
+      minchaDetail: document.getElementById('minchaDetail'),
+      dateInput: document.getElementById('dateInput'),
+      todayBtn: document.getElementById('todayBtn'),
+      rulesList: document.getElementById('rulesList'),
+      variesNotes: document.getElementById('variesNotes')
+    };
+
+    const monthNames = { Tishri:'Tishrei', Heshvan:'Cheshvan', Kislev:'Kislev', Tevet:'Tevet', Shevat:'Shevat', Adar:'Adar', 'Adar I':'Adar I', 'Adar II':'Adar II', Nisan:'Nisan', Iyar:'Iyar', Sivan:'Sivan', Tamuz:'Tammuz', Av:'Av', Elul:'Elul' };
+
+    const omissionRules = [
+      'Shabbat, beginning from Friday Mincha.',
+      'Rosh Chodesh, beginning from Mincha of the day before.',
+      'Rosh Hashanah.',
+      'From 9 Tishrei through 2 Cheshvan.',
+      'Chanukah, beginning from 24 Kislev at Mincha through the end of Chanukah.',
+      '15 Shevat, beginning from the afternoon before.',
+      'From 13 Adar at Mincha through 15 Adar.',
+      'Entire month of Nisan.',
+      'Issru Chag after Pesach, Shavuot, and Sukkot.',
+      '14 Iyar, Pesach Sheni.',
+      '18 Iyar, Lag BaOmer, beginning from the afternoon before.',
+      'Sivan 1-12.',
+      '9 Av, beginning from the afternoon before.',
+      '15 Av, beginning from the afternoon before.',
+      '29 Elul.',
+      '10 Kislev, beginning from the afternoon before.',
+      '19-20 Kislev, beginning from the afternoon before.',
+      '12-13 Tammuz, beginning from the afternoon before.'
+    ];
+    els.rulesList.innerHTML = omissionRules.map(item => `<li>${item}</li>`).join('');
+    els.variesNotes.textContent = '3 Tammuz: public custom is generally to say Tachanun, though some individuals who feel unusual joy may omit privately. 18 Elul: some mention omitting Tachanun, but in the Rebbe’s minyan Tachanun was said. 5 Teves: public custom is generally to say Tachanun, though a person who truly feels exceptional joy may have a personal practice.';
+
+    const variesRules = {
+      'Tammuz-3': 'Public custom generally says Tachanun; some individuals who feel exceptional joy may omit privately.',
+      'Elul-18': 'Some mention omitting Tachanun, but in the Rebbe’s minyan it was said as usual.',
+      'Tevet-5': 'Public custom generally says Tachanun; some individuals may personally omit if they truly feel exceptional joy.'
+    };
+
+    function makeDateAtNoon(date) { return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0, 0); }
+    function previousDay(date) { const d = new Date(date); d.setDate(d.getDate() - 1); return makeDateAtNoon(d); }
+    function getHebrewParts(date) {
+      const parts = new Intl.DateTimeFormat('en-u-ca-hebrew', { day:'numeric', month:'long', year:'numeric' }).formatToParts(date);
+      return {
+        day: Number(parts.find(p => p.type === 'day')?.value),
+        month: monthNames[parts.find(p => p.type === 'month')?.value] || parts.find(p => p.type === 'month')?.value,
+        year: Number(parts.find(p => p.type === 'year')?.value)
+      };
+    }
+    function formatHebrewDateEnglish(h) { return `${h.day} ${h.month} ${h.year}`; }
+    function formatHebrewDateHebrew(date) {
+      return new Intl.DateTimeFormat('he-u-ca-hebrew', { day:'numeric', month:'long', year:'numeric' }).format(date);
+    }
+    function formatGregorianDate(date) { return new Intl.DateTimeFormat('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' }).format(date); }
+    function isPurimMonth(month) { return month === 'Adar' || month === 'Adar II'; }
+    function keyOf(hd) { return `${hd.month}-${hd.day}`; }
+
+    function matchDayRule(hd, secularDate) {
+      if (secularDate.getDay() === 6) return { omit: true, label: 'Shabbat' };
+      if (hd.day === 1 || hd.day === 30) return { omit: true, label: 'Rosh Chodesh' };
+      if (hd.month === 'Tishrei' && (hd.day === 1 || hd.day === 2)) return { omit: true, label: 'Rosh Hashanah' };
+      if ((hd.month === 'Tishrei' && hd.day >= 9) || (hd.month === 'Cheshvan' && hd.day <= 2)) return { omit: true, label: '9 Tishrei through 2 Cheshvan' };
+      if ((hd.month === 'Kislev' && hd.day >= 25) || (hd.month === 'Tevet' && hd.day <= 3)) return { omit: true, label: 'Chanukah' };
+      if (hd.month === 'Shevat' && hd.day === 15) return { omit: true, label: '15 Shevat' };
+      if (isPurimMonth(hd.month) && hd.day >= 14 && hd.day <= 15) return { omit: true, label: 'Purim / Shushan Purim' };
+      if (hd.month === 'Nisan') return { omit: true, label: 'Nisan' };
+      if ((hd.month === 'Nisan' && (hd.day === 22 || hd.day === 23)) || (hd.month === 'Sivan' && hd.day === 7) || (hd.month === 'Tishrei' && hd.day === 23)) return { omit: true, label: 'Issru Chag' };
+      if (hd.month === 'Iyar' && hd.day === 14) return { omit: true, label: 'Pesach Sheni' };
+      if (hd.month === 'Iyar' && hd.day === 18) return { omit: true, label: 'Lag BaOmer' };
+      if (hd.month === 'Sivan' && hd.day >= 1 && hd.day <= 12) return { omit: true, label: 'Sivan 1-12' };
+      if (hd.month === 'Av' && hd.day === 9) return { omit: true, label: 'Tisha B’Av' };
+      if (hd.month === 'Av' && hd.day === 15) return { omit: true, label: '15 Av' };
+      if (hd.month === 'Elul' && hd.day === 29) return { omit: true, label: '29 Elul' };
+      if (hd.month === 'Kislev' && hd.day === 10) return { omit: true, label: '10 Kislev' };
+      if (hd.month === 'Kislev' && (hd.day === 19 || hd.day === 20)) return { omit: true, label: '19-20 Kislev' };
+      if (hd.month === 'Tammuz' && (hd.day === 12 || hd.day === 13)) return { omit: true, label: '12-13 Tammuz' };
+      if (variesRules[keyOf(hd)]) return { omit: false, label: variesRules[keyOf(hd)], varies: true };
+      return { omit: false, label: 'No listed omission date matched' };
+    }
+
+    function matchMinchaRule(hd, prevHd, secularDate) {
+      if (secularDate.getDay() === 5) return { omit: true, label: 'Friday Mincha' };
+      const sameDayRule = matchDayRule(hd, secularDate);
+      if (sameDayRule.omit) return sameDayRule;
+      if (hd.day === 1 || hd.day === 30) return { omit: true, label: 'Rosh Chodesh day' };
+      if (prevHd.day === 29 || prevHd.day === 30) return { omit: true, label: 'Erev Rosh Chodesh' };
+      if (hd.month === 'Kislev' && hd.day === 24) return { omit: true, label: 'Erev Chanukah' };
+      if (isPurimMonth(hd.month) && hd.day === 13) return { omit: true, label: 'Erev Purim' };
+      if (hd.month === 'Shevat' && hd.day === 14) return { omit: true, label: 'Erev 15 Shevat' };
+      if (hd.month === 'Iyar' && hd.day === 17) return { omit: true, label: 'Erev Lag BaOmer' };
+      if (hd.month === 'Av' && hd.day === 8) return { omit: true, label: 'Erev Tisha B’Av' };
+      if (hd.month === 'Av' && hd.day === 14) return { omit: true, label: 'Erev 15 Av' };
+      if (hd.month === 'Kislev' && hd.day === 9) return { omit: true, label: 'Erev 10 Kislev' };
+      if (hd.month === 'Kislev' && hd.day === 18) return { omit: true, label: 'Erev 19 Kislev' };
+      if (hd.month === 'Tammuz' && hd.day === 11) return { omit: true, label: 'Erev 12 Tammuz' };
+      if (variesRules[keyOf(hd)]) return { omit: false, label: variesRules[keyOf(hd)], varies: true };
+      return { omit: false, label: 'No listed omission date matched' };
+    }
+
+    function renderDecision(el, result) {
+      const base = result.omit ? 'No' : 'Yes';
+      el.innerHTML = result.varies ? `${base}<span class="asterisk">*</span>` : base;
+      el.className = `decision ${result.omit ? 'skip' : 'say'}`;
+    }
+
+    function renderDetail(el, result) {
+      if (result.varies) {
+        el.innerHTML = `<details class="inline-dropdown"><summary>Custom varies</summary><p>${result.label}</p></details>`;
+      } else {
+        el.textContent = `Reason: ${result.label}`;
+      }
+    }
+
+    function render(date) {
+      const d = makeDateAtNoon(date);
+      const hd = getHebrewParts(d);
+      const prevHd = getHebrewParts(previousDay(d));
+      const shacharit = matchDayRule(hd, d);
+      const mincha = matchMinchaRule(hd, prevHd, d);
+
+      els.gregorianDate.textContent = formatGregorianDate(d);
+      els.hebrewDateEnglish.textContent = formatHebrewDateEnglish(hd);
+      els.hebrewDateHebrew.textContent = formatHebrewDateHebrew(d);
+      renderDecision(els.shacharitAnswer, shacharit);
+      renderDecision(els.minchaAnswer, mincha);
+      renderDetail(els.shacharitDetail, shacharit);
+      renderDetail(els.minchaDetail, mincha);
+      els.dateInput.value = d.toISOString().slice(0, 10);
+    }
+
+    els.dateInput.addEventListener('change', (e) => {
+      if (!e.target.value) return;
+      render(new Date(`${e.target.value}T12:00:00`));
+    });
+
+    els.todayBtn.addEventListener('click', () => render(new Date()));
+
+    render(new Date());
+  </script>
+</body>
+</html>
