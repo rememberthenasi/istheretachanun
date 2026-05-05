@@ -51,7 +51,6 @@
     h1 { margin:0; font-family:var(--font-display); font-size:var(--text-xl); line-height:1.08; max-width:15ch; }
     .lede { margin:0; color:var(--color-text-muted); max-width:62ch; }
     .grid { display:grid; gap:var(--space-4); }
-    @media (min-width: 840px) { .grid { grid-template-columns:1.45fr 1fr; align-items:start; } }
     .panel { background:color-mix(in srgb, var(--color-surface) 92%, transparent); border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent); border-radius:var(--radius-xl); box-shadow:var(--shadow-md); backdrop-filter: blur(8px); }
     .status-card { padding:var(--space-6); display:grid; gap:var(--space-5); }
     .date-row { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; }
@@ -91,9 +90,11 @@
     details summary { cursor:pointer; font-weight:700; }
     .rules-panel { margin-top:var(--space-3); display:grid; gap:var(--space-4); }
     .rules-panel ul { margin:0; padding-left:1.1rem; display:grid; gap:var(--space-2); }
+    .rules-panel li { color:var(--color-text-muted); }
     .rule-note { padding:var(--space-4); border-radius:var(--radius-lg); background:var(--color-surface-2); border:1px solid color-mix(in srgb, var(--color-text) 8%, transparent); }
     .rule-note h3 { margin:0 0 var(--space-2); font-size:var(--text-sm); }
-    .footer-note { margin-top:var(--space-6); padding:var(--space-4) 0 var(--space-8); font-size:var(--text-sm); color:var(--color-text-muted); border-top:1px solid var(--color-divider); text-align:center; }
+    .footer-note { margin-top:var(--space-6); padding:var(--space-4) 0 var(--space-8); font-size:var(--text-sm); color:var(--color-text-muted); border-top:1px solid var(--color-divider); text-align:center; display:grid; gap:var(--space-3); justify-items:center; }
+    .footer-note p { margin:0; max-width:70ch; }
     .footer-note a { color:#666666; text-decoration:none; }
     .footer-note a:hover { text-decoration:underline; }
     [data-theme="dark"] .footer-note a { color:#aaaaaa; }
@@ -119,7 +120,7 @@
 
     <main id="main">
       <section class="hero">
-        <div class="eyebrow">Daily Chabad check</div>
+        <div class="eyebrow">Daily Tachanun Checker</div>
         <div>
           <h1>See whether there’s Tachanun today.</h1>
           <p class="lede">According to Chabad custom</p>
@@ -151,7 +152,6 @@
         <aside class="panel detail-card">
           <div>
             <h2>Check another date</h2>
-            <p class="detail-copy">Use the civil calendar date. The app recalculates the Hebrew date locally in your browser.</p>
           </div>
           <div class="input-row">
             <label for="dateInput" class="label">Secular date</label>
@@ -175,7 +175,7 @@
             </div>
             <div class="rule-note">
               <h3>Custom varies dates</h3>
-              <p id="variesNotes"></p>
+              <ul id="variesNotes"></ul>
             </div>
           </div>
         </details>
@@ -248,7 +248,11 @@
       'Yud Beis Tammuz, beginning from the afternoon before.'
     ];
     els.rulesList.innerHTML = omissionRules.map(item => `<li>${item}</li>`).join('');
-    els.variesNotes.textContent = '3 Tammuz: public custom is generally to say Tachanun, though some individuals who feel unusual joy may omit privately. 18 Elul: some mention omitting Tachanun, but in the Rebbe’s minyan Tachanun was said. 5 Teves: public custom is generally to say Tachanun, though a person who truly feels exceptional joy may have a personal practice.';
+    els.variesNotes.innerHTML = [
+      '<li><strong>3 Tammuz:</strong> Public custom is generally to say Tachanun, though some individuals who feel significant joy may omit privately.</li>',
+      '<li><strong>18 Elul:</strong> Some mention omitting Tachanun, but in the Rebbe’s minyan Tachanun was said.</li>',
+      '<li><strong>5 Teves:</strong> Public custom is generally to say Tachanun, though a person who truly feels exceptional joy may have a personal practice.</li>'
+    ].join('');
 
     const variesRules = {
       'Tammuz-3': 'Public custom generally says Tachanun; some individuals who feel exceptional joy may omit privately.',
@@ -267,8 +271,47 @@
       };
     }
     function formatHebrewDateEnglish(h) { return `${h.day} ${h.month} ${h.year}`; }
+    function formatHebrewNumber(value) {
+      const numerals = [
+        [400, 'ת'], [300, 'ש'], [200, 'ר'], [100, 'ק'],
+        [90, 'צ'], [80, 'פ'], [70, 'ע'], [60, 'ס'], [50, 'נ'], [40, 'מ'], [30, 'ל'], [20, 'כ'], [10, 'י'],
+        [9, 'ט'], [8, 'ח'], [7, 'ז'], [6, 'ו'], [5, 'ה'], [4, 'ד'], [3, 'ג'], [2, 'ב'], [1, 'א']
+      ];
+      let remaining = value;
+      let letters = '';
+
+      for (const [amount, letter] of numerals) {
+        while (remaining >= amount) {
+          letters += letter;
+          remaining -= amount;
+        }
+      }
+
+      if (letters.length <= 1) return letters;
+      if (letters.length === 2) return `${letters[0]}״${letters[1]}`;
+      return `${letters.slice(0, -1)}״${letters.slice(-1)}`;
+    }
+    const hebrewMonthNames = {
+      Tishrei: 'תשרי',
+      Cheshvan: 'חשוון',
+      Kislev: 'כסלו',
+      Tevet: 'טבת',
+      Shevat: 'שבט',
+      Adar: 'אדר',
+      'Adar I': 'אדר א׳',
+      'Adar II': 'אדר ב׳',
+      Nisan: 'ניסן',
+      Iyar: 'אייר',
+      Sivan: 'סיוון',
+      Tammuz: 'תמוז',
+      Av: 'אב',
+      Elul: 'אלול'
+    };
     function formatHebrewDateHebrew(date) {
-      return new Intl.DateTimeFormat('he-u-ca-hebrew', { day:'numeric', month:'long', year:'numeric' }).format(date);
+      const parts = getHebrewParts(date);
+      const displayYear = formatHebrewNumber(parts.year - 5000);
+      const displayMonth = hebrewMonthNames[parts.month] || parts.month;
+      return `${formatHebrewNumber(parts.day)} ${displayMonth} ${displayYear}`;
     }
     function formatGregorianDate(date) { return new Intl.DateTimeFormat('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' }).format(date); }
     function isPurimMonth(month) { return month === 'Adar' || month === 'Adar II'; }
