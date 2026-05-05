@@ -228,7 +228,7 @@
     const monthNames = { Tishri:'Tishrei', Heshvan:'Cheshvan', Kislev:'Kislev', Tevet:'Tevet', Shevat:'Shevat', Adar:'Adar', 'Adar I':'Adar I', 'Adar II':'Adar II', Nisan:'Nisan', Iyar:'Iyar', Sivan:'Sivan', Tamuz:'Tammuz', Av:'Av', Elul:'Elul' };
 
     const omissionRules = [
-      'Shabbat, beginning from Friday Mincha.',
+      'Shabbos, beginning from Friday Mincha.',
       'Rosh Chodesh, beginning from Mincha of the day before.',
       'Rosh Hashanah.',
       'From 9 Tishrei through 2 Cheshvan.',
@@ -236,10 +236,10 @@
       '15 Shevat, beginning from the afternoon before.',
       'From 13 Adar at Mincha through 15 Adar.',
       'Entire month of Nisan.',
-      'Issru Chag after Pesach, Shavuot, and Sukkot.',
+      'Issru Chag after Pesach, Shavuos, and Sukkot.',
       '14 Iyar, Pesach Sheni.',
       '18 Iyar, Lag BaOmer, beginning from the afternoon before.',
-      'Shavuot (Sivan 6-7).',
+      'Shavuos (Sivan 6-7).',
       '9 Av, beginning from the afternoon before.',
       '15 Av, beginning from the afternoon before.',
       '29 Elul.',
@@ -319,9 +319,9 @@
 
     function matchDayRule(hd, secularDate) {
       const reasons = [];
-      const isShabbat = secularDate.getDay() === 6;
+      const isShabbos = secularDate.getDay() === 6;
 
-      if (isShabbat) reasons.push('Shabbat');
+      if (isShabbos) reasons.push('Shabbos');
       if (hd.day === 1 || hd.day === 30) reasons.push('Rosh Chodesh');
 
       if (hd.month === 'Tishrei' && (hd.day === 1 || hd.day === 2)) {
@@ -346,8 +346,8 @@
       if ((hd.month === 'Nisan' && (hd.day === 23))) reasons.push('Issru Chag');
       if (hd.month === 'Iyar' && hd.day === 14) reasons.push('Pesach Sheni');
       if (hd.month === 'Iyar' && hd.day === 18) reasons.push('Lag BaOmer');
-      if (hd.month === 'Sivan' && (hd.day === 6 || hd.day === 7)) reasons.push('Shavuot');
-      if (hd.month === 'Sivan' && hd.day >= 1 && hd.day <= 12 && !reasons.includes('Shavuot')) reasons.push('Sivan');
+      if (hd.month === 'Sivan' && (hd.day === 6 || hd.day === 7)) reasons.push('Shavuos');
+      if (hd.month === 'Sivan' && hd.day >= 1 && hd.day <= 12 && !reasons.includes('Shavuos')) reasons.push('Sivan');
       if (hd.month === 'Av' && hd.day === 9) reasons.push('Tisha B’Av');
       if (hd.month === 'Av' && hd.day === 15) reasons.push('Tu B’Av Av');
       if (hd.month === 'Elul' && hd.day === 29) reasons.push('29 Elul');
