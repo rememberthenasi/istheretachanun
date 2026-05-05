@@ -233,13 +233,13 @@
       'Issru Chag after Pesach, Shavuot, and Sukkot.',
       '14 Iyar, Pesach Sheni.',
       '18 Iyar, Lag BaOmer, beginning from the afternoon before.',
-      'Sivan 1-12.',
+      'Shavuot (Sivan 6-7).',
       '9 Av, beginning from the afternoon before.',
       '15 Av, beginning from the afternoon before.',
       '29 Elul.',
       '10 Kislev, beginning from the afternoon before.',
       '19-20 Kislev, beginning from the afternoon before.',
-      '12-13 Tammuz, beginning from the afternoon before.'
+      'Yud Beis Tammuz, beginning from the afternoon before.'
     ];
     els.rulesList.innerHTML = omissionRules.map(item => `<li>${item}</li>`).join('');
     els.variesNotes.textContent = '3 Tammuz: public custom is generally to say Tachanun, though some individuals who feel unusual joy may omit privately. 18 Elul: some mention omitting Tachanun, but in the Rebbe’s minyan Tachanun was said. 5 Teves: public custom is generally to say Tachanun, though a person who truly feels exceptional joy may have a personal practice.';
@@ -269,24 +269,45 @@
     function keyOf(hd) { return `${hd.month}-${hd.day}`; }
 
     function matchDayRule(hd, secularDate) {
-      if (secularDate.getDay() === 6) return { omit: true, label: 'Shabbat' };
-      if (hd.day === 1 || hd.day === 30) return { omit: true, label: 'Rosh Chodesh' };
-      if (hd.month === 'Tishrei' && (hd.day === 1 || hd.day === 2)) return { omit: true, label: 'Rosh Hashanah' };
-      if ((hd.month === 'Tishrei' && hd.day >= 9) || (hd.month === 'Cheshvan' && hd.day <= 2)) return { omit: true, label: '9 Tishrei through 2 Cheshvan' };
-      if ((hd.month === 'Kislev' && hd.day >= 25) || (hd.month === 'Tevet' && hd.day <= 3)) return { omit: true, label: 'Chanukah' };
-      if (hd.month === 'Shevat' && hd.day === 15) return { omit: true, label: '15 Shevat' };
-      if (isPurimMonth(hd.month) && hd.day >= 14 && hd.day <= 15) return { omit: true, label: 'Purim / Shushan Purim' };
-      if (hd.month === 'Nisan') return { omit: true, label: 'Nisan' };
-      if ((hd.month === 'Nisan' && (hd.day === 22 || hd.day === 23)) || (hd.month === 'Sivan' && hd.day === 7) || (hd.month === 'Tishrei' && hd.day === 23)) return { omit: true, label: 'Issru Chag' };
-      if (hd.month === 'Iyar' && hd.day === 14) return { omit: true, label: 'Pesach Sheni' };
-      if (hd.month === 'Iyar' && hd.day === 18) return { omit: true, label: 'Lag BaOmer' };
-      if (hd.month === 'Sivan' && hd.day >= 1 && hd.day <= 12) return { omit: true, label: 'Sivan 1-12' };
-      if (hd.month === 'Av' && hd.day === 9) return { omit: true, label: 'Tisha B’Av' };
-      if (hd.month === 'Av' && hd.day === 15) return { omit: true, label: '15 Av' };
-      if (hd.month === 'Elul' && hd.day === 29) return { omit: true, label: '29 Elul' };
-      if (hd.month === 'Kislev' && hd.day === 10) return { omit: true, label: '10 Kislev' };
-      if (hd.month === 'Kislev' && (hd.day === 19 || hd.day === 20)) return { omit: true, label: '19-20 Kislev' };
-      if (hd.month === 'Tammuz' && (hd.day === 12 || hd.day === 13)) return { omit: true, label: '12-13 Tammuz' };
+      const reasons = [];
+      const isShabbat = secularDate.getDay() === 6;
+
+      if (isShabbat) reasons.push('Shabbat');
+      if (hd.day === 1 || hd.day === 30) reasons.push('Rosh Chodesh');
+
+      if (hd.month === 'Tishrei' && (hd.day === 1 || hd.day === 2)) {
+        reasons.length = 0;
+        reasons.push('Rosh Hashanah');
+      } else if (hd.month === 'Tishrei' && hd.day >= 15 && hd.day <= 22) {
+        reasons.push(hd.day === 15 || hd.day === 21 || hd.day === 22 ? 'Sukkot (Yom Tov)' : 'Sukkot (Chol Hamoed)');
+      } else if ((hd.month === 'Tishrei' && hd.day >= 9) || (hd.month === 'Cheshvan' && hd.day <= 2)) {
+        reasons.push('9 Tishrei through 2 Cheshvan');
+      }
+
+      if ((hd.month === 'Kislev' && hd.day >= 25) || (hd.month === 'Tevet' && hd.day <= 3)) reasons.push('Chanukah');
+      if (hd.month === 'Shevat' && hd.day === 15) reasons.push('Tu B’Shevat');
+      if (isPurimMonth(hd.month) && hd.day >= 14 && hd.day <= 15) reasons.push('Purim / Shushan Purim');
+
+      if (hd.month === 'Nisan' && hd.day >= 15 && hd.day <= 22) {
+        reasons.push(hd.day === 15 || hd.day === 21 || hd.day === 22 ? 'Pesach (Yom Tov)' : 'Pesach (Chol Hamoed)');
+      } else if (hd.month === 'Nisan') {
+        reasons.push('Nisan');
+      }
+
+      if ((hd.month === 'Nisan' && (hd.day === 23))) reasons.push('Issru Chag');
+      if (hd.month === 'Iyar' && hd.day === 14) reasons.push('Pesach Sheni');
+      if (hd.month === 'Iyar' && hd.day === 18) reasons.push('Lag BaOmer');
+      if (hd.month === 'Sivan' && (hd.day === 6 || hd.day === 7)) reasons.push('Shavuot');
+      if (hd.month === 'Sivan' && hd.day >= 1 && hd.day <= 12 && !reasons.includes('Shavuot')) reasons.push('Sivan');
+      if (hd.month === 'Av' && hd.day === 9) reasons.push('Tisha B’Av');
+      if (hd.month === 'Av' && hd.day === 15) reasons.push('Tu B’Av Av');
+      if (hd.month === 'Elul' && hd.day === 29) reasons.push('29 Elul');
+      if (hd.month === 'Kislev' && hd.day === 10) reasons.push('10 Kislev');
+      if (hd.month === 'Kislev' && (hd.day === 19 || hd.day === 20)) reasons.push('19-20 Kislev');
+      if (hd.month === 'Tammuz' && (hd.day === 12)) reasons.push('Yud Beis Tammuz');
+      if (hd.month === 'Tammuz' && (hd.day === 13)) reasons.push('Yud Gimmel Tammuz');
+
+      if (reasons.length > 0) return { omit: true, label: reasons.join(' + ') };
       if (variesRules[keyOf(hd)]) return { omit: false, label: variesRules[keyOf(hd)], varies: true };
       return { omit: false, label: 'No listed omission date matched' };
     }
@@ -299,13 +320,13 @@
       if (prevHd.day === 29 || prevHd.day === 30) return { omit: true, label: 'Erev Rosh Chodesh' };
       if (hd.month === 'Kislev' && hd.day === 24) return { omit: true, label: 'Erev Chanukah' };
       if (isPurimMonth(hd.month) && hd.day === 13) return { omit: true, label: 'Erev Purim' };
-      if (hd.month === 'Shevat' && hd.day === 14) return { omit: true, label: 'Erev 15 Shevat' };
+      if (hd.month === 'Shevat' && hd.day === 14) return { omit: true, label: 'Erev Tu B’Shevat' };
       if (hd.month === 'Iyar' && hd.day === 17) return { omit: true, label: 'Erev Lag BaOmer' };
       if (hd.month === 'Av' && hd.day === 8) return { omit: true, label: 'Erev Tisha B’Av' };
-      if (hd.month === 'Av' && hd.day === 14) return { omit: true, label: 'Erev 15 Av' };
-      if (hd.month === 'Kislev' && hd.day === 9) return { omit: true, label: 'Erev 10 Kislev' };
-      if (hd.month === 'Kislev' && hd.day === 18) return { omit: true, label: 'Erev 19 Kislev' };
-      if (hd.month === 'Tammuz' && hd.day === 11) return { omit: true, label: 'Erev 12 Tammuz' };
+      if (hd.month === 'Av' && hd.day === 14) return { omit: true, label: 'Erev Tu B’Av Av' };
+      if (hd.month === 'Kislev' && hd.day === 9) return { omit: true, label: 'Erev Yud Kislev' };
+      if (hd.month === 'Kislev' && hd.day === 18) return { omit: true, label: 'Erev Yud Tes Kislev' };
+      if (hd.month === 'Tammuz' && hd.day === 11) return { omit: true, label: 'Erev Yud Beis Tammuz' };
       if (variesRules[keyOf(hd)]) return { omit: false, label: variesRules[keyOf(hd)], varies: true };
       return { omit: false, label: 'No listed omission date matched' };
     }
@@ -317,6 +338,11 @@
     }
 
     function renderDetail(el, result) {
+      // If tachanun is said (omit: false), don't show a reason
+      if (!result.omit) {
+        el.textContent = '';
+        return;
+      }
       if (result.varies) {
         el.innerHTML = `<details class="inline-dropdown"><summary>Custom varies</summary><p>${result.label}</p></details>`;
       } else {
