@@ -40,7 +40,9 @@
     .skip-link { position: absolute; left: -9999px; top: var(--space-2); background: var(--color-primary); color: var(--color-text-inverse); padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); }
     .skip-link:focus { left: var(--space-2); }
     .topbar { display:flex; align-items:center; justify-content:space-between; gap:var(--space-4); padding-block:var(--space-4); }
-    .brand { display:inline-flex; align-items:center; gap:var(--space-3); text-decoration:none; font-size:var(--text-sm); font-weight:700; letter-spacing:.02em; }
+    .brand { display:inline-flex; align-items:center; gap:var(--space-3); text-decoration:none; font-size:var(--text-sm); font-weight:700; letter-spacing:.02em; color:var(--color-text); }
+    .brand span { color:inherit; }
+    .brand-subtitle { font-size:0.9em; }
     .logo { width:2.5rem; height:2.5rem; border-radius:var(--radius-lg); background:var(--color-surface); border:1px solid color-mix(in srgb, var(--color-text) 12%, transparent); padding:.45rem; box-shadow:var(--shadow-sm); }
     .theme-toggle { min-width:44px; min-height:44px; border-radius:var(--radius-full); border:1px solid color-mix(in srgb, var(--color-text) 12%, transparent); background:var(--color-surface); color:var(--color-text); display:grid; place-items:center; transition: transform var(--transition), background var(--transition); }
     .theme-toggle:hover { transform: translateY(-1px); }
@@ -91,7 +93,10 @@
     .rules-panel ul { margin:0; padding-left:1.1rem; display:grid; gap:var(--space-2); }
     .rule-note { padding:var(--space-4); border-radius:var(--radius-lg); background:var(--color-surface-2); border:1px solid color-mix(in srgb, var(--color-text) 8%, transparent); }
     .rule-note h3 { margin:0 0 var(--space-2); font-size:var(--text-sm); }
-    .footer-note { margin-top:var(--space-6); padding:var(--space-4) 0 var(--space-8); font-size:var(--text-sm); color:var(--color-text-muted); border-top:1px solid var(--color-divider); }
+    .footer-note { margin-top:var(--space-6); padding:var(--space-4) 0 var(--space-8); font-size:var(--text-sm); color:var(--color-text-muted); border-top:1px solid var(--color-divider); text-align:center; }
+    .footer-note a { color:#666666; text-decoration:none; }
+    .footer-note a:hover { text-decoration:underline; }
+    [data-theme="dark"] .footer-note a { color:#aaaaaa; }
     .mono { font-variant-numeric: tabular-nums lining-nums; }
     .hebrew-native { direction:rtl; unicode-bidi:plaintext; }
     @media (max-width: 639px) { .status-card, .detail-card { padding:var(--space-4); } .decision { font-size:clamp(2rem, 1.5rem + 8vw, 3rem); } }
@@ -107,7 +112,7 @@
           <rect x="9" y="9" width="46" height="46" rx="14" stroke="currentColor" stroke-width="4"></rect>
           <path d="M22 22h20M22 32h12M22 42h20" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"></path>
         </svg>
-        <span>Is There Tachanun Today?<br>(With Chabad Minhagim)</span>
+        <span>Is There Tachanun Today?<br><span class="brand-subtitle">(With Chabad Minhagim)</span></span>
       </a>
       <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch theme"></button>
     </header>
@@ -178,8 +183,9 @@
 
       <section class="footer-note notes">
         <ul>
-          <li>This version follows the fixed date-based Chabad schedule and does not try to detect situational cases such as a chosson or bris.</li>
-          <li>Hebrew dates are calculated in the browser with the internationalization API.</li>
+          <p>Site created by Menachem Spielman.<br>Contact: <a href="mailto:istheretachanun@mspielman.com">istheretachanun@mspielman.com</a><br>Inspired by the legacy site <a href="https://istheretachanuntoday.com" target="_blank" rel="noopener noreferrer">istheretachanuntoday.com</a></p>
+          <p>Tachanun dates and logic for Chabad dates are sourced from <a href="https://www.chabad.org/library/article_cdo/aid/5776805/jewish/Tachanun.htm" target="_blank" rel="noopener noreferrer">chabad.org</a> and <a href="https://shulchanaruchharav.com/halacha/chapter-31-tachanun/" target="_blank" rel="noopener noreferrer">shulchanaruchharav.com</a>.<br>Any errors are likely on my end, so please reach out if you see any!<p></p>
+          </p>
         </ul>
       </section>
     </main>
