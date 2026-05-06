@@ -6,6 +6,12 @@
   <title>Is There Tachanun Today?</title>
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#4f98a3" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Tachanun Checker" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%234f98a3' width='180' height='180' rx='40'/><text x='50%' y='50%' font-size='90' font-weight='bold' fill='white' text-anchor='middle' dy='.35em'>T</text></svg>" />
   <style>
     :root, [data-theme="light"] {
       --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
@@ -47,6 +53,17 @@
     }
     .theme-toggle:hover { transform: translateY(-1px); background:color-mix(in srgb, var(--color-primary) 14%, var(--color-surface)); }
     .theme-toggle { position:fixed; right:calc(env(safe-area-inset-right, 0px) + var(--space-4)); top:calc(env(safe-area-inset-top, 0px) + var(--space-4)); z-index:60; }
+    .install-button {
+      width:44px; height:44px; border-radius:var(--radius-full);
+      border:1px solid color-mix(in srgb, var(--color-primary) 20%, transparent); background:color-mix(in srgb, var(--color-primary) 10%, var(--color-surface));
+      color:var(--color-primary); display:inline-grid; place-items:center; transition: transform var(--transition), background var(--transition), border-color var(--transition);
+      position:fixed; right:calc(env(safe-area-inset-right, 0px) + var(--space-4) + 54px); top:calc(env(safe-area-inset-top, 0px) + var(--space-4)); z-index:60;
+    }
+    .install-button:hover { transform: translateY(-1px); background:color-mix(in srgb, var(--color-primary) 14%, var(--color-surface)); }
+    .install-button.hidden { display:none; }
+    @media (max-width: 639px) {
+      .install-button { width:40px; height:40px; right:calc(env(safe-area-inset-right, 0px) + var(--space-3) + 48px); top:calc(env(safe-area-inset-top, 0px) + var(--space-3)); }
+    }
     .hero { display:grid; gap:var(--space-6); padding-block:clamp(var(--space-6), 6vw, var(--space-12)); }
     .hero-head { display:flex; align-items:center; justify-content:flex-start; gap:var(--space-3); width:100%; }
     .eyebrow { display:inline-flex; align-items:center; gap:var(--space-2); padding:var(--space-2) var(--space-3); border-radius:var(--radius-full); background:color-mix(in srgb, var(--color-primary) 10%, var(--color-surface)); color:var(--color-primary); font-size:var(--text-xs); font-weight:700; letter-spacing:.08em; text-transform:uppercase; width:fit-content; }
@@ -165,6 +182,7 @@
       <section class="hero">
         <div class="hero-head">
           <div class="eyebrow">Daily Tachanun Checker</div>
+          <button class="install-button hidden" type="button" data-install-pwa aria-label="Install app"></button>
           <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch theme"></button>
         </div>
         <div>
@@ -238,12 +256,15 @@
     (function () {
       const root = document.documentElement;
       const toggle = document.querySelector('[data-theme-toggle]');
+      const installBtn = document.querySelector('[data-install-pwa]');
       let theme = 'dark';
       function icon(name) {
         return name === 'dark'
           ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
           : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
       }
+      const phoneIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><path d="M12 18h.01"/></svg>';
+      installBtn.innerHTML = phoneIcon;
       function applyTheme(next) {
         theme = next;
         root.setAttribute('data-theme', theme);
@@ -521,6 +542,36 @@
     els.todayBtn.addEventListener('click', () => render(new Date()));
 
     render(new Date());
+
+    // PWA install button handling
+    let deferredPrompt = null;
+    const installButton = document.querySelector('[data-install-pwa]');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installButton.classList.remove('hidden');
+    });
+
+    installButton.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt = null;
+        installButton.classList.add('hidden');
+      }
+    });
+
+    window.addEventListener('appinstalled', () => {
+      deferredPrompt = null;
+      installButton.classList.add('hidden');
+    });
+
+    // Register service worker for PWA support
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch((err) => {
+        console.warn('Service Worker registration failed:', err);
+      });
+    }
   </script>
 </body>
 </html>
