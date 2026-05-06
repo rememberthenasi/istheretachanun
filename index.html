@@ -297,6 +297,9 @@
       variesNotes: document.getElementById('variesNotes')
     };
 
+    // Load external data (fallback to empty structures if not present)
+    const DATA = window.OMISSIONS || { omissionRules: [], variesNotes: [], variesRules: {} };
+
     const dropdownCards = [els.datePickerCard, els.rulesCard].filter(Boolean);
     dropdownCards.forEach((dropdown) => {
       const summary = dropdown.querySelector('summary');
@@ -340,38 +343,9 @@
 
     const monthNames = { Tishri:'Tishrei', Heshvan:'Cheshvan', Kislev:'Kislev', Tevet:'Tevet', Shevat:'Shevat', Adar:'Adar', 'Adar I':'Adar I', 'Adar II':'Adar II', Nisan:'Nisan', Iyar:'Iyar', Sivan:'Sivan', Tamuz:'Tammuz', Av:'Av', Elul:'Elul' };
 
-    const omissionRules = [
-      'Shabbos, beginning from Friday Mincha.',
-      'Rosh Chodesh, beginning from Mincha of the day before.',
-      'Rosh Hashanah.',
-      'From 9 Tishrei through 2 Cheshvan.',
-      'Chanukah, beginning from 24 Kislev at Mincha through the end of Chanukah.',
-      '15 Shevat, beginning from the afternoon before.',
-      'From 13 Adar at Mincha through 15 Adar.',
-      'Entire month of Nisan.',
-      'Issru Chag after Pesach, Shavuos, and Sukkot.',
-      '14 Iyar, Pesach Sheni.',
-      '18 Iyar, Lag BaOmer, beginning from the afternoon before.',
-      'Shavuos (Sivan 6-7).',
-      '9 Av, beginning from the afternoon before.',
-      '15 Av, beginning from the afternoon before.',
-      '29 Elul.',
-      '10 Kislev, beginning from the afternoon before.',
-      '19-20 Kislev, beginning from the afternoon before.',
-      'Yud Beis Tammuz, beginning from the afternoon before.'
-    ];
-    els.rulesList.innerHTML = omissionRules.map(item => `<li>${item}</li>`).join('');
-    els.variesNotes.innerHTML = [
-      '<li><strong>3 Tammuz:</strong> Public custom is generally to say Tachanun, though some individuals who feel significant joy may omit privately.</li>',
-      '<li><strong>18 Elul:</strong> Some mention omitting Tachanun, but in the Rebbe’s minyan Tachanun was said.</li>',
-      '<li><strong>5 Teves:</strong> Public custom is generally to say Tachanun, though a person who truly feels exceptional joy may have a personal practice.</li>'
-    ].join('');
-
-    const variesRules = {
-      'Tammuz-3': 'Public custom generally says Tachanun; some individuals who feel exceptional joy may omit privately.',
-      'Elul-18': 'Some mention omitting Tachanun, but in the Rebbe’s minyan it was said as usual.',
-      'Tevet-5': 'Public custom generally says Tachanun; some individuals may personally omit if they truly feel exceptional joy.'
-    };
+    // Populate UI lists from external data
+    els.rulesList.innerHTML = (DATA.omissionRules || []).map(item => `<li>${item}</li>`).join('');
+    els.variesNotes.innerHTML = (DATA.variesNotes || []).join('');
 
     function makeDateAtNoon(date) { return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0, 0); }
     function previousDay(date) { const d = new Date(date); d.setDate(d.getDate() - 1); return makeDateAtNoon(d); }
@@ -470,7 +444,7 @@
       if (hd.month === 'Tammuz' && (hd.day === 13)) reasons.push('Yud Gimmel Tammuz');
 
       if (reasons.length > 0) return { omit: true, label: reasons.join(' + ') };
-      if (variesRules[keyOf(hd)]) return { omit: false, label: variesRules[keyOf(hd)], varies: true };
+      if ((DATA.variesRules || {})[keyOf(hd)]) return { omit: false, label: (DATA.variesRules || {})[keyOf(hd)], varies: true };
       return { omit: false, label: 'No listed omission date matched' };
     }
 
@@ -489,7 +463,7 @@
       if (hd.month === 'Kislev' && hd.day === 9) return { omit: true, label: 'Erev Yud Kislev' };
       if (hd.month === 'Kislev' && hd.day === 18) return { omit: true, label: 'Erev Yud Tes Kislev' };
       if (hd.month === 'Tammuz' && hd.day === 11) return { omit: true, label: 'Erev Yud Beis Tammuz' };
-      if (variesRules[keyOf(hd)]) return { omit: false, label: variesRules[keyOf(hd)], varies: true };
+      if ((DATA.variesRules || {})[keyOf(hd)]) return { omit: false, label: (DATA.variesRules || {})[keyOf(hd)], varies: true };
       return { omit: false, label: 'No listed omission date matched' };
     }
 
