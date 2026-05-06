@@ -233,6 +233,7 @@
     </main>
   </div>
 
+  <script src="data/omissions.js"></script>
   <script>
     (function () {
       const root = document.documentElement;
@@ -344,7 +345,11 @@
     const monthNames = { Tishri:'Tishrei', Heshvan:'Cheshvan', Kislev:'Kislev', Tevet:'Tevet', Shevat:'Shevat', Adar:'Adar', 'Adar I':'Adar I', 'Adar II':'Adar II', Nisan:'Nisan', Iyar:'Iyar', Sivan:'Sivan', Tamuz:'Tammuz', Av:'Av', Elul:'Elul' };
 
     // Populate UI lists from external data
-    els.rulesList.innerHTML = (DATA.omissionRules || []).map(item => `<li>${item}</li>`).join('');
+    els.rulesList.innerHTML = (DATA.omissionRules || []).map(item => {
+      const label = typeof item === 'string' ? item : item.label;
+      const suffix = (typeof item === 'object' && item.chabadCustom) ? ' - Chabad Minhag' : '';
+      return `<li>${label}${suffix}</li>`;
+    }).join('');
     els.variesNotes.innerHTML = (DATA.variesNotes || []).join('');
 
     function makeDateAtNoon(date) { return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0, 0); }
@@ -359,6 +364,10 @@
     }
     function formatHebrewDateEnglish(h) { return `${h.day} ${h.month} ${h.year}`; }
     function formatHebrewNumber(value) {
+      // Special cases: use tes-vov (ט״ו) for 15 and tes-zayin (ט״ז) for 16 instead of yud-hei/yud-vav
+      if (value === 15) return 'ט״ו';
+      if (value === 16) return 'ט״ז';
+
       const numerals = [
         [400, 'ת'], [300, 'ש'], [200, 'ר'], [100, 'ק'],
         [90, 'צ'], [80, 'פ'], [70, 'ע'], [60, 'ס'], [50, 'נ'], [40, 'מ'], [30, 'ל'], [20, 'כ'], [10, 'י'],
@@ -436,11 +445,12 @@
       if (hd.month === 'Sivan' && (hd.day === 6 || hd.day === 7)) reasons.push('Shavuos');
       if (hd.month === 'Sivan' && hd.day >= 1 && hd.day <= 12 && !reasons.includes('Shavuos')) reasons.push('Sivan');
       if (hd.month === 'Av' && hd.day === 9) reasons.push('Tisha B’Av');
-      if (hd.month === 'Av' && hd.day === 15) reasons.push('Tu B’Av Av');
+      if (hd.month === 'Av' && hd.day === 15) reasons.push('Tu B’Av');
       if (hd.month === 'Elul' && hd.day === 29) reasons.push('29 Elul');
-      if (hd.month === 'Kislev' && hd.day === 10) reasons.push('10 Kislev');
-      if (hd.month === 'Kislev' && (hd.day === 19 || hd.day === 20)) reasons.push('19-20 Kislev');
-      if (hd.month === 'Tammuz' && (hd.day === 12)) reasons.push('Yud Beis Tammuz');
+      if (hd.month === 'Kislev' && hd.day === 10) reasons.push((DATA.dateNames || {})['Kislev-10'] || '10 Kislev');
+      if (hd.month === 'Kislev' && hd.day === 19) reasons.push((DATA.dateNames || {})['Kislev-19'] || 'Yud Tes Kislev');
+      if (hd.month === 'Kislev' && hd.day === 20) reasons.push((DATA.dateNames || {})['Kislev-20'] || 'Chof Kislev');
+      if (hd.month === 'Tammuz' && (hd.day === 12)) reasons.push((DATA.dateNames || {})['Tammuz-12'] || 'Yud Beis Tammuz');
       if (hd.month === 'Tammuz' && (hd.day === 13)) reasons.push('Yud Gimmel Tammuz');
 
       if (reasons.length > 0) return { omit: true, label: reasons.join(' + ') };
@@ -461,8 +471,9 @@
       if (hd.month === 'Av' && hd.day === 8) return { omit: true, label: 'Erev Tisha B’Av' };
       if (hd.month === 'Av' && hd.day === 14) return { omit: true, label: 'Erev Tu B’Av Av' };
       if (hd.month === 'Kislev' && hd.day === 9) return { omit: true, label: 'Erev Yud Kislev' };
-      if (hd.month === 'Kislev' && hd.day === 18) return { omit: true, label: 'Erev Yud Tes Kislev' };
-      if (hd.month === 'Tammuz' && hd.day === 11) return { omit: true, label: 'Erev Yud Beis Tammuz' };
+      if (hd.month === 'Kislev' && hd.day === 18) return { omit: true, label: 'Erev ' + ((DATA.dateNames || {})['Kislev-19'] || 'Yud Tes Kislev') };
+      if (hd.month === 'Kislev' && hd.day === 19) return { omit: true, label: 'Erev ' + ((DATA.dateNames || {})['Kislev-20'] || 'Chof Kislev') };
+      if (hd.month === 'Tammuz' && hd.day === 11) return { omit: true, label: 'Erev ' + ((DATA.dateNames || {})['Tammuz-12'] || 'Yud Beis Tammuz') };
       if ((DATA.variesRules || {})[keyOf(hd)]) return { omit: false, label: (DATA.variesRules || {})[keyOf(hd)], varies: true };
       return { omit: false, label: 'No listed omission date matched' };
     }
@@ -474,8 +485,8 @@
     }
 
     function renderDetail(el, result) {
-      // If tachanun is said (omit: false), don't show a reason
-      if (!result.omit) {
+      // Show reason if omit is true, or if it's a varies date
+      if (!result.omit && !result.varies) {
         el.textContent = '';
         return;
       }
