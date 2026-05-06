@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chabad Tachanun Today</title>
+  <title>Is There Tachanun Today?</title>
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
   <style>
@@ -52,6 +52,11 @@
     h1 { margin:0; font-family:var(--font-display); font-size:var(--text-xl); line-height:1.08; max-width:15ch; }
     .lede { margin:0; color:var(--color-text-muted); max-width:62ch; }
     .grid { display:grid; gap:var(--space-4); }
+    @media (min-width: 880px) {
+      .grid { grid-template-columns: 1fr 1fr; align-items:start; }
+      .status-card { grid-column: 1 / -1; }
+      .detail-card, .rules-card { align-self:start; }
+    }
     .panel { background:color-mix(in srgb, var(--color-surface) 92%, transparent); border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent); border-radius:var(--radius-xl); box-shadow:var(--shadow-md); backdrop-filter: blur(8px); }
     .status-card { padding:var(--space-6); display:grid; gap:var(--space-5); }
     .date-row { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; }
@@ -61,8 +66,8 @@
     .status-box { padding:var(--space-4); border-radius:var(--radius-lg); background:var(--color-surface-2); border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent); }
     .status-label { margin:0 0 var(--space-2); font-size:var(--text-xs); letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:var(--color-text-muted); }
     .decision { font-size:clamp(2rem, 1.3rem + 4vw, 3.5rem); line-height:.95; letter-spacing:-.04em; font-weight:700; margin:0; }
-    .decision.say { color:var(--color-success); }
-    .decision.skip { color:var(--color-warning); }
+    .decision.say { color:var(--color-text); }
+    .decision.skip { color:var(--color-success); }
     .detail-copy, .reason-line, .notes li, .rule-note p { color:var(--color-text-muted); }
     .reason-line { margin:var(--space-2) 0 0; }
     .asterisk { font-size:.72em; vertical-align:top; margin-left:.08em; }
@@ -71,7 +76,7 @@
     .inline-dropdown summary::after { content:' ▾'; }
     .inline-dropdown[open] summary::after { content:' ▴'; }
     .inline-dropdown p { margin:var(--space-2) 0 0; color:var(--color-text-muted); }
-    .detail-card { padding:var(--space-5); display:grid; gap:var(--space-4); }
+    .detail-card { padding:var(--space-4); display:grid; gap:var(--space-4); align-content:start; }
     .detail-card h2 { margin:0; font-size:var(--text-lg); line-height:1.15; }
     .input-row { display:grid; gap:var(--space-3); }
     .label { font-size:var(--text-xs); color:var(--color-text-muted); text-transform:uppercase; letter-spacing:.08em; font-weight:700; }
@@ -87,21 +92,50 @@
     .btn:hover { transform:translateY(-1px); }
     .btn-primary { background:var(--color-primary); color:var(--color-text-inverse); }
     .btn-primary:hover { background:var(--color-primary-hover); }
-    details.rules-wrap { margin-top:var(--space-4); }
     details summary { cursor:pointer; font-weight:700; }
+    .card-summary {
+      list-style:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:var(--space-3);
+      font-size:var(--text-lg);
+      line-height:1.15;
+      margin:0;
+    }
+    .card-summary::-webkit-details-marker { display:none; }
+    .card-summary::after { content:' ▾'; color:var(--color-text-muted); }
+    details[open] > .card-summary::after { content:' ▴'; }
+    .dropdown-card > .dropdown-body { padding-top:var(--space-4); display:grid; gap:var(--space-4); }
     .rules-panel { margin-top:var(--space-3); display:grid; gap:var(--space-4); }
     .rules-panel ul { margin:0; padding-left:1.1rem; display:grid; gap:var(--space-2); }
     .rules-panel li { color:var(--color-text-muted); }
     .rule-note { padding:var(--space-4); border-radius:var(--radius-lg); background:var(--color-surface-2); border:1px solid color-mix(in srgb, var(--color-text) 8%, transparent); }
     .rule-note h3 { margin:0 0 var(--space-2); font-size:var(--text-sm); }
+    .mobile-jump { display:none; }
     .footer-note { margin-top:var(--space-6); padding:var(--space-4) 0 var(--space-8); font-size:var(--text-sm); color:var(--color-text-muted); border-top:1px solid var(--color-divider); text-align:center; display:grid; gap:var(--space-3); justify-items:center; }
     .footer-note p { margin:0; max-width:70ch; }
+    .rules-card { padding-top: var(--space-3); }
+    .footer-note .author { font-weight:700; color:var(--color-text); font-size:var(--text-sm); }
+    .footer-note .meta { color:var(--color-text-muted); font-size:var(--text-xs); max-width:62ch; }
     .footer-note a { color:#666666; text-decoration:none; }
     .footer-note a:hover { text-decoration:underline; }
     [data-theme="dark"] .footer-note a { color:#aaaaaa; }
+    .date-chip.clickable { cursor: pointer; transition: transform var(--transition), background var(--transition), color var(--transition); }
+    .date-chip.clickable:hover { transform: translateY(-2px); background: color-mix(in srgb, var(--color-primary) 4%, var(--color-surface-2)); text-decoration:none; }
+    .date-chip.clickable:active { transform: translateY(0); }
+    .date-chip.clickable:focus { outline: 3px solid color-mix(in srgb, var(--color-primary) 28%, transparent); outline-offset: 3px; }
+    .mobile-jump { min-width:2.5rem; height:2.5rem; padding:0; border-radius:var(--radius-full); border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent); background:var(--color-surface-2); color:var(--color-text); display:inline-grid; place-items:center; text-decoration:none; font-size:var(--text-sm); font-weight:700; flex:0 0 auto; }
+    .mobile-jump svg { width:1rem; height:1rem; display:block; }
+    .mobile-jump:hover { background:color-mix(in srgb, var(--color-primary) 6%, var(--color-surface-2)); }
+    .mobile-jump:active { transform: translateY(1px); }
     .mono { font-variant-numeric: tabular-nums lining-nums; }
     .hebrew-native { direction:rtl; unicode-bidi:plaintext; }
-    @media (max-width: 639px) { .status-card, .detail-card { padding:var(--space-4); } .decision { font-size:clamp(2rem, 1.5rem + 8vw, 3rem); } }
+    @media (max-width: 639px) {
+      .status-card, .detail-card { padding:var(--space-4); }
+      .decision { font-size:clamp(2rem, 1.5rem + 8vw, 3rem); }
+      .mobile-jump { display:inline-grid; }
+    }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; } }
   </style>
 </head>
@@ -115,17 +149,23 @@
           <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch theme"></button>
         </div>
         <div>
-          <h1>See whether there’s Tachanun today.</h1>
-          <p class="lede">According to Chabad custom</p>
+          <h1> Check whether there’s Tachanun today.</h1>
+          <p class="lede">According to Chabad customs</p>
         </div>
       </section>
 
       <section class="grid" aria-label="Tachanun result and details">
         <article class="panel status-card" aria-live="polite">
           <div class="date-row">
-            <div class="date-chip mono" id="gregorianDate">—</div>
-            <div class="date-chip" id="hebrewDateEnglish">—</div>
-            <div class="date-chip hebrew-native" id="hebrewDateHebrew" lang="he">—</div>
+            <div class="date-chip mono clickable" id="gregorianDate" role="button" tabindex="0" aria-controls="dateInput" aria-label="Open date picker">—</div>
+            <div class="date-chip hebrew-native clickable" id="hebrewDateHebrew" lang="he" role="button" tabindex="0" aria-controls="dateInput" aria-label="Open date picker">—</div>
+            <a class="mobile-jump" href="#datePickerCard" aria-label="Jump to check another date">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="5" width="18" height="16" rx="2" ry="2"></rect>
+                <path d="M16 3v4M8 3v4M3 11h18"></path>
+                <path d="M8 15h4"></path>
+              </svg>
+            </a>
           </div>
 
           <div class="status-grid">
@@ -142,44 +182,41 @@
           </div>
         </article>
 
-        <aside class="panel detail-card">
-          <div>
-            <h2>Check another date</h2>
-          </div>
-          <div class="input-row">
-            <label for="dateInput" class="label">Secular date</label>
-            <div class="date-control">
-              <input id="dateInput" type="date" />
+        <details class="panel detail-card dropdown-card" id="datePickerCard">
+          <summary class="card-summary">Check another date</summary>
+          <div class="dropdown-body">
+            <div class="input-row">
+              <label for="dateInput" class="label">Secular date</label>
+              <div class="date-control">
+                <input id="dateInput" type="date" />
+              </div>
+            </div>
+            <div class="action-row">
+              <button id="todayBtn" class="btn btn-primary" type="button">Back to today</button>
             </div>
           </div>
-          <div class="action-row">
-            <button id="todayBtn" class="btn btn-primary" type="button">Back to today</button>
-          </div>
-        </aside>
-      </section>
+        </details>
 
-      <section class="panel detail-card" style="margin-top: var(--space-4);">
-        <details class="rules-wrap">
-          <summary>Rules and notes</summary>
-          <div class="rules-panel">
-            <div class="rule-note">
-              <h3>Included omission dates</h3>
-              <ul id="rulesList"></ul>
-            </div>
-            <div class="rule-note">
-              <h3>Custom varies dates</h3>
-              <ul id="variesNotes"></ul>
+        <details class="panel detail-card dropdown-card rules-card" style="margin-top: 0;">
+          <summary class="card-summary">Rules and notes</summary>
+          <div class="dropdown-body">
+            <div class="rules-panel">
+              <div class="rule-note">
+                <h3>Included omission dates</h3>
+                <ul id="rulesList"></ul>
+              </div>
+              <div class="rule-note">
+                <h3>Custom varies dates</h3>
+                <ul id="variesNotes"></ul>
+              </div>
             </div>
           </div>
         </details>
       </section>
 
       <section class="footer-note notes">
-        <ul>
-          <p>Site created by Menachem Spielman.<br>Contact: <a href="mailto:istheretachanun@mspielman.com">istheretachanun@mspielman.com</a><br>Inspired by the legacy site <a href="https://istheretachanuntoday.com" target="_blank" rel="noopener noreferrer">istheretachanuntoday.com</a></p>
-          <p>Tachanun dates and logic for Chabad dates are sourced from <a href="https://www.chabad.org/library/article_cdo/aid/5776805/jewish/Tachanun.htm" target="_blank" rel="noopener noreferrer">chabad.org</a> and <a href="https://shulchanaruchharav.com/halacha/chapter-31-tachanun/" target="_blank" rel="noopener noreferrer">shulchanaruchharav.com</a>.<br>Any errors are likely on my end, so please reach out if you see any!<p></p>
-          </p>
-        </ul>
+        <p class="author"><strong>Site by Menachem Spielman</strong><br>Email: <a href="mailto:istheretachanun@mspielman.com">istheretachanun@mspielman.com</a></p>
+        <p class="meta">Sources: <a href="https://www.chabad.org/library/article_cdo/aid/5776805/jewish/Tachanun.htm" target="_blank" rel="noopener noreferrer">chabad.org</a> & <a href="https://shulchanaruchharav.com/halacha/chapter-31-tachanun/" target="_blank" rel="noopener noreferrer">shulchanaruchharav.com</a>. <br>If you spot any errors, please get in touch.<br>Inspired by the legacy site <a href="https://istheretachanuntoday.com" target="_blank" rel="noopener noreferrer">istheretachanuntoday.com</a></p>
       </section>
     </main>
   </div>
@@ -188,7 +225,7 @@
     (function () {
       const root = document.documentElement;
       const toggle = document.querySelector('[data-theme-toggle]');
-      let theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      let theme = 'dark';
       function icon(name) {
         return name === 'dark'
           ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
@@ -206,8 +243,9 @@
 
     const els = {
       gregorianDate: document.getElementById('gregorianDate'),
-      hebrewDateEnglish: document.getElementById('hebrewDateEnglish'),
       hebrewDateHebrew: document.getElementById('hebrewDateHebrew'),
+      datePickerCard: document.getElementById('datePickerCard'),
+      rulesCard: document.querySelector('.rules-card'),
       shacharitAnswer: document.getElementById('shacharitAnswer'),
       shacharitDetail: document.getElementById('shacharitDetail'),
       minchaAnswer: document.getElementById('minchaAnswer'),
@@ -217,6 +255,47 @@
       rulesList: document.getElementById('rulesList'),
       variesNotes: document.getElementById('variesNotes')
     };
+
+    const dropdownCards = [els.datePickerCard, els.rulesCard].filter(Boolean);
+    dropdownCards.forEach((dropdown) => {
+      const summary = dropdown.querySelector('summary');
+      if (!summary) return;
+      summary.addEventListener('click', (event) => {
+        event.preventDefault();
+        const shouldOpen = !dropdown.open;
+        dropdownCards.forEach((other) => {
+          if (other !== dropdown) other.open = false;
+        });
+        dropdown.open = shouldOpen;
+      });
+    });
+
+    // Make both date chips act like buttons that open the date picker
+    ['gregorianDate', 'hebrewDateHebrew'].forEach((id) => {
+      const el = els[id];
+      if (!el) return;
+      el.classList.add('clickable');
+      el.setAttribute('role', 'button');
+      el.setAttribute('aria-controls', 'dateInput');
+      el.tabIndex = 0;
+
+      const openPicker = () => {
+        try {
+          els.dateInput.focus();
+          if (typeof els.dateInput.showPicker === 'function') els.dateInput.showPicker();
+        } catch (e) {
+          els.dateInput.focus();
+        }
+      };
+
+      el.addEventListener('click', openPicker);
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openPicker();
+        }
+      });
+    });
 
     const monthNames = { Tishri:'Tishrei', Heshvan:'Cheshvan', Kislev:'Kislev', Tevet:'Tevet', Shevat:'Shevat', Adar:'Adar', 'Adar I':'Adar I', 'Adar II':'Adar II', Nisan:'Nisan', Iyar:'Iyar', Sivan:'Sivan', Tamuz:'Tammuz', Av:'Av', Elul:'Elul' };
 
@@ -400,7 +479,6 @@
       const mincha = matchMinchaRule(hd, prevHd, d);
 
       els.gregorianDate.textContent = formatGregorianDate(d);
-      els.hebrewDateEnglish.textContent = formatHebrewDateEnglish(hd);
       els.hebrewDateHebrew.textContent = formatHebrewDateHebrew(d);
       renderDecision(els.shacharitAnswer, shacharit);
       renderDecision(els.minchaAnswer, mincha);
