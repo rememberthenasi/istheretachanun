@@ -52,10 +52,12 @@
       color:var(--color-primary); display:inline-grid; place-items:center; transition: transform var(--transition), background var(--transition), border-color var(--transition);
     }
     .theme-toggle:hover { transform: translateY(-1px); background:color-mix(in srgb, var(--color-primary) 14%, var(--color-surface)); }
+    .theme-toggle { position:fixed; right:calc(env(safe-area-inset-right, 0px) + var(--space-4)); top:calc(env(safe-area-inset-top, 0px) + var(--space-4)); z-index:60; }
     .install-button {
       width:44px; height:44px; border-radius:var(--radius-full);
       border:1px solid color-mix(in srgb, var(--color-primary) 20%, transparent); background:color-mix(in srgb, var(--color-primary) 10%, var(--color-surface));
       color:var(--color-primary); display:inline-grid; place-items:center; transition: transform var(--transition), background var(--transition), border-color var(--transition);
+      position:fixed; z-index:60;
     }
     .install-button:hover { transform: translateY(-1px); background:color-mix(in srgb, var(--color-primary) 14%, var(--color-surface)); }
     .install-button svg { width:20px; height:20px; stroke:currentColor; stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round; }
@@ -169,7 +171,7 @@
       .rule-note h3 { font-size:var(--text-xs); }
       .footer-note { margin-top:var(--space-4); padding:var(--space-3) 0 var(--space-6); gap:var(--space-2); }
       .footer-note .meta { max-width:100%; }
-      .theme-toggle { width:40px; height:40px; }
+      .theme-toggle { width:40px; height:40px; right:calc(env(safe-area-inset-right, 0px) + var(--space-3)); top:calc(env(safe-area-inset-top, 0px) + var(--space-3)); }
     }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; } }
   </style>
@@ -275,6 +277,46 @@
       }
       applyTheme(theme);
       toggle.addEventListener('click', () => applyTheme(theme === 'dark' ? 'light' : 'dark'));
+
+      // Position the theme toggle and install button so they align vertically with the hero heading
+      // and horizontally with the right edge of the centered `.shell` container.
+      function positionControls() {
+        const shell = document.querySelector('.shell');
+        const heroHead = document.querySelector('.hero-head');
+        const installBtn = document.querySelector('[data-install-pwa]');
+        if (!toggle || !shell || !heroHead) return;
+        const shellRect = shell.getBoundingClientRect();
+        const heroRect = heroHead.getBoundingClientRect();
+        const toggleRect = toggle.getBoundingClientRect();
+        const installRect = installBtn ? installBtn.getBoundingClientRect() : { width: 0 };
+
+        // Compute the offset from the viewport right edge to the shell's right edge
+        const rightOffset = Math.max(0, window.innerWidth - shellRect.right);
+
+        // Align vertically to the center of the hero head
+        const topPx = heroRect.top + (heroRect.height - toggleRect.height) / 2;
+        toggle.style.top = `${Math.max(8, Math.round(topPx))}px`;
+        if (installBtn) {
+          installBtn.style.top = `${Math.max(8, Math.round(topPx))}px`;
+        }
+
+        // Place the toggle so its right edge lines up with the shell's right edge plus a small gap.
+        toggle.style.right = `calc(env(safe-area-inset-right, 0px) + ${Math.round(rightOffset)}px + var(--space-4))`;
+        
+        // Place the install button to the left of the toggle
+        if (installBtn) {
+          const toggleWidth = 44;
+          const gap = 8;
+          installBtn.style.right = `calc(env(safe-area-inset-right, 0px) + ${Math.round(rightOffset)}px + var(--space-4) + ${toggleWidth + gap}px)`;
+        }
+      }
+
+      // Update position on load, resize, and scroll.
+      const throttledPosition = () => requestAnimationFrame(positionControls);
+      window.addEventListener('resize', throttledPosition);
+      window.addEventListener('scroll', throttledPosition, { passive: true });
+      // One initial call after a frame so measurements are stable.
+      requestAnimationFrame(positionControls);
     })();
 
     const els = {
@@ -531,8 +573,21 @@
     // Add click handler to install button
     const installBtn = document.querySelector('[data-install-pwa]');
     installBtn.addEventListener('click', () => {
-      // Show PWA installation instructions
-      alert('To install this app:\n\nAndroid Chrome: Tap the menu (⋮) and select "Install app"\n\niOS Safari: Tap the Share icon and select "Add to Home Screen"');
+      // Try to use Web Share API if available
+      if (navigator.share) {
+        navigator.share({
+          title: 'Is There Tachanun Today?',
+          text: 'Check if Tachanun is said today according to Chabad customs',
+          url: window.location.href
+        }).catch((err) => {
+          if (err.name !== 'AbortError') {
+            console.warn('Share failed:', err);
+          }
+        });
+      } else {
+        // Fallback: show a simple alert/tooltip
+        alert('To install this app:\n\nAndroid: Tap menu (⋮) → "Install app"\n\niOS: Tap share icon → "Add to Home Screen"');
+      }
     });
 
     // Listen for app install event
