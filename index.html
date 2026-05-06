@@ -57,12 +57,12 @@
       width:44px; height:44px; border-radius:var(--radius-full);
       border:1px solid color-mix(in srgb, var(--color-primary) 20%, transparent); background:color-mix(in srgb, var(--color-primary) 10%, var(--color-surface));
       color:var(--color-primary); display:inline-grid; place-items:center; transition: transform var(--transition), background var(--transition), border-color var(--transition);
-      position:fixed; z-index:60;
+      position:fixed; right:calc(env(safe-area-inset-right, 0px) + var(--space-4) + 54px); top:calc(env(safe-area-inset-top, 0px) + var(--space-4)); z-index:60;
     }
     .install-button:hover { transform: translateY(-1px); background:color-mix(in srgb, var(--color-primary) 14%, var(--color-surface)); }
     .install-button svg { width:20px; height:20px; stroke:currentColor; stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round; }
     @media (max-width: 639px) {
-      .install-button { width:40px; height:40px; }
+      .install-button { width:40px; height:40px; right:calc(env(safe-area-inset-right, 0px) + var(--space-3) + 48px); top:calc(env(safe-area-inset-top, 0px) + var(--space-3)); }
       .install-button.installed { display:none; }
     }
     .hero { display:grid; gap:var(--space-6); padding-block:clamp(var(--space-6), 6vw, var(--space-12)); }
@@ -278,45 +278,34 @@
       applyTheme(theme);
       toggle.addEventListener('click', () => applyTheme(theme === 'dark' ? 'light' : 'dark'));
 
-      // Position the theme toggle and install button so they align vertically with the hero heading
+      // Position the theme toggle so it aligns vertically with the hero heading
       // and horizontally with the right edge of the centered `.shell` container.
-      function positionControls() {
+      function positionThemeToggle() {
         const shell = document.querySelector('.shell');
         const heroHead = document.querySelector('.hero-head');
-        const installBtn = document.querySelector('[data-install-pwa]');
         if (!toggle || !shell || !heroHead) return;
         const shellRect = shell.getBoundingClientRect();
         const heroRect = heroHead.getBoundingClientRect();
         const toggleRect = toggle.getBoundingClientRect();
-        const installRect = installBtn ? installBtn.getBoundingClientRect() : { width: 0 };
 
         // Compute the offset from the viewport right edge to the shell's right edge
         const rightOffset = Math.max(0, window.innerWidth - shellRect.right);
 
-        // Align vertically to the center of the hero head
+        // Align the toggle vertically to the center of the hero head
         const topPx = heroRect.top + (heroRect.height - toggleRect.height) / 2;
         toggle.style.top = `${Math.max(8, Math.round(topPx))}px`;
-        if (installBtn) {
-          installBtn.style.top = `${Math.max(8, Math.round(topPx))}px`;
-        }
 
         // Place the toggle so its right edge lines up with the shell's right edge plus a small gap.
+        // Use CSS env() for safe-area insets inside the calc expression.
         toggle.style.right = `calc(env(safe-area-inset-right, 0px) + ${Math.round(rightOffset)}px + var(--space-4))`;
-        
-        // Place the install button to the left of the toggle
-        if (installBtn) {
-          const toggleWidth = 44;
-          const gap = 8;
-          installBtn.style.right = `calc(env(safe-area-inset-right, 0px) + ${Math.round(rightOffset)}px + var(--space-4) + ${toggleWidth + gap}px)`;
-        }
       }
 
       // Update position on load, resize, and scroll.
-      const throttledPosition = () => requestAnimationFrame(positionControls);
+      const throttledPosition = () => requestAnimationFrame(positionThemeToggle);
       window.addEventListener('resize', throttledPosition);
       window.addEventListener('scroll', throttledPosition, { passive: true });
       // One initial call after a frame so measurements are stable.
-      requestAnimationFrame(positionControls);
+      requestAnimationFrame(positionThemeToggle);
     })();
 
     const els = {
@@ -569,30 +558,10 @@
     }
 
     checkIfInstalled();
-    
-    // Add click handler to install button
-    const installBtn = document.querySelector('[data-install-pwa]');
-    installBtn.addEventListener('click', () => {
-      // Try to use Web Share API if available
-      if (navigator.share) {
-        navigator.share({
-          title: 'Is There Tachanun Today?',
-          text: 'Check if Tachanun is said today according to Chabad customs',
-          url: window.location.href
-        }).catch((err) => {
-          if (err.name !== 'AbortError') {
-            console.warn('Share failed:', err);
-          }
-        });
-      } else {
-        // Fallback: show a simple alert/tooltip
-        alert('To install this app:\n\nAndroid: Tap menu (⋮) → "Install app"\n\niOS: Tap share icon → "Add to Home Screen"');
-      }
-    });
-
     // Listen for app install event
     window.addEventListener('appinstalled', () => {
-      installBtn.classList.add('installed');
+      const installButton = document.querySelector('[data-install-pwa]');
+      installButton.classList.add('installed');
     });
 
     // Register service worker for PWA support
