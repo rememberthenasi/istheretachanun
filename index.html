@@ -60,9 +60,10 @@
       position:fixed; right:calc(env(safe-area-inset-right, 0px) + var(--space-4) + 54px); top:calc(env(safe-area-inset-top, 0px) + var(--space-4)); z-index:60;
     }
     .install-button:hover { transform: translateY(-1px); background:color-mix(in srgb, var(--color-primary) 14%, var(--color-surface)); }
-    .install-button.hidden { display:none; }
+    .install-button svg { width:20px; height:20px; stroke:currentColor; stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round; }
     @media (max-width: 639px) {
       .install-button { width:40px; height:40px; right:calc(env(safe-area-inset-right, 0px) + var(--space-3) + 48px); top:calc(env(safe-area-inset-top, 0px) + var(--space-3)); }
+      .install-button.installed { display:none; }
     }
     .hero { display:grid; gap:var(--space-6); padding-block:clamp(var(--space-6), 6vw, var(--space-12)); }
     .hero-head { display:flex; align-items:center; justify-content:flex-start; gap:var(--space-3); width:100%; }
@@ -182,7 +183,13 @@
       <section class="hero">
         <div class="hero-head">
           <div class="eyebrow">Daily Tachanun Checker</div>
-          <button class="install-button hidden" type="button" data-install-pwa aria-label="Install app"></button>
+          <button class="install-button" type="button" data-install-pwa aria-label="Install app" title="Install app">
+            <svg class="button-icon install-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"></path>
+              <path d="M10 5h4"></path>
+              <circle cx="12" cy="18" r="1"></circle>
+            </svg>
+          </button>
           <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch theme"></button>
         </div>
         <div>
@@ -256,15 +263,12 @@
     (function () {
       const root = document.documentElement;
       const toggle = document.querySelector('[data-theme-toggle]');
-      const installBtn = document.querySelector('[data-install-pwa]');
       let theme = 'dark';
       function icon(name) {
         return name === 'dark'
           ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
           : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
       }
-      const phoneIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><path d="M12 18h.01"/></svg>';
-      installBtn.innerHTML = phoneIcon;
       function applyTheme(next) {
         theme = next;
         root.setAttribute('data-theme', theme);
@@ -543,36 +547,21 @@
 
     render(new Date());
 
-    // PWA install button handling
-    let deferredPrompt = null;
-    const installButton = document.querySelector('[data-install-pwa]');
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-      // Prevent the mini-infobar from appearing on mobile
-      e.preventDefault();
-      // Stash the event for later use
-      deferredPrompt = e;
-      // Show our install button
-      installButton.classList.remove('hidden');
-    });
-
-    installButton.addEventListener('click', async () => {
-      if (!deferredPrompt) {
-        return;
+    // Check if PWA is installed (running in standalone mode)
+    function checkIfInstalled() {
+      const installButton = document.querySelector('[data-install-pwa]');
+      const isStandalone = window.navigator.standalone === true || 
+                          window.matchMedia('(display-mode: standalone)').matches;
+      if (isStandalone) {
+        installButton.classList.add('installed');
       }
-      // Show the install prompt
-      deferredPrompt.prompt();
-      // Wait for the user to respond to the prompt
-      const { outcome } = await deferredPrompt.userChoice;
-      // No longer needed
-      deferredPrompt = null;
-      // Hide the button after they've made a choice
-      installButton.classList.add('hidden');
-    });
+    }
 
+    checkIfInstalled();
+    // Listen for app install event
     window.addEventListener('appinstalled', () => {
-      deferredPrompt = null;
-      installButton.classList.add('hidden');
+      const installButton = document.querySelector('[data-install-pwa]');
+      installButton.classList.add('installed');
     });
 
     // Register service worker for PWA support
