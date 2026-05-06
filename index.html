@@ -210,15 +210,15 @@
         </details>
 
         <details class="panel detail-card dropdown-card rules-card" style="margin-top: 0;">
-          <summary class="card-summary">Rules and notes</summary>
+          <summary class="card-summary">Minhagim and notes</summary>
           <div class="dropdown-body">
             <div class="rules-panel">
               <div class="rule-note">
-                <h3>Included omission dates</h3>
+                <h3>No-Tachanun Dates</h3>
                 <ul id="rulesList"></ul>
               </div>
               <div class="rule-note">
-                <h3>Custom varies dates</h3>
+                <h3>Varied Minhag Dates</h3>
                 <ul id="variesNotes"></ul>
               </div>
             </div>
@@ -508,7 +508,7 @@
       if (result.varies) {
         el.innerHTML = `<details class="inline-dropdown"><summary>Custom varies</summary><p>${result.label}</p></details>`;
       } else {
-        el.textContent = `Reason: ${result.label}`;
+        el.textContent = `${result.label}`;
       }
     }
 
