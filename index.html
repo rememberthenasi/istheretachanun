@@ -547,18 +547,23 @@
     let deferredPrompt = null;
     const installButton = document.querySelector('[data-install-pwa]');
 
-    window.addEventListener('beforeinstallprompt', (e) => {
+    window.addEventListener('beforeinstallprompt', async (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      installButton.classList.remove('hidden');
+      // Show the native install prompt immediately
+      deferredPrompt.prompt();
+      // Check the user's choice and only show our button if they dismissed it
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'dismissed') {
+        installButton.classList.remove('hidden');
+      }
+      deferredPrompt = null;
     });
 
     installButton.addEventListener('click', async () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt = null;
-        installButton.classList.add('hidden');
-      }
+      // This button appears after the user dismissed the native prompt
+      // Showing it again would require a new beforeinstallprompt event
+      installButton.classList.add('hidden');
     });
 
     window.addEventListener('appinstalled', () => {
