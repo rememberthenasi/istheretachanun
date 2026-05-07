@@ -308,6 +308,14 @@
       if (hasKioskParam || hasKioskPath) document.documentElement.classList.add('force-kiosk');
     })();
 
+    (() => {
+      const normalizedPath = window.location.pathname.replace(/\/+$/, '') || '/';
+      if (normalizedPath === '/visits') return;
+      const namespace = 'rememberthenasi-istheretachanun';
+      const key = 'site-visits-total';
+      fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`, { cache: 'no-store' }).catch(() => {});
+    })();
+
     (function () {
       const root = document.documentElement;
       const toggle = document.querySelector('[data-theme-toggle]');
