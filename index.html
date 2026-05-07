@@ -30,10 +30,17 @@
     *, *::before, *::after { box-sizing: border-box; }
     html { -webkit-text-size-adjust: none; text-size-adjust: none; }
     html.force-mobile body { min-width: 320px; }
+    html.force-kiosk body { min-width: 1080px; }
     html.force-mobile .shell {
       width: min(100%, 1080px);
       margin: 0;
       min-height: min(100dvh, 1920px);
+    }
+    html.force-kiosk .shell {
+      width: 1080px;
+      margin: 0;
+      min-height: 1920px;
+      padding: var(--space-6);
     }
     body {
       margin: 0; min-height: 100dvh; font-family: var(--font-body); font-size: var(--text-base); line-height: 1.6; color: var(--color-text);
@@ -191,6 +198,21 @@
     html.force-mobile .footer-note { margin-top:var(--space-4); padding:var(--space-3) 0 var(--space-6); gap:var(--space-2); }
     html.force-mobile .footer-note .meta { max-width:100%; }
     html.force-mobile .theme-toggle { width:40px; height:40px; right:calc(env(safe-area-inset-right, 0px) + var(--space-3)); top:calc(env(safe-area-inset-top, 0px) + var(--space-3)); }
+    html.force-kiosk #main { min-height: 100%; display:grid; grid-template-rows:auto 1fr auto; }
+    html.force-kiosk .hero { gap:var(--space-3); padding-block:var(--space-4); }
+    html.force-kiosk .eyebrow, html.force-kiosk .lede, html.force-kiosk .date-row, html.force-kiosk .theme-toggle, html.force-kiosk #datePickerCard, html.force-kiosk .rules-card { display:none; }
+    html.force-kiosk h1 { max-width: none; font-size: clamp(3rem, 2.2rem + 2.4vw, 4rem); }
+    html.force-kiosk .grid { display:block; height:100%; }
+    html.force-kiosk .status-card { height:100%; padding:var(--space-8); align-content:center; gap:var(--space-8); }
+    html.force-kiosk .status-grid { grid-template-columns:1fr; gap:var(--space-6); }
+    html.force-kiosk .status-box { padding:var(--space-6); }
+    html.force-kiosk .status-label { font-size: var(--text-base); }
+    html.force-kiosk .decision { font-size: clamp(4rem, 3.1rem + 2.5vw, 5rem); }
+    html.force-kiosk .reason-line { margin-top: var(--space-3); font-size: var(--text-base); }
+    html.force-kiosk .inline-dropdown summary { font-size: var(--text-sm); }
+    html.force-kiosk .footer-note { margin-top:var(--space-4); padding:var(--space-2) 0 var(--space-3); font-size:0.78rem; gap:var(--space-2); }
+    html.force-kiosk .footer-note .author { font-size:0.78rem; }
+    html.force-kiosk .footer-note .meta { font-size:0.72rem; }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; } }
   </style>
 </head>
@@ -274,10 +296,14 @@
     (() => {
       const search = new URLSearchParams(window.location.search);
       const mobileParam = search.get('mobile');
+      const kioskParam = search.get('kiosk');
       const hasMobileParam = mobileParam !== null && !['0', 'false', 'off', 'no'].includes(String(mobileParam).toLowerCase());
+      const hasKioskParam = kioskParam !== null && !['0', 'false', 'off', 'no'].includes(String(kioskParam).toLowerCase());
       const path = window.location.pathname.replace(/\/+$/, '');
       const hasMobilePath = path === '/mobile';
+      const hasKioskPath = path === '/kiosk';
       if (hasMobileParam || hasMobilePath) document.documentElement.classList.add('force-mobile');
+      if (hasKioskParam || hasKioskPath) document.documentElement.classList.add('force-kiosk');
     })();
 
     (function () {
@@ -345,6 +371,7 @@
 
     // Load external data (fallback to empty structures if not present)
     const DATA = window.OMISSIONS || { omissionRules: [], variesNotes: [], variesRules: {} };
+    const isKioskMode = document.documentElement.classList.contains('force-kiosk');
 
     const dropdownCards = [els.datePickerCard, els.rulesCard].filter(Boolean);
     dropdownCards.forEach((dropdown) => {
@@ -535,8 +562,18 @@
         el.textContent = '';
         return;
       }
-      if (result.varies) {
-        el.innerHTML = `<details class="inline-dropdown"><summary>Custom varies</summary><p>${result.label}</p></details>`;
+      const label = String(result.label || '');
+      const summaryText = result.varies ? 'Custom varies' : 'Reason';
+      if (isKioskMode || result.varies) {
+        const details = document.createElement('details');
+        details.className = 'inline-dropdown';
+        if (isKioskMode) details.open = true;
+        const summary = document.createElement('summary');
+        summary.textContent = summaryText;
+        const paragraph = document.createElement('p');
+        paragraph.textContent = label;
+        details.append(summary, paragraph);
+        el.replaceChildren(details);
       } else {
         el.textContent = `${result.label}`;
       }
