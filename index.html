@@ -202,7 +202,7 @@
     html.force-mobile .theme-toggle { width:40px; height:40px; right:calc(env(safe-area-inset-right, 0px) + var(--space-3)); top:calc(env(safe-area-inset-top, 0px) + var(--space-3)); }
     html.force-kiosk #main { min-height: 100%; display:grid; grid-template-rows:auto 1fr auto; }
     html.force-kiosk .hero { gap:var(--space-3); padding-block:var(--space-4); }
-    html.force-kiosk .eyebrow, html.force-kiosk .lede, html.force-kiosk .date-row, html.force-kiosk .theme-toggle, html.force-kiosk #datePickerCard, html.force-kiosk .rules-card { display:none; }
+    html.force-kiosk .eyebrow, html.force-kiosk .lede, html.force-kiosk .theme-toggle, html.force-kiosk #datePickerCard, html.force-kiosk .rules-card { display:none; }
     html.force-kiosk h1 { max-width: none; font-size: 4rem; }
     html.force-kiosk .grid { display:block; height:100%; }
     html.force-kiosk .status-card { height:100%; padding:var(--space-8); align-content:center; gap:var(--space-8); }
@@ -393,6 +393,14 @@
     ['gregorianDate', 'hebrewDateHebrew'].forEach((id) => {
       const el = els[id];
       if (!el) return;
+      if (isKioskMode) {
+        el.classList.remove('clickable');
+        el.removeAttribute('role');
+        el.removeAttribute('aria-controls');
+        el.removeAttribute('aria-label');
+        el.removeAttribute('tabindex');
+        return;
+      }
       el.classList.add('clickable');
       el.setAttribute('role', 'button');
       el.setAttribute('aria-controls', 'dateInput');
