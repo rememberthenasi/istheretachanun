@@ -16,6 +16,7 @@ A streamlined, responsive static web app designed to answer the daily question: 
 * **Modern UI:** A clean, responsive design with automatic **Light/Dark mode** support.
 * **URL Mobile Override:** Open `/?mobile=1` (or `/mobile`) to force the compact mobile layout on any device.
 * **URL Kiosk Override:** Open `/?kiosk=1` (or `/kiosk`) for a fixed 1080x1920 portrait kiosk layout with title, Shacharis/Mincha status, and the current secular/Hebrew date display (without the date selector).
+* **Traffic Visibility:** Open `/visits` to view the running total site visit count.
 
 ---
 
