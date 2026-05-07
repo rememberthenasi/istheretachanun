@@ -29,6 +29,7 @@
     }
     *, *::before, *::after { box-sizing: border-box; }
     html { -webkit-text-size-adjust: none; text-size-adjust: none; }
+    html.force-mobile body { min-width: 320px; }
     body {
       margin: 0; min-height: 100dvh; font-family: var(--font-body); font-size: var(--text-base); line-height: 1.6; color: var(--color-text);
       background: radial-gradient(circle at top left, color-mix(in srgb, var(--color-primary) 10%, transparent), transparent 30%), var(--color-bg);
@@ -155,6 +156,33 @@
       .footer-note .meta { max-width:100%; }
       .theme-toggle { width:40px; height:40px; right:calc(env(safe-area-inset-right, 0px) + var(--space-3)); top:calc(env(safe-area-inset-top, 0px) + var(--space-3)); }
     }
+    html.force-mobile .hero { gap:var(--space-4); padding-block:var(--space-4); }
+    html.force-mobile .hero-head { gap:var(--space-2); flex-wrap:nowrap; }
+    html.force-mobile .eyebrow { padding:0.3rem 0.6rem; font-size:0.68rem; }
+    html.force-mobile h1 { font-size:clamp(1.8rem, 1.35rem + 4vw, 2.25rem); max-width:12ch; }
+    html.force-mobile .hero > div { display:grid; gap:var(--space-2); }
+    html.force-mobile .lede { font-size:var(--text-sm); }
+    html.force-mobile .status-card, html.force-mobile .detail-card { padding:var(--space-3); }
+    html.force-mobile .status-card { gap:var(--space-4); }
+    html.force-mobile .date-row { gap:var(--space-2); }
+    html.force-mobile .date-chip { padding:0.4rem 0.65rem; font-size:0.78rem; }
+    html.force-mobile .status-grid { gap:var(--space-3); }
+    html.force-mobile .status-box { padding:var(--space-3); }
+    html.force-mobile .status-label { margin-bottom:var(--space-1); }
+    html.force-mobile .decision { font-size:clamp(1.7rem, 1.25rem + 6vw, 2.4rem); }
+    html.force-mobile .detail-card h2 { font-size:var(--text-base); }
+    html.force-mobile .input-row { gap:var(--space-2); }
+    html.force-mobile .label { font-size:0.68rem; }
+    html.force-mobile input[type="date"] { min-height:44px; padding:0.7rem 2.4rem 0.7rem 0.85rem; }
+    html.force-mobile .btn { min-height:40px; padding:0.65rem 0.85rem; font-size:var(--text-sm); }
+    html.force-mobile .card-summary { font-size:var(--text-base); }
+    html.force-mobile .dropdown-card > .dropdown-body { padding-top:var(--space-3); gap:var(--space-3); }
+    html.force-mobile .rules-panel { margin-top:var(--space-2); gap:var(--space-3); }
+    html.force-mobile .rule-note { padding:var(--space-3); }
+    html.force-mobile .rule-note h3 { font-size:var(--text-xs); }
+    html.force-mobile .footer-note { margin-top:var(--space-4); padding:var(--space-3) 0 var(--space-6); gap:var(--space-2); }
+    html.force-mobile .footer-note .meta { max-width:100%; }
+    html.force-mobile .theme-toggle { width:40px; height:40px; right:calc(env(safe-area-inset-right, 0px) + var(--space-3)); top:calc(env(safe-area-inset-top, 0px) + var(--space-3)); }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; } }
   </style>
 </head>
@@ -235,6 +263,15 @@
 
   <script src="data/omissions.js"></script>
   <script>
+    (() => {
+      const search = new URLSearchParams(window.location.search);
+      const mobileParam = search.get('mobile');
+      const hasMobileParam = mobileParam !== null && !['0', 'false', 'off', 'no'].includes(String(mobileParam).toLowerCase());
+      const path = window.location.pathname.replace(/\/+$/, '');
+      const hasMobilePath = path === '/mobile';
+      if (hasMobileParam || hasMobilePath) document.documentElement.classList.add('force-mobile');
+    })();
+
     (function () {
       const root = document.documentElement;
       const toggle = document.querySelector('[data-theme-toggle]');

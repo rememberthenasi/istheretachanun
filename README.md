@@ -14,6 +14,7 @@ A streamlined, responsive static web app designed to answer the daily question: 
 * **Rule Transparency:** Displays the specific halachic rule or occasion triggered for that date.
 * **Mincha Awareness:** Includes a "Mincha Eve" note to remind users when Tachanun is omitted the afternoon prior.
 * **Modern UI:** A clean, responsive design with automatic **Light/Dark mode** support.
+* **URL Mobile Override:** Open `/?mobile=1` (or `/mobile`) to force the compact mobile layout on any device.
 
 ---
 
