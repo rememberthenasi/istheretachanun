@@ -13,6 +13,8 @@
       --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
       --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
       --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+      --kiosk-width: 1080px;
+      --kiosk-height: 1920px;
       --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem; --space-8: 2rem; --space-10: 2.5rem; --space-12: 3rem; --space-16: 4rem;
       --color-bg: #f7f6f2; --color-surface: #f9f8f5; --color-surface-2: #fbfbf9; --color-surface-offset: #f3f0ec; --color-border: #d4d1ca; --color-divider: #dcd9d5;
       --color-text: #28251d; --color-text-muted: #7a7974; --color-text-faint: #bab9b4; --color-text-inverse: #f9f8f4;
@@ -30,16 +32,16 @@
     *, *::before, *::after { box-sizing: border-box; }
     html { -webkit-text-size-adjust: none; text-size-adjust: none; }
     html.force-mobile body { min-width: 320px; }
-    html.force-kiosk body { min-width: 1080px; }
+    html.force-kiosk body { min-width: var(--kiosk-width); }
     html.force-mobile .shell {
       width: min(100%, 1080px);
       margin: 0;
       min-height: min(100dvh, 1920px);
     }
     html.force-kiosk .shell {
-      width: 1080px;
+      width: var(--kiosk-width);
       margin: 0;
-      min-height: 1920px;
+      min-height: var(--kiosk-height);
       padding: var(--space-6);
     }
     body {
@@ -563,8 +565,8 @@
         return;
       }
       const label = String(result.label || '');
-      const summaryText = result.varies ? 'Custom varies' : 'Reason';
       if (isKioskMode || result.varies) {
+        const summaryText = result.varies ? 'Custom varies' : 'Reason';
         const details = document.createElement('details');
         details.className = 'inline-dropdown';
         if (isKioskMode) details.open = true;
