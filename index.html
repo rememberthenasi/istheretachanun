@@ -309,12 +309,12 @@
     })();
 
     (() => {
-      // Normalize trailing slash so both `/visits` and `/visits/` are treated the same.
-      const normalizedPath = window.location.pathname.replace(/\/+$/, '') || '/';
-      if (normalizedPath === '/visits') return;
+      const isVisitsPath = /^\/visits\/?$/.test(window.location.pathname);
+      if (isVisitsPath) return;
       const namespace = 'rememberthenasi-istheretachanun';
       const key = 'site-visits-total';
-      fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`, { cache: 'no-store' }).catch(() => {});
+      fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`, { cache: 'no-store' })
+        .catch((error) => console.warn('Visit counter update failed', error));
     })();
 
     (function () {

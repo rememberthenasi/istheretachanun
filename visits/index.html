@@ -78,6 +78,7 @@
         visitCountEl.textContent = count.toLocaleString();
       } catch (error) {
         visitCountEl.textContent = 'Unavailable';
+        console.warn('Visit counter read failed', error);
       } finally {
         clearTimeout(timeoutId);
       }
