@@ -309,6 +309,7 @@
     })();
 
     (() => {
+      // Normalize trailing slash so both `/visits` and `/visits/` are treated the same.
       const normalizedPath = window.location.pathname.replace(/\/+$/, '') || '/';
       if (normalizedPath === '/visits') return;
       const namespace = 'rememberthenasi-istheretachanun';
