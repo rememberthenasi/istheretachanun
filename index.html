@@ -313,8 +313,11 @@
       if (isVisitsPath) return;
       const namespace = 'rememberthenasi-istheretachanun';
       const key = 'site-visits-total';
-      fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`, { cache: 'no-store' })
-        .catch((error) => console.warn('Visit counter update failed', error));
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
+      fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`, { cache: 'no-store', signal: controller.signal })
+        .catch((error) => console.warn('Visit counter update failed', error))
+        .finally(() => clearTimeout(timeoutId));
     })();
 
     (function () {
