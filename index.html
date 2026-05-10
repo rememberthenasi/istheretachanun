@@ -77,8 +77,7 @@
     .status-card { padding:var(--space-6); display:grid; gap:var(--space-5); }
     .date-row { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; }
     .date-chip { border-radius:var(--radius-full); padding:var(--space-2) var(--space-3); background:var(--color-surface-2); border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent); font-size:var(--text-sm); }
-    .status-grid { display:grid; gap:var(--space-4); }
-    .status-grid { grid-template-columns:1fr 1fr; }
+    .status-grid { display:grid; gap:var(--space-4); grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); }
     .status-box { padding:var(--space-4); border-radius:var(--radius-lg); background:var(--color-surface-2); border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent); }
     .status-label { margin:0 0 var(--space-2); font-size:var(--text-xs); letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:var(--color-text-muted); }
     .decision { font-size:clamp(2rem, 1.3rem + 4vw, 3.5rem); line-height:.95; letter-spacing:-.04em; font-weight:700; margin:0; }
@@ -150,6 +149,7 @@
       .lede { font-size:var(--text-sm); }
       .status-card, .detail-card { padding:var(--space-3); }
       .status-card { gap:var(--space-4); }
+      .status-grid { grid-template-columns:1fr; }
       .date-row { gap:var(--space-2); }
       .date-chip { padding:0.4rem 0.65rem; font-size:0.78rem; }
       .status-grid { gap:var(--space-3); }
@@ -181,6 +181,7 @@
     html.force-mobile .lede { font-size:var(--text-sm); }
     html.force-mobile .status-card, html.force-mobile .detail-card { padding:var(--space-3); }
     html.force-mobile .status-card { gap:var(--space-4); }
+    html.force-mobile .status-grid { grid-template-columns:1fr; }
     html.force-mobile .date-row { gap:var(--space-2); }
     html.force-mobile .date-chip { padding:0.4rem 0.65rem; font-size:0.78rem; }
     html.force-mobile .status-grid { gap:var(--space-3); }
@@ -250,6 +251,11 @@
               <p class="status-label">Mincha</p>
               <h2 id="minchaAnswer" class="decision">Loading…</h2>
               <div id="minchaDetail" class="reason-line">Checking today’s rule.</div>
+            </section>
+            <section class="status-box">
+              <p class="status-label">Krias Shema al HaMitah</p>
+              <h2 id="kriasShemaAnswer" class="decision">Loading…</h2>
+              <div id="kriasShemaDetail" class="reason-line">Checking tonight’s rule.</div>
             </section>
           </div>
         </article>
@@ -377,6 +383,8 @@
       shacharitDetail: document.getElementById('shacharitDetail'),
       minchaAnswer: document.getElementById('minchaAnswer'),
       minchaDetail: document.getElementById('minchaDetail'),
+      kriasShemaAnswer: document.getElementById('kriasShemaAnswer'),
+      kriasShemaDetail: document.getElementById('kriasShemaDetail'),
       dateInput: document.getElementById('dateInput'),
       todayBtn: document.getElementById('todayBtn'),
       rulesList: document.getElementById('rulesList'),
@@ -504,23 +512,48 @@
       return `${formatHebrewNumber(parts.day)} ${displayMonth} ${displayYear}`;
     }
     function formatGregorianDate(date) { return new Intl.DateTimeFormat('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' }).format(date); }
+    function isShabbosDay(secularDate) { return secularDate.getDay() === 6; }
+    function nextDay(date) { const d = new Date(date); d.setDate(d.getDate() + 1); return makeDateAtNoon(d); }
+    function isRealYomTovDay(hd) {
+      return (hd.month === 'Tishrei' && (hd.day === 1 || hd.day === 2 || hd.day === 15 || hd.day === 21 || hd.day === 22))
+        || (hd.month === 'Nisan' && (hd.day === 15 || hd.day === 21 || hd.day === 22))
+        || (hd.month === 'Sivan' && (hd.day === 6 || hd.day === 7));
+    }
     function isPurimMonth(month) { return month === 'Adar' || month === 'Adar II'; }
     function keyOf(hd) { return `${hd.month}-${hd.day}`; }
 
     function matchDayRule(hd, secularDate) {
-      const reasons = [];
       const isShabbos = secularDate.getDay() === 6;
-
-      if (isShabbos) reasons.push('Shabbos');
-      if (hd.day === 1 || hd.day === 30) reasons.push('Rosh Chodesh');
+      const isRoshChodesh = hd.day === 1 || hd.day === 30;
+      let yomTovReason = '';
 
       if (hd.month === 'Tishrei' && (hd.day === 1 || hd.day === 2)) {
-        reasons.length = 0;
-        reasons.push('Rosh Hashanah');
+        yomTovReason = 'Rosh Hashanah';
       } else if (hd.month === 'Tishrei' && hd.day >= 15 && hd.day <= 22) {
-        reasons.push(hd.day === 15 || hd.day === 21 || hd.day === 22 ? 'Sukkot (Yom Tov)' : 'Sukkot (Chol Hamoed)');
-      } else if ((hd.month === 'Tishrei' && hd.day >= 9) || (hd.month === 'Cheshvan' && hd.day <= 2)) {
-        reasons.push('9 Tishrei through 2 Cheshvan');
+        yomTovReason = hd.day === 15 || hd.day === 21 || hd.day === 22 ? 'Sukkot (Yom Tov)' : 'Sukkot (Chol Hamoed)';
+      } else if (hd.month === 'Nisan' && hd.day >= 15 && hd.day <= 22) {
+        yomTovReason = hd.day === 15 || hd.day === 21 || hd.day === 22 ? 'Pesach (Yom Tov)' : 'Pesach (Chol Hamoed)';
+      } else if (hd.month === 'Sivan' && (hd.day === 6 || hd.day === 7)) {
+        yomTovReason = 'Shavuos';
+      }
+
+      if (yomTovReason) {
+        return { omit: true, label: isShabbos ? `Shabbos + ${yomTovReason}` : yomTovReason };
+      }
+
+      if (isShabbos) {
+        return { omit: true, label: 'Shabbos' };
+      }
+
+      if (isRoshChodesh) {
+        const reasons = ['Rosh Chodesh'];
+        if ((hd.month === 'Kislev' && hd.day >= 25) || (hd.month === 'Tevet' && hd.day <= 3)) reasons.push('Chanukah');
+        return { omit: true, label: reasons.join(' + ') };
+      }
+
+      const reasons = [];
+      if ((hd.month === 'Tishrei' && hd.day >= 9) || (hd.month === 'Cheshvan' && hd.day <= 1)) {
+        reasons.push('9 Tishrei through 1 Cheshvan');
       }
 
       if ((hd.month === 'Kislev' && hd.day >= 25) || (hd.month === 'Tevet' && hd.day <= 3)) reasons.push('Chanukah');
@@ -544,8 +577,8 @@
       if (hd.month === 'Kislev' && hd.day === 10) reasons.push((DATA.dateNames || {})['Kislev-10'] || '10 Kislev');
       if (hd.month === 'Kislev' && hd.day === 19) reasons.push((DATA.dateNames || {})['Kislev-19'] || 'Yud Tes Kislev');
       if (hd.month === 'Kislev' && hd.day === 20) reasons.push((DATA.dateNames || {})['Kislev-20'] || 'Chof Kislev');
-      if (hd.month === 'Tammuz' && (hd.day === 12)) reasons.push((DATA.dateNames || {})['Tammuz-12'] || 'Yud Beis Tammuz');
-      if (hd.month === 'Tammuz' && (hd.day === 13)) reasons.push('Yud Gimmel Tammuz');
+      if (hd.month === 'Tammuz' && hd.day === 12) reasons.push((DATA.dateNames || {})['Tammuz-12'] || 'Yud Beis Tammuz');
+      if (hd.month === 'Tammuz' && hd.day === 13) reasons.push((DATA.dateNames || {})['Tammuz-13'] || 'Yud Gimmel Tammuz');
 
       if (reasons.length > 0) return { omit: true, label: reasons.join(' + ') };
       if ((DATA.variesRules || {})[keyOf(hd)]) return { omit: false, label: (DATA.variesRules || {})[keyOf(hd)], varies: true };
@@ -572,6 +605,33 @@
       return { omit: false, label: 'No listed omission date matched' };
     }
 
+    function matchKriasShemaRule(hd, secularDate) {
+      const tomorrow = nextDay(secularDate);
+      const tomorrowHd = getHebrewParts(tomorrow);
+      const todayRule = matchDayRule(hd, secularDate);
+      const tomorrowRule = matchDayRule(tomorrowHd, tomorrow);
+
+      const note = 'Rebono Shel Olam and Lamnatzeach Mizmor L\'Dovid should still be said.';
+
+      if (todayRule.omit) {
+        return {
+          omit: true,
+          label: `No tachanun until midnight after ${todayRule.label}`,
+          note
+        };
+      }
+
+      if (tomorrowRule.omit) {
+        return {
+          omit: true,
+          label: `No tachanun tonight for ${tomorrowRule.label}`,
+          note
+        };
+      }
+
+      return { omit: false, label: '', note: '' };
+    }
+
     function renderDecision(el, result) {
       const base = result.omit ? 'No' : 'Yes';
       el.innerHTML = result.varies ? `${base}<span class="asterisk">*</span>` : base;
@@ -580,11 +640,13 @@
 
     function renderDetail(el, result) {
       // Show reason if omit is true, or if it's a varies date
-      if (!result.omit && !result.varies) {
+      if (!result.omit && !result.varies && !result.note) {
         el.textContent = '';
         return;
       }
       const label = String(result.label || '');
+      const note = String(result.note || '');
+      const text = [label, note].filter(Boolean).join(label && note ? ' — ' : '');
       if (isKioskMode) {
         const details = document.createElement('details');
         details.className = 'inline-dropdown';
@@ -592,7 +654,7 @@
         const summary = document.createElement('summary');
         summary.textContent = 'Reason';
         const paragraph = document.createElement('p');
-        paragraph.textContent = label;
+        paragraph.textContent = text;
         details.append(summary, paragraph);
         el.replaceChildren(details);
       } else if (result.varies) {
@@ -601,11 +663,11 @@
         const summary = document.createElement('summary');
         summary.textContent = 'Custom varies';
         const paragraph = document.createElement('p');
-        paragraph.textContent = label;
+        paragraph.textContent = text;
         details.append(summary, paragraph);
         el.replaceChildren(details);
       } else {
-        el.textContent = `${result.label}`;
+        el.textContent = text;
       }
     }
 
@@ -615,13 +677,16 @@
       const prevHd = getHebrewParts(previousDay(d));
       const shacharit = matchDayRule(hd, d);
       const mincha = matchMinchaRule(hd, prevHd, d);
+      const kriasShema = matchKriasShemaRule(hd, d);
 
       els.gregorianDate.textContent = formatGregorianDate(d);
       els.hebrewDateHebrew.textContent = formatHebrewDateHebrew(d);
       renderDecision(els.shacharitAnswer, shacharit);
       renderDecision(els.minchaAnswer, mincha);
+      renderDecision(els.kriasShemaAnswer, kriasShema);
       renderDetail(els.shacharitDetail, shacharit);
       renderDetail(els.minchaDetail, mincha);
+      renderDetail(els.kriasShemaDetail, kriasShema);
       els.dateInput.value = d.toISOString().slice(0, 10);
     }
 
