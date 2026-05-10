@@ -1,4 +1,4 @@
-# Is There Tachanun? (Chabad)
+# Is There Tachanun
 
 A streamlined, responsive static web app designed to answer the daily question: **"Do we say Tachanun today?"** This tool follows the fixed, date-based omission schedule according to Chabad-Lubavitch custom.
 
