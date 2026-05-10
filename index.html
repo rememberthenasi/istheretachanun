@@ -149,7 +149,8 @@
       .lede { font-size:var(--text-sm); }
       .status-card, .detail-card { padding:var(--space-3); }
       .status-card { gap:var(--space-4); }
-      .status-grid { grid-template-columns:1fr; }
+      .status-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+      .status-grid > .status-box:first-child { grid-column:1 / -1; }
       .date-row { gap:var(--space-2); }
       .date-chip { padding:0.4rem 0.65rem; font-size:0.78rem; }
       .status-grid { gap:var(--space-3); }
@@ -181,7 +182,8 @@
     html.force-mobile .lede { font-size:var(--text-sm); }
     html.force-mobile .status-card, html.force-mobile .detail-card { padding:var(--space-3); }
     html.force-mobile .status-card { gap:var(--space-4); }
-    html.force-mobile .status-grid { grid-template-columns:1fr; }
+    html.force-mobile .status-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+    html.force-mobile .status-grid > .status-box:first-child { grid-column:1 / -1; }
     html.force-mobile .date-row { gap:var(--space-2); }
     html.force-mobile .date-chip { padding:0.4rem 0.65rem; font-size:0.78rem; }
     html.force-mobile .status-grid { gap:var(--space-3); }
@@ -243,17 +245,17 @@
 
           <div class="status-grid">
             <section class="status-box">
-              <p class="status-label">Shacharis</p>
+              <p class="status-label">🌅Shacharis</p>
               <h2 id="shacharitAnswer" class="decision">Loading…</h2>
               <div id="shacharitDetail" class="reason-line">Checking today’s rule.</div>
             </section>
             <section class="status-box">
-              <p class="status-label">Mincha</p>
+              <p class="status-label">🌇Mincha</p>
               <h2 id="minchaAnswer" class="decision">Loading…</h2>
               <div id="minchaDetail" class="reason-line">Checking today’s rule.</div>
             </section>
             <section class="status-box">
-              <p class="status-label">Krias Shema al HaMitah</p>
+              <p class="status-label">🌙Shema</p>
               <h2 id="kriasShemaAnswer" class="decision">Loading…</h2>
               <div id="kriasShemaDetail" class="reason-line">Checking tonight’s rule.</div>
             </section>
