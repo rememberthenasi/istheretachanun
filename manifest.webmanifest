@@ -1,6 +1,6 @@
 {
-  "name": "Is There Tachanun Today?",
-  "short_name": "Tachanun",
+  "name": "Is There Tachanun",
+  "short_name": "Is There Tachanun",
   "description": "Check whether Tachanun is said today, according to Chabad custom.",
   "start_url": "/",
   "scope": "/",
