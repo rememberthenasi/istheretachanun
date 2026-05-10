@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="Is There Tachanun app icon">
+  <defs>
+    <linearGradient id="cover" x1="240" y1="220" x2="784" y2="840" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2d5f9a"/>
+      <stop offset="1" stop-color="#0f3f73"/>
+    </linearGradient>
+    <linearGradient id="page" x1="300" y1="280" x2="724" y2="770" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f7fbff"/>
+      <stop offset="1" stop-color="#dfe9f7"/>
+    </linearGradient>
+    <linearGradient id="book" x1="160" y1="620" x2="864" y2="900" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#24518d"/>
+      <stop offset="1" stop-color="#163f78"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="224" fill="#ffffff"/>
+  <g transform="translate(0,8)">
+    <rect x="256" y="128" width="512" height="468" rx="72" fill="url(#cover)"/>
+    <rect x="256" y="248" width="512" height="348" rx="0" fill="url(#page)"/>
+    <rect x="310" y="96" width="42" height="148" rx="21" fill="url(#book)"/>
+    <rect x="672" y="96" width="42" height="148" rx="21" fill="url(#book)"/>
+    <circle cx="331" cy="208" r="28" fill="#ffffff"/>
+    <circle cx="693" cy="208" r="28" fill="#ffffff"/>
+    <rect x="315" y="170" width="32" height="94" rx="16" fill="url(#book)"/>
+    <rect x="677" y="170" width="32" height="94" rx="16" fill="url(#book)"/>
+    <path d="M140 748C240 638 334 602 512 602C690 602 784 638 884 748" fill="none" stroke="url(#book)" stroke-width="36" stroke-linecap="round"/>
+    <path d="M132 748L192 648C282 606 354 588 512 588C670 588 742 606 832 648L892 748" fill="none" stroke="url(#book)" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M214 700C286 664 352 648 512 648C672 648 738 664 810 700" fill="none" stroke="#ffffff" stroke-width="18" stroke-linecap="round"/>
+    <path d="M214 738C286 708 352 694 512 694C672 694 738 708 810 738" fill="none" stroke="#ffffff" stroke-width="18" stroke-linecap="round"/>
+    <path d="M512 596L512 858" fill="none" stroke="url(#book)" stroke-width="30" stroke-linecap="round"/>
+  </g>
+</svg>

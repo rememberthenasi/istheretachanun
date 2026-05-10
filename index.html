@@ -4,6 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Is There Tachanun Today?</title>
+  <meta name="theme-color" content="#171614" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Tachanun" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/assets/app-icon-192.png" />
+  <link rel="icon" type="image/svg+xml" href="/assets/app-icon.svg" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/app-icon-180.png" />
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
   <style>
@@ -327,6 +335,14 @@
         .catch((error) => console.warn('Visit counter update failed', error))
         .finally(() => clearTimeout(timeoutId));
     })();
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch((error) => {
+          console.warn('Service worker registration failed', error);
+        });
+      });
+    }
 
     (function () {
       const root = document.documentElement;
