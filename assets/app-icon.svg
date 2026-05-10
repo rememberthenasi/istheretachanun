@@ -13,7 +13,7 @@
       <stop offset="1" stop-color="#163f78"/>
     </linearGradient>
   </defs>
-  <rect width="1024" height="1024" rx="224" fill="#ffffff"/>
+  <rect width="1024" height="1024" rx="224" fill="#171614"/>
   <g transform="translate(0,8)">
     <rect x="256" y="128" width="512" height="468" rx="72" fill="url(#cover)"/>
     <rect x="256" y="248" width="512" height="348" rx="0" fill="url(#page)"/>
