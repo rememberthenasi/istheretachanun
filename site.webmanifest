@@ -1,0 +1,16 @@
+{
+  "name": "Is There Tachanun",
+  "short_name": "Tachanun",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#171614",
+  "theme_color": "#171614",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
