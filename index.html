@@ -632,6 +632,13 @@
       const note = 'Rebono Shel Olam and Lamnatzeach Mizmor L\'Dovid should still be said.';
 
       if (todayRule.omit) {
+        if (tomorrowRule.omit) {
+          return {
+            omit: true,
+            label: 'No tachanun',
+            note
+          };
+        }
         return {
           omit: true,
           label: `No tachanun until midnight after ${todayRule.label}`,
