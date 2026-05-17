@@ -623,16 +623,25 @@
       return { omit: false, label: 'No listed omission date matched' };
     }
 
-    function matchKriasShemaRule(hd, secularDate) {
+    function matchKriasShemaRule(hd, secularDate, referenceDate) {
       const tomorrow = nextDay(secularDate);
       const tomorrowHd = getHebrewParts(tomorrow);
       const todayRule = matchDayRule(hd, secularDate);
       const tomorrowRule = matchDayRule(tomorrowHd, tomorrow);
+      const currentDateTime = referenceDate || secularDate;
+      const isEveningOrNight = currentDateTime.getHours() >= 18;
 
       const note = 'Rebono Shel Olam and Lamnatzeach Mizmor L\'Dovid should still be said.';
 
       if (todayRule.omit) {
         if (tomorrowRule.omit) {
+          return {
+            omit: true,
+            label: 'No tachanun',
+            note
+          };
+        }
+        if (!isEveningOrNight) {
           return {
             omit: true,
             label: 'No tachanun',
@@ -702,7 +711,7 @@
       const prevHd = getHebrewParts(previousDay(d));
       const shacharit = matchDayRule(hd, d);
       const mincha = matchMinchaRule(hd, prevHd, d);
-      const kriasShema = matchKriasShemaRule(hd, d);
+      const kriasShema = matchKriasShemaRule(hd, d, date);
 
       els.gregorianDate.textContent = formatGregorianDate(d);
       els.hebrewDateHebrew.textContent = formatHebrewDateHebrew(d);
