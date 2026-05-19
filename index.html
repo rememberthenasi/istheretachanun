@@ -345,25 +345,23 @@
           // Periodic update checks (optional)
           setInterval(() => { try { reg.update(); } catch (e) {} }, 1000 * 60 * 30);
 
-          function promptUpdate() {
-            // Simple prompt - replace with nicer UI if desired
-            if (confirm('A new version is available. Reload to update?')) {
-              if (!reg.waiting) return;
-              reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-            }
+          function applyUpdate() {
+            if (!reg.waiting) return;
+            // Tell the waiting SW to skipWaiting and take control
+            try { reg.waiting.postMessage({ type: 'SKIP_WAITING' }); } catch (e) { /* ignore */ }
           }
 
-          // If there's an updated worker already waiting, prompt immediately
+          // If there's an updated worker already waiting, apply immediately
           if (reg.waiting) {
-            promptUpdate();
+            applyUpdate();
           }
 
           reg.addEventListener('updatefound', () => {
             const newSW = reg.installing;
             newSW.addEventListener('statechange', () => {
               if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-                // New content is available
-                promptUpdate();
+                // New content is available - apply silently
+                applyUpdate();
               }
             });
           });
