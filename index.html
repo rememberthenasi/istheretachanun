@@ -624,43 +624,63 @@
     }
 
     function matchKriasShemaRule(hd, secularDate, referenceDate) {
-      const tomorrow = nextDay(secularDate);
+      // Determine which secular day to evaluate based on the reference time
+      const ref = referenceDate ? new Date(referenceDate) : new Date();
+      const displaySecular = makeDateAtNoon(ref);
+      const displayHd = getHebrewParts(displaySecular);
+      const tomorrow = nextDay(displaySecular);
       const tomorrowHd = getHebrewParts(tomorrow);
-      const todayRule = matchDayRule(hd, secularDate);
+
+      const todayRule = matchDayRule(displayHd, displaySecular);
       const tomorrowRule = matchDayRule(tomorrowHd, tomorrow);
-      const currentDateTime = referenceDate || secularDate;
-      const isEveningOrNight = currentDateTime.getHours() >= 18;
+
+      const midnight = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate() + 1, 0, 0, 0, 0);
+      const isBeforeMidnight = ref < midnight;
+      const isEveningOrNight = ref.getHours() >= 18;
 
       const note = 'Rebono Shel Olam and Lamnatzeach Mizmor L\'Dovid should still be said.';
 
-      if (todayRule.omit) {
-        if (tomorrowRule.omit) {
-          return {
-            omit: true,
-            label: 'No tachanun',
-            note
-          };
-        }
-        if (!isEveningOrNight) {
-          return {
-            omit: true,
-            label: 'No tachanun',
-            note
-          };
-        }
-        return {
-          omit: true,
-          label: `No tachanun until midnight after ${todayRule.label}`,
-          note
-        };
+      // Debug helper: log evaluation state to console for troubleshooting
+      try {
+        console.debug('kriasShema', {
+          ref: ref.toString(),
+          displayHd,
+          todayRule,
+          tomorrowRule,
+          isBeforeMidnight,
+          isEveningOrNight
+        });
+      } catch (e) {
+        // ignore console failures in some environments
       }
 
-      if (tomorrowRule.omit) {
-        return {
-          omit: true,
-          label: `No tachanun tonight for ${tomorrowRule.label}`,
-          note
-        };
+      // If today is an omit day
+      if (todayRule.omit) {
+        // If tomorrow is also an omit day
+        if (tomorrowRule.omit) {
+          // In the evening before midnight, indicate it's "tonight";
+          // during the day show the plain omit label.
+          if (isEveningOrNight && isBeforeMidnight) {
+            return { omit: true, label: 'No tachanun tonight', note };
+          }
+          return { omit: true, label: 'No tachanun', note };
+        }
+
+        // If this is the last omit day in a run, show the midnight-cutoff
+        // for the whole day up until midnight. After midnight the page
+        // will evaluate the next day instead.
+        if (isBeforeMidnight) {
+          return { omit: true, label: 'No tachanun until midnight', note };
+        }
+
+        // Fallback (should rarely be hit because display day follows ref):
+        return { omit: true, label: 'No tachanun', note };
+      }
+
+      // If today is not omit but tomorrow is, show the "tonight" message
+      // when we're in the evening (practical display window before midnight).
+      if (tomorrowRule.omit && isEveningOrNight && isBeforeMidnight) {
+        return { omit: true, label: `No tachanun tonight for ${tomorrowRule.label}`, note };
       }
 
       return { omit: false, label: '', note: '' };
