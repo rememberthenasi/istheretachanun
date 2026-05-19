@@ -338,7 +338,44 @@
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch((error) => {
+        navigator.serviceWorker.register('/sw.js').then((reg) => {
+          // Try a quick update check on load
+          try { reg.update(); } catch (e) { /* ignore */ }
+
+          // Periodic update checks (optional)
+          setInterval(() => { try { reg.update(); } catch (e) {} }, 1000 * 60 * 30);
+
+          function promptUpdate() {
+            // Simple prompt - replace with nicer UI if desired
+            if (confirm('A new version is available. Reload to update?')) {
+              if (!reg.waiting) return;
+              reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
+          }
+
+          // If there's an updated worker already waiting, prompt immediately
+          if (reg.waiting) {
+            promptUpdate();
+          }
+
+          reg.addEventListener('updatefound', () => {
+            const newSW = reg.installing;
+            newSW.addEventListener('statechange', () => {
+              if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+                // New content is available
+                promptUpdate();
+              }
+            });
+          });
+
+          // When the new SW activates, reload the page to take control
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (window.__swRefreshing) return;
+            window.__swRefreshing = true;
+            window.location.reload();
+          });
+
+        }).catch((error) => {
           console.warn('Service worker registration failed', error);
         });
       });
