@@ -669,11 +669,23 @@
       const todayRule = matchDayRule(displayHd, displaySecular);
       const tomorrowRule = matchDayRule(tomorrowHd, tomorrow);
 
+      const note = 'Rebono Shel Olam and Lamnatzeach Mizmor L\'Dovid should still be said.';
+
+      // Treat Fridays as Shabbos for Krias Shema: always omit Tachanun on Fridays.
+      // Apply when:
+      // - the display day is Friday, or
+      // - the reference moment is on Friday, or
+      // - it's shortly after Friday (early morning hours) so we still treat it as Friday.
+      const prevRef = new Date(ref);
+      prevRef.setDate(ref.getDate() - 1);
+      const isEarlyMorning = ref.getHours() < 6; // 00:00-05:59
+      if (displaySecular.getDay() === 5 || ref.getDay() === 5 || (prevRef.getDay() === 5 && isEarlyMorning)) {
+        return { omit: true, label: 'No tachanun', note };
+      }
+
       const midnight = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate() + 1, 0, 0, 0, 0);
       const isBeforeMidnight = ref < midnight;
       const isEveningOrNight = ref.getHours() >= 18;
-
-      const note = 'Rebono Shel Olam and Lamnatzeach Mizmor L\'Dovid should still be said.';
 
       // Debug helper: log evaluation state to console for troubleshooting
       try {
