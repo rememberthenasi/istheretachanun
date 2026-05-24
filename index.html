@@ -680,7 +680,7 @@
       prevRef.setDate(ref.getDate() - 1);
       const isEarlyMorning = ref.getHours() < 6; // 00:00-05:59
       if (displaySecular.getDay() === 5 || ref.getDay() === 5 || (prevRef.getDay() === 5 && isEarlyMorning)) {
-        return { omit: true, label: 'No tachanun', note };
+        return { omit: true, label: 'No tachanun'};
       }
 
       const midnight = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate() + 1, 0, 0, 0, 0);
