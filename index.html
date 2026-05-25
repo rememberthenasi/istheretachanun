@@ -544,6 +544,38 @@
       return `${year}-${month}-${day}`;
     }
 
+    // Operator debug mode (enable with ?debug=1 or ?debug_mobile=1 or localStorage flag)
+    const _urlSearch = new URLSearchParams(window.location.search);
+    const DEBUG = _urlSearch.get('debug') === '1' || _urlSearch.get('debug_mobile') === '1' || localStorage.getItem('istheretachanun_debug') === '1';
+
+    function ensureDebugPanel() {
+      if (!DEBUG) return null;
+      let panel = document.getElementById('debugPanel');
+      if (!panel) {
+        panel = document.createElement('pre');
+        panel.id = 'debugPanel';
+        panel.style.cssText = 'position:fixed;left:8px;right:8px;bottom:8px;max-height:40vh;overflow:auto;background:rgba(0,0,0,0.8);color:#fff;padding:8px;border-radius:8px;font-size:12px;line-height:1.3;z-index:99999;backdrop-filter:blur(4px);';
+        try { document.body.appendChild(panel); } catch (e) { return null; }
+      }
+      return panel;
+    }
+
+    function updateDebugPanel() {
+      if (!DEBUG) return;
+      const panel = ensureDebugPanel();
+      if (!panel) return;
+      const info = {
+        mode: locationState.mode,
+        latitude: locationState.latitude,
+        longitude: locationState.longitude,
+        gpsError: locationState.gpsError,
+        kosherLoaded: Boolean(locationState.kosherJava),
+        timezone: locationState.timezone,
+        time: new Date().toISOString()
+      };
+      try { panel.textContent = JSON.stringify(info, null, 2); } catch (e) { panel.textContent = String(info); }
+    }
+
     const locationState = {
       latitude: null,
       longitude: null,
@@ -680,7 +712,10 @@
             locationState.mode = 'sunset';
             locationState.gpsError = null;
             locationState.sunsetCache.clear();
-            loadKosherJava().finally(() => resolve(true));
+            loadKosherJava().finally(() => {
+              try { updateDebugPanel(); } catch (e) {}
+              resolve(true);
+            });
           },
           (error) => {
             // error.code: 1=PERMISSION_DENIED,2=POSITION_UNAVAILABLE,3=TIMEOUT
@@ -688,6 +723,7 @@
             locationState.gpsError = { code: error?.code || -1, message: error?.message || '' };
             // Log details for operators without exposing to visitors
             try { console.debug('Geolocation error', locationState.gpsError); } catch (e) {}
+            try { updateDebugPanel(); } catch (e) {}
             resolve(false);
           },
           { enableHighAccuracy: false, timeout: 8000, maximumAge: 30 * 60 * 1000 }
@@ -1048,8 +1084,14 @@
     els.todayBtn.addEventListener('click', () => render(new Date(), { live: true }));
 
     render(new Date(), { live: true });
-    loadKosherJava().finally(() => render(new Date(), { live: true }));
-    requestUserLocation().finally(() => render(new Date(), { live: true }));
+    loadKosherJava().finally(() => {
+      try { updateDebugPanel(); } catch (e) {}
+      render(new Date(), { live: true });
+    });
+    requestUserLocation().finally(() => {
+      try { updateDebugPanel(); } catch (e) {}
+      render(new Date(), { live: true });
+    });
   </script>
 </body>
 </html>
