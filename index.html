@@ -551,7 +551,8 @@
       mode: 'loading',
       kosherJava: null,
       kosherJavaLoading: null,
-      sunsetCache: new Map()
+      sunsetCache: new Map(),
+      gpsError: null
     };
 
     function resolveKosherJavaModule(mod) {
@@ -668,6 +669,7 @@
     function requestUserLocation() {
       if (!navigator.geolocation) {
         locationState.mode = 'gps-unavailable';
+        locationState.gpsError = { code: 0, message: 'Geolocation not supported' };
         return Promise.resolve(false);
       }
       return new Promise((resolve) => {
@@ -676,11 +678,16 @@
             locationState.latitude = position.coords.latitude;
             locationState.longitude = position.coords.longitude;
             locationState.mode = 'sunset';
+            locationState.gpsError = null;
             locationState.sunsetCache.clear();
             loadKosherJava().finally(() => resolve(true));
           },
-          () => {
+          (error) => {
+            // error.code: 1=PERMISSION_DENIED,2=POSITION_UNAVAILABLE,3=TIMEOUT
             locationState.mode = 'gps-unavailable';
+            locationState.gpsError = { code: error?.code || -1, message: error?.message || '' };
+            // Log details for operators without exposing to visitors
+            try { console.debug('Geolocation error', locationState.gpsError); } catch (e) {}
             resolve(false);
           },
           { enableHighAccuracy: false, timeout: 8000, maximumAge: 30 * 60 * 1000 }
