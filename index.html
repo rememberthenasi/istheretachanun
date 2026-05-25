@@ -667,7 +667,7 @@
 
     function requestUserLocation() {
       if (!navigator.geolocation) {
-        locationState.mode = 'midnight';
+        locationState.mode = 'gps-unavailable';
         return Promise.resolve(false);
       }
       return new Promise((resolve) => {
@@ -680,7 +680,7 @@
             loadKosherJava().finally(() => resolve(true));
           },
           () => {
-            locationState.mode = 'midnight';
+            locationState.mode = 'gps-unavailable';
             resolve(false);
           },
           { enableHighAccuracy: false, timeout: 8000, maximumAge: 30 * 60 * 1000 }
@@ -932,8 +932,8 @@
         el.classList.toggle('after-sunset', !isDaytime);
         el.title = expanded ? expandedLabel : compactLabel;
         el.setAttribute('aria-label', expanded ? expandedLabel : compactLabel);
-      } else if (mode === 'midnight') {
-        const compactLabel = 'Midnight only';
+      } else if (mode === 'gps-unavailable') {
+        const compactLabel = 'GPS unavailable';
         const expandedLabel = 'Please enable GPS for Shkiah features.';
         if (label) label.textContent = expanded ? expandedLabel : compactLabel;
         el.classList.remove('daytime');
@@ -1008,7 +1008,11 @@
       const mincha = matchMinchaRule(minchaShemaHd, prevMinchaShemaHd, minchaShemaDate);
       const kriasShema = matchKriasShemaRule(minchaShemaHd, minchaShemaDate, referenceDate);
       const isDaytime = hasSunsetBoundary ? isBeforeBoundary : false;
-      const dateStateMode = hasSunsetBoundary ? 'sunset' : locationState.mode;
+      const dateStateMode = hasSunsetBoundary
+        ? 'sunset'
+        : locationState.mode === 'gps-unavailable'
+          ? 'gps-unavailable'
+          : 'loading';
 
       els.gregorianDate.textContent = formatGregorianDate(gregorianDate);
       renderDateState(els.dateState, { mode: dateStateMode, isDaytime });
