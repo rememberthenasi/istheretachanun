@@ -621,6 +621,43 @@
       }
     }
 
+    function getMidnightTime(date) {
+      const fallbackMidnight = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, 0, 0, 0, 0);
+      if (locationState.latitude === null || locationState.longitude === null) return fallbackMidnight;
+
+      const cacheKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${locationState.latitude.toFixed(4)}-${locationState.longitude.toFixed(4)}-midnight`;
+      if (locationState.sunsetCache.has(cacheKey)) return locationState.sunsetCache.get(cacheKey);
+
+      const api = locationState.kosherJava;
+      if (!api) return fallbackMidnight;
+
+      try {
+        const geoLocation = new api.GeoLocation('Current location', locationState.latitude, locationState.longitude, 0, locationState.timezone);
+        const calendar = new api.ZmanimCalendar(geoLocation);
+        if (typeof calendar.setCalendarDate === 'function') {
+          calendar.setCalendarDate(date);
+        } else if (typeof calendar.setDate === 'function') {
+          calendar.setDate(date);
+        }
+
+        const midnight = typeof calendar.getSolarMidnight === 'function'
+          ? calendar.getSolarMidnight()
+          : typeof calendar.getMidnight === 'function'
+            ? calendar.getMidnight()
+            : typeof calendar.getHalachicMidnight === 'function'
+              ? calendar.getHalachicMidnight()
+              : null;
+
+        if (!(midnight instanceof Date) || Number.isNaN(midnight.getTime())) return fallbackMidnight;
+
+        locationState.sunsetCache.set(cacheKey, midnight);
+        return midnight;
+      } catch (error) {
+        console.warn('KosherJava midnight calculation failed', error);
+        return fallbackMidnight;
+      }
+    }
+
     function isBeforeSundown(date) {
       if (locationState.mode !== 'sunset' || locationState.latitude === null || locationState.longitude === null) return null;
       const sunset = getSunsetTime(date, locationState.latitude, locationState.longitude);
@@ -819,7 +856,7 @@
         return { omit: true, label: 'No tachanun'};
       }
 
-      const midnight = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate() + 1, 0, 0, 0, 0);
+      const midnight = getMidnightTime(ref);
       const isBeforeMidnight = ref < midnight;
       const isEveningOrNight = ref.getHours() >= 18;
 
@@ -953,7 +990,9 @@
       const gregorianDate = referenceDate;
       const shouldUseSunset = locationState.mode === 'sunset';
       const isBeforeBoundary = shouldUseSunset ? isBeforeSundown(referenceDate) : null;
-      const hebrewDisplayDate = isLive && shouldUseSunset && isBeforeBoundary ? previousDay(referenceDate) : referenceDate;
+      const midnightBoundary = getMidnightTime(referenceDate);
+      const isBeforeMidnight = referenceDate < midnightBoundary;
+      const hebrewDisplayDate = isLive && ((shouldUseSunset && isBeforeBoundary) || (!shouldUseSunset && isBeforeMidnight)) ? previousDay(referenceDate) : referenceDate;
       const shacharitDate = makeDateAtNoon(hebrewDisplayDate);
       const minchaShemaDate = new Date(referenceDate);
 
