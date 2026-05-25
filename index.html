@@ -85,29 +85,38 @@
     .status-card { padding:var(--space-6); display:grid; gap:var(--space-5); }
     .date-row { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; }
     .date-chip { border-radius:var(--radius-full); padding:var(--space-2) var(--space-3); background:var(--color-surface-2); border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent); font-size:var(--text-sm); }
-    .date-state {
+    .gps-indicator {
+      display: none;
       min-height: 2rem;
-      padding: 0.25rem 0.65rem;
+      min-width: 2rem;
+      padding: 0.25rem 0.5rem;
       border-radius: 9999px;
-      display: inline-grid;
-      grid-auto-flow: column;
       align-items: center;
-      gap: 0.4rem;
+      justify-content: center;
+      gap: 0.35rem;
+      border: 1px solid color-mix(in srgb, var(--color-primary) 28%, transparent);
+      background: color-mix(in srgb, var(--color-primary) 12%, var(--color-surface-2));
+      color: var(--color-primary);
+      font-size: 0.95rem;
+      line-height: 1;
       flex: 0 0 auto;
       cursor: pointer;
-      border: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
-      background: var(--color-surface-2);
-      color: var(--color-text-muted);
-      font-size: 0.8rem;
-      line-height: 1;
-      transition: transform var(--transition), background var(--transition), color var(--transition), border-color var(--transition);
+      transition: transform var(--transition), background var(--transition), border-color var(--transition);
     }
-    .date-state.daytime { color: var(--color-warning); }
-    .date-state.after-sunset { color: var(--color-primary); }
-    .date-state:hover { transform: translateY(-1px); }
-    .date-state .state-icon { font-size: 0.95rem; }
-    .date-state .state-label { white-space: nowrap; overflow: hidden; max-width: 0; opacity: 0; transition: max-width var(--transition), opacity var(--transition); }
-    .date-state.expanded .state-label { max-width: 26ch; opacity: 1; }
+    .gps-indicator.active { display: inline-flex; }
+    .gps-indicator:hover { transform: translateY(-1px); }
+    .gps-indicator .gps-label {
+      white-space: nowrap;
+      overflow: hidden;
+      max-width: 0;
+      opacity: 0;
+      transition: max-width var(--transition), opacity var(--transition);
+      font-size: 0.8rem;
+    }
+    .gps-indicator.expanded .gps-label {
+      max-width: 24ch;
+      opacity: 1;
+    }
     .status-grid { display:grid; gap:var(--space-4); grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); }
     .status-box { padding:var(--space-4); border-radius:var(--radius-lg); background:var(--color-surface-2); border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent); }
     .status-label { margin:0 0 var(--space-2); font-size:var(--text-xs); letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:var(--color-text-muted); }
@@ -272,9 +281,9 @@
           <div class="date-row">
             <div class="date-chip mono clickable" id="gregorianDate" role="button" tabindex="0" aria-controls="dateInput" aria-label="Open date picker">—</div>
             <div class="date-chip hebrew-native clickable" id="hebrewDateHebrew" lang="he" role="button" tabindex="0" aria-controls="dateInput" aria-label="Open date picker">—</div>
-            <button class="date-state" id="dateState" type="button" aria-expanded="false" title="Loading">
-                <span class="state-icon" aria-hidden="true">🧭</span>
-                <span class="state-label">Loading</span>
+            <button class="gps-indicator" id="gpsIndicator" type="button" aria-expanded="false" aria-label="Using GPS for halachic times" title="Using GPS for halachic times">
+              <span class="gps-icon" aria-hidden="true">🧭</span>
+              <span class="gps-label">Using GPS for halachic times</span>
             </button>
           </div>
 
@@ -456,8 +465,8 @@
 
     const els = {
       gregorianDate: document.getElementById('gregorianDate'),
-      dateState: document.getElementById('dateState'),
       hebrewDateHebrew: document.getElementById('hebrewDateHebrew'),
+      gpsIndicator: document.getElementById('gpsIndicator'),
       datePickerCard: document.getElementById('datePickerCard'),
       rulesCard: document.querySelector('.rules-card'),
       shacharitAnswer: document.getElementById('shacharitAnswer'),
@@ -955,45 +964,6 @@
       el.className = `decision ${result.omit ? 'skip' : 'say'}`;
     }
 
-    function renderDateState(el, status) {
-      if (!el) return;
-      const icon = el.querySelector('.state-icon');
-      const label = el.querySelector('.state-label');
-      const expanded = el.classList.contains('expanded');
-      const mode = status?.mode || 'loading';
-      const isDaytime = Boolean(status?.isDaytime);
-
-      if (icon) icon.textContent = mode === 'sunset' ? (isDaytime ? '☀︎' : '☾') : '🧭';
-
-      if (mode === 'sunset') {
-        const compactLabel = isDaytime ? 'Before shkiah' : 'After shkiah';
-        const expandedLabel = isDaytime
-          ? "It's currently before Shkiah"
-          : "It's currently after Shkiah";
-        if (label) label.textContent = expanded ? expandedLabel : compactLabel;
-        el.classList.toggle('daytime', isDaytime);
-        el.classList.toggle('after-sunset', !isDaytime);
-        el.title = expanded ? expandedLabel : compactLabel;
-        el.setAttribute('aria-label', expanded ? expandedLabel : compactLabel);
-      } else if (mode === 'gps-unavailable') {
-        const compactLabel = 'GPS unavailable';
-        const expandedLabel = 'Please enable GPS for Shkiah features.';
-        if (label) label.textContent = expanded ? expandedLabel : compactLabel;
-        el.classList.remove('daytime');
-        el.classList.remove('after-sunset');
-        el.title = expanded ? expandedLabel : compactLabel;
-        el.setAttribute('aria-label', expanded ? expandedLabel : compactLabel);
-      } else {
-        const compactLabel = 'Loading';
-        if (label) label.textContent = compactLabel;
-        el.classList.remove('daytime');
-        el.classList.remove('after-sunset');
-        el.title = compactLabel;
-        el.setAttribute('aria-label', compactLabel);
-      }
-      el.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-    }
-
     function renderDetail(el, result) {
       // Show reason if omit is true, or if it's a varies date
       if (!result.omit && !result.varies && !result.note) {
@@ -1027,6 +997,16 @@
       }
     }
 
+    function renderGpsIndicator(isUsingHalachicTimes) {
+      if (!els.gpsIndicator) return;
+      const isUsing = Boolean(isUsingHalachicTimes);
+      els.gpsIndicator.classList.toggle('active', isUsing);
+      if (!isUsing) {
+        els.gpsIndicator.classList.remove('expanded');
+        els.gpsIndicator.setAttribute('aria-expanded', 'false');
+      }
+    }
+
     function render(date, options = {}) {
       const isLive = Boolean(options.live);
       const referenceDate = new Date(date);
@@ -1034,10 +1014,7 @@
       const shouldUseSunset = locationState.mode === 'sunset';
       const isBeforeBoundary = shouldUseSunset ? isBeforeSundown(referenceDate) : null;
       const hasSunsetBoundary = shouldUseSunset && typeof isBeforeBoundary === 'boolean';
-      const midnightBoundary = getMidnightTime(referenceDate);
-      const isBeforeMidnight = referenceDate < midnightBoundary;
-      const hebrewDisplayDate = isLive
-        && ((hasSunsetBoundary && isBeforeBoundary) || (!hasSunsetBoundary && isBeforeMidnight))
+      const hebrewDisplayDate = isLive && hasSunsetBoundary && isBeforeBoundary
         ? previousDay(referenceDate)
         : referenceDate;
       const shacharitDate = makeDateAtNoon(hebrewDisplayDate);
@@ -1050,16 +1027,11 @@
       const shacharit = matchDayRule(shacharitHd, shacharitDate);
       const mincha = matchMinchaRule(minchaShemaHd, prevMinchaShemaHd, minchaShemaDate);
       const kriasShema = matchKriasShemaRule(minchaShemaHd, minchaShemaDate, referenceDate);
-      const isDaytime = hasSunsetBoundary ? isBeforeBoundary : false;
-      const dateStateMode = hasSunsetBoundary
-        ? 'sunset'
-        : locationState.mode === 'gps-unavailable'
-          ? 'gps-unavailable'
-          : 'loading';
+      const usingGpsHalachicTimes = hasSunsetBoundary;
 
       els.gregorianDate.textContent = formatGregorianDate(gregorianDate);
-      renderDateState(els.dateState, { mode: dateStateMode, isDaytime });
       els.hebrewDateHebrew.textContent = formatHebrewDateHebrew(shacharitDate);
+      renderGpsIndicator(usingGpsHalachicTimes);
       renderDecision(els.shacharitAnswer, shacharit);
       renderDecision(els.minchaAnswer, mincha);
       renderDecision(els.kriasShemaAnswer, kriasShema);
@@ -1074,14 +1046,14 @@
       render(new Date(`${e.target.value}T20:00:00`));
     });
 
-    if (els.dateState) {
-      els.dateState.addEventListener('click', () => {
-        els.dateState.classList.toggle('expanded');
-        requestUserLocation().finally(() => render(new Date(), { live: true }));
+    els.todayBtn.addEventListener('click', () => render(new Date(), { live: true }));
+
+    if (els.gpsIndicator) {
+      els.gpsIndicator.addEventListener('click', () => {
+        const expanded = els.gpsIndicator.classList.toggle('expanded');
+        els.gpsIndicator.setAttribute('aria-expanded', expanded ? 'true' : 'false');
       });
     }
-
-    els.todayBtn.addEventListener('click', () => render(new Date(), { live: true }));
 
     render(new Date(), { live: true });
     loadKosherJava().finally(() => {
