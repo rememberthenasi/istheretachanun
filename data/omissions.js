@@ -8,6 +8,8 @@ window.OMISSIONS = {
     { label: 'Chanukah, beginning from 24 Kislev at Mincha through the end of Chanukah.' },
     { label: '15 Shevat, beginning from the afternoon before.' },
     { label: 'From 13 Adar at Mincha through 15 Adar.' },
+    { label: '14 Adar I, Purim Katan.' },
+    { label: '15 Adar I, Shushan Purim Katan.' },
     { label: 'Entire month of Nisan.' },
     { label: 'Issru Chag after Pesach, Shavuos, and Sukkot.' },
     { label: '14 Iyar, Pesach Sheni.' },

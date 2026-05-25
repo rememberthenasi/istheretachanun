@@ -509,6 +509,86 @@
 
     function makeDateAtNoon(date) { return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0, 0); }
     function previousDay(date) { const d = new Date(date); d.setDate(d.getDate() - 1); return makeDateAtNoon(d); }
+    function formatDateInputValue(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    const locationState = {
+      latitude: null,
+      longitude: null,
+      sunsetCache: new Map()
+    };
+
+    function getSunsetTime(date, latitude, longitude) {
+      const cacheKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${latitude.toFixed(4)}-${longitude.toFixed(4)}`;
+      if (locationState.sunsetCache.has(cacheKey)) return locationState.sunsetCache.get(cacheKey);
+
+      const dayOfYear = Math.floor((Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) - Date.UTC(date.getFullYear(), 0, 0)) / 86400000);
+      const lngHour = longitude / 15;
+
+      const approximateTime = dayOfYear + ((18 - lngHour) / 24);
+      const meanAnomaly = (0.9856 * approximateTime) - 3.289;
+      const meanAnomalyRad = meanAnomaly * Math.PI / 180;
+
+      let sunTrueLongitude = meanAnomaly + (1.916 * Math.sin(meanAnomalyRad)) + (0.020 * Math.sin(2 * meanAnomalyRad)) + 282.634;
+      sunTrueLongitude = ((sunTrueLongitude % 360) + 360) % 360;
+
+      let rightAscension = (180 / Math.PI) * Math.atan(0.91764 * Math.tan(sunTrueLongitude * Math.PI / 180));
+      rightAscension = ((rightAscension % 360) + 360) % 360;
+
+      const lQuadrant = Math.floor(sunTrueLongitude / 90) * 90;
+      const raQuadrant = Math.floor(rightAscension / 90) * 90;
+      rightAscension += lQuadrant - raQuadrant;
+      rightAscension /= 15;
+
+      const sinDec = 0.39782 * Math.sin(sunTrueLongitude * Math.PI / 180);
+      const cosDec = Math.cos(Math.asin(sinDec));
+      const zenith = 90.833;
+      const cosH = (Math.cos(zenith * Math.PI / 180) - (sinDec * Math.sin(latitude * Math.PI / 180))) / (cosDec * Math.cos(latitude * Math.PI / 180));
+
+      if (cosH < -1 || cosH > 1) return null;
+
+      let hourAngle = (180 / Math.PI) * Math.acos(cosH);
+      hourAngle /= 15;
+
+      const localMeanTime = hourAngle + rightAscension - (0.06571 * approximateTime) - 6.622;
+      let universalTime = localMeanTime - lngHour;
+      universalTime = ((universalTime % 24) + 24) % 24;
+
+      const sunset = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0));
+      sunset.setUTCHours(Math.floor(universalTime));
+      sunset.setUTCMinutes(Math.floor((universalTime % 1) * 60));
+      sunset.setUTCSeconds(Math.round((((universalTime % 1) * 60) % 1) * 60));
+
+      locationState.sunsetCache.set(cacheKey, sunset);
+      return sunset;
+    }
+
+    function isBeforeSundown(date) {
+      if (locationState.latitude === null || locationState.longitude === null) return date.getHours() < 18;
+      const sunset = getSunsetTime(date, locationState.latitude, locationState.longitude);
+      if (!sunset) return date.getHours() < 18;
+      return date < sunset;
+    }
+
+    function requestUserLocation() {
+      if (!navigator.geolocation) return Promise.resolve(false);
+      return new Promise((resolve) => {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            locationState.latitude = position.coords.latitude;
+            locationState.longitude = position.coords.longitude;
+            locationState.sunsetCache.clear();
+            resolve(true);
+          },
+          () => resolve(false),
+          { enableHighAccuracy: false, timeout: 8000, maximumAge: 30 * 60 * 1000 }
+        );
+      });
+    }
     function getHebrewParts(date) {
       const parts = new Intl.DateTimeFormat('en-u-ca-hebrew', { day:'numeric', month:'long', year:'numeric' }).formatToParts(date);
       return {
@@ -612,6 +692,8 @@
       if ((hd.month === 'Kislev' && hd.day >= 25) || (hd.month === 'Tevet' && hd.day <= 3)) reasons.push('Chanukah');
       if (hd.month === 'Shevat' && hd.day === 15) reasons.push('Tu B’Shevat');
       if (isPurimMonth(hd.month) && hd.day >= 14 && hd.day <= 15) reasons.push('Purim / Shushan Purim');
+      if (hd.month === 'Adar I' && hd.day === 14) reasons.push('Purim Katan');
+      if (hd.month === 'Adar I' && hd.day === 15) reasons.push('Shushan Purim Katan');
 
       if (hd.month === 'Nisan' && hd.day >= 15 && hd.day <= 22) {
         reasons.push(hd.day === 15 || hd.day === 21 || hd.day === 22 ? 'Pesach (Yom Tov)' : 'Pesach (Chol Hamoed)');
@@ -672,14 +754,7 @@
       const note = 'Rebono Shel Olam and Lamnatzeach Mizmor L\'Dovid should still be said.';
 
       // Treat Fridays as Shabbos for Krias Shema: always omit Tachanun on Fridays.
-      // Apply when:
-      // - the display day is Friday, or
-      // - the reference moment is on Friday, or
-      // - it's shortly after Friday (early morning hours) so we still treat it as Friday.
-      const prevRef = new Date(ref);
-      prevRef.setDate(ref.getDate() - 1);
-      const isEarlyMorning = ref.getHours() < 6; // 00:00-05:59
-      if (displaySecular.getDay() === 5 || ref.getDay() === 5 || (prevRef.getDay() === 5 && isEarlyMorning)) {
+      if (displaySecular.getDay() === 5) {
         return { omit: true, label: 'No tachanun'};
       }
 
@@ -772,33 +847,42 @@
       }
     }
 
-    function render(date) {
-      const d = makeDateAtNoon(date);
-      const hd = getHebrewParts(d);
-      const prevHd = getHebrewParts(previousDay(d));
-      const shacharit = matchDayRule(hd, d);
-      const mincha = matchMinchaRule(hd, prevHd, d);
-      const kriasShema = matchKriasShemaRule(hd, d, date);
+    function render(date, options = {}) {
+      const isLive = Boolean(options.live);
+      const referenceDate = new Date(date);
+      const gregorianDate = referenceDate;
+      const hebrewDisplayDate = isLive && isBeforeSundown(referenceDate) ? previousDay(referenceDate) : referenceDate;
+      const shacharitDate = makeDateAtNoon(hebrewDisplayDate);
+      const minchaShemaDate = new Date(referenceDate);
 
-      els.gregorianDate.textContent = formatGregorianDate(d);
-      els.hebrewDateHebrew.textContent = formatHebrewDateHebrew(d);
+      const shacharitHd = getHebrewParts(shacharitDate);
+      const minchaShemaHd = getHebrewParts(minchaShemaDate);
+      const prevMinchaShemaHd = getHebrewParts(previousDay(minchaShemaDate));
+
+      const shacharit = matchDayRule(shacharitHd, shacharitDate);
+      const mincha = matchMinchaRule(minchaShemaHd, prevMinchaShemaHd, minchaShemaDate);
+      const kriasShema = matchKriasShemaRule(minchaShemaHd, minchaShemaDate, referenceDate);
+
+      els.gregorianDate.textContent = formatGregorianDate(gregorianDate);
+      els.hebrewDateHebrew.textContent = formatHebrewDateHebrew(shacharitDate);
       renderDecision(els.shacharitAnswer, shacharit);
       renderDecision(els.minchaAnswer, mincha);
       renderDecision(els.kriasShemaAnswer, kriasShema);
       renderDetail(els.shacharitDetail, shacharit);
       renderDetail(els.minchaDetail, mincha);
       renderDetail(els.kriasShemaDetail, kriasShema);
-      els.dateInput.value = d.toISOString().slice(0, 10);
+      els.dateInput.value = formatDateInputValue(gregorianDate);
     }
 
     els.dateInput.addEventListener('change', (e) => {
       if (!e.target.value) return;
-      render(new Date(`${e.target.value}T12:00:00`));
+      render(new Date(`${e.target.value}T20:00:00`));
     });
 
-    els.todayBtn.addEventListener('click', () => render(new Date()));
+    els.todayBtn.addEventListener('click', () => render(new Date(), { live: true }));
 
-    render(new Date());
+    render(new Date(), { live: true });
+    requestUserLocation().finally(() => render(new Date(), { live: true }));
   </script>
 </body>
 </html>
