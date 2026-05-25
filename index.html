@@ -85,6 +85,29 @@
     .status-card { padding:var(--space-6); display:grid; gap:var(--space-5); }
     .date-row { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; }
     .date-chip { border-radius:var(--radius-full); padding:var(--space-2) var(--space-3); background:var(--color-surface-2); border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent); font-size:var(--text-sm); }
+    .date-state {
+      min-height: 2rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      display: inline-grid;
+      grid-auto-flow: column;
+      align-items: center;
+      gap: 0.4rem;
+      flex: 0 0 auto;
+      cursor: pointer;
+      border: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+      background: var(--color-surface-2);
+      color: var(--color-text-muted);
+      font-size: 0.8rem;
+      line-height: 1;
+      transition: transform var(--transition), background var(--transition), color var(--transition), border-color var(--transition);
+    }
+    .date-state.daytime { color: var(--color-warning); }
+    .date-state.after-sunset { color: var(--color-primary); }
+    .date-state:hover { transform: translateY(-1px); }
+    .date-state .state-icon { font-size: 0.95rem; }
+    .date-state .state-label { white-space: nowrap; overflow: hidden; max-width: 0; opacity: 0; transition: max-width var(--transition), opacity var(--transition); }
+    .date-state.expanded .state-label { max-width: 26ch; opacity: 1; }
     .status-grid { display:grid; gap:var(--space-4); grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); }
     .status-box { padding:var(--space-4); border-radius:var(--radius-lg); background:var(--color-surface-2); border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent); }
     .status-label { margin:0 0 var(--space-2); font-size:var(--text-xs); letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:var(--color-text-muted); }
@@ -249,6 +272,10 @@
           <div class="date-row">
             <div class="date-chip mono clickable" id="gregorianDate" role="button" tabindex="0" aria-controls="dateInput" aria-label="Open date picker">—</div>
             <div class="date-chip hebrew-native clickable" id="hebrewDateHebrew" lang="he" role="button" tabindex="0" aria-controls="dateInput" aria-label="Open date picker">—</div>
+            <button class="date-state" id="dateState" type="button" aria-expanded="false" title="Daytime">
+              <span class="state-icon" aria-hidden="true">☀︎</span>
+              <span class="state-label">Daytime</span>
+            </button>
           </div>
 
           <div class="status-grid">
@@ -429,6 +456,7 @@
 
     const els = {
       gregorianDate: document.getElementById('gregorianDate'),
+      dateState: document.getElementById('dateState'),
       hebrewDateHebrew: document.getElementById('hebrewDateHebrew'),
       datePickerCard: document.getElementById('datePickerCard'),
       rulesCard: document.querySelector('.rules-card'),
@@ -519,52 +547,77 @@
     const locationState = {
       latitude: null,
       longitude: null,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+      kosherJava: null,
+      kosherJavaLoading: null,
       sunsetCache: new Map()
     };
+
+    function resolveKosherJavaModule(mod) {
+      if (!mod) return null;
+      if (mod.GeoLocation && mod.ZmanimCalendar) return mod;
+      if (mod.default && mod.default.GeoLocation && mod.default.ZmanimCalendar) return mod.default;
+      return null;
+    }
+
+    function loadKosherJava() {
+      if (locationState.kosherJava) return Promise.resolve(locationState.kosherJava);
+      if (locationState.kosherJavaLoading) return locationState.kosherJavaLoading;
+
+      const moduleUrls = [
+        'https://cdn.jsdelivr.net/npm/@kosher-zmanim/kosher-zmanim/+esm',
+        'https://unpkg.com/@kosher-zmanim/kosher-zmanim?module'
+      ];
+
+      locationState.kosherJavaLoading = (async () => {
+        for (const url of moduleUrls) {
+          try {
+            const mod = await import(url);
+            const api = resolveKosherJavaModule(mod);
+            if (api) {
+              locationState.kosherJava = api;
+              return api;
+            }
+          } catch (error) {
+            console.warn('KosherJava load failed for', url, error);
+          }
+        }
+        return null;
+      })();
+
+      return locationState.kosherJavaLoading;
+    }
 
     function getSunsetTime(date, latitude, longitude) {
       const cacheKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${latitude.toFixed(4)}-${longitude.toFixed(4)}`;
       if (locationState.sunsetCache.has(cacheKey)) return locationState.sunsetCache.get(cacheKey);
 
-      const dayOfYear = Math.floor((Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) - Date.UTC(date.getFullYear(), 0, 0)) / 86400000);
-      const lngHour = longitude / 15;
+      const api = locationState.kosherJava;
+      if (!api) return null;
 
-      const approximateTime = dayOfYear + ((18 - lngHour) / 24);
-      const meanAnomaly = (0.9856 * approximateTime) - 3.289;
-      const meanAnomalyRad = meanAnomaly * Math.PI / 180;
+      try {
+        const geoLocation = new api.GeoLocation('Current location', latitude, longitude, 0, locationState.timezone);
+        const calendar = new api.ZmanimCalendar(geoLocation);
+        if (typeof calendar.setCalendarDate === 'function') {
+          calendar.setCalendarDate(date);
+        } else if (typeof calendar.setDate === 'function') {
+          calendar.setDate(date);
+        }
 
-      let sunTrueLongitude = meanAnomaly + (1.916 * Math.sin(meanAnomalyRad)) + (0.020 * Math.sin(2 * meanAnomalyRad)) + 282.634;
-      sunTrueLongitude = ((sunTrueLongitude % 360) + 360) % 360;
+        const sunset = typeof calendar.getSunset === 'function'
+          ? calendar.getSunset()
+          : typeof calendar.getSeaLevelSunset === 'function'
+            ? calendar.getSeaLevelSunset()
+            : null;
 
-      let rightAscension = (180 / Math.PI) * Math.atan(0.91764 * Math.tan(sunTrueLongitude * Math.PI / 180));
-      rightAscension = ((rightAscension % 360) + 360) % 360;
+        if (!(sunset instanceof Date) || Number.isNaN(sunset.getTime())) return null;
 
-      const lQuadrant = Math.floor(sunTrueLongitude / 90) * 90;
-      const raQuadrant = Math.floor(rightAscension / 90) * 90;
-      rightAscension += lQuadrant - raQuadrant;
-      rightAscension /= 15;
-
-      const sinDec = 0.39782 * Math.sin(sunTrueLongitude * Math.PI / 180);
-      const cosDec = Math.cos(Math.asin(sinDec));
-      const zenith = 90.833;
-      const cosH = (Math.cos(zenith * Math.PI / 180) - (sinDec * Math.sin(latitude * Math.PI / 180))) / (cosDec * Math.cos(latitude * Math.PI / 180));
-
-      if (cosH < -1 || cosH > 1) return null;
-
-      let hourAngle = (180 / Math.PI) * Math.acos(cosH);
-      hourAngle /= 15;
-
-      const localMeanTime = hourAngle + rightAscension - (0.06571 * approximateTime) - 6.622;
-      let universalTime = localMeanTime - lngHour;
-      universalTime = ((universalTime % 24) + 24) % 24;
-
-      const sunset = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0));
-      sunset.setUTCHours(Math.floor(universalTime));
-      sunset.setUTCMinutes(Math.floor((universalTime % 1) * 60));
-      sunset.setUTCSeconds(Math.round((((universalTime % 1) * 60) % 1) * 60));
-
-      locationState.sunsetCache.set(cacheKey, sunset);
-      return sunset;
+        locationState.sunsetCache.set(cacheKey, sunset);
+        return sunset;
+      } catch (error) {
+        console.warn('KosherJava sunset calculation failed', error);
+        return null;
+      }
     }
 
     function isBeforeSundown(date) {
@@ -582,7 +635,7 @@
             locationState.latitude = position.coords.latitude;
             locationState.longitude = position.coords.longitude;
             locationState.sunsetCache.clear();
-            resolve(true);
+            loadKosherJava().finally(() => resolve(true));
           },
           () => resolve(false),
           { enableHighAccuracy: false, timeout: 8000, maximumAge: 30 * 60 * 1000 }
@@ -814,6 +867,21 @@
       el.className = `decision ${result.omit ? 'skip' : 'say'}`;
     }
 
+    function renderDateState(el, isDaytime) {
+      if (!el) return;
+      const icon = el.querySelector('.state-icon');
+      const label = el.querySelector('.state-label');
+      const expanded = el.classList.contains('expanded');
+      const stateLabel = isDaytime ? 'before Shkiah' : 'after Shkiah';
+      if (icon) icon.textContent = isDaytime ? '☀︎' : '☾';
+      if (label) label.textContent = expanded ? `It's currently ${stateLabel}` : (isDaytime ? 'Daytime' : 'After sunset');
+      el.classList.toggle('daytime', isDaytime);
+      el.classList.toggle('after-sunset', !isDaytime);
+      el.title = expanded ? `It's currently ${stateLabel}` : (isDaytime ? 'Daytime' : 'After sunset');
+      el.setAttribute('aria-label', expanded ? `It's currently ${stateLabel}` : (isDaytime ? 'Daytime' : 'After sunset'));
+      el.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    }
+
     function renderDetail(el, result) {
       // Show reason if omit is true, or if it's a varies date
       if (!result.omit && !result.varies && !result.note) {
@@ -862,8 +930,10 @@
       const shacharit = matchDayRule(shacharitHd, shacharitDate);
       const mincha = matchMinchaRule(minchaShemaHd, prevMinchaShemaHd, minchaShemaDate);
       const kriasShema = matchKriasShemaRule(minchaShemaHd, minchaShemaDate, referenceDate);
+      const isDaytime = isBeforeSundown(referenceDate);
 
       els.gregorianDate.textContent = formatGregorianDate(gregorianDate);
+      renderDateState(els.dateState, isDaytime);
       els.hebrewDateHebrew.textContent = formatHebrewDateHebrew(shacharitDate);
       renderDecision(els.shacharitAnswer, shacharit);
       renderDecision(els.minchaAnswer, mincha);
@@ -879,9 +949,17 @@
       render(new Date(`${e.target.value}T20:00:00`));
     });
 
+    if (els.dateState) {
+      els.dateState.addEventListener('click', () => {
+        els.dateState.classList.toggle('expanded');
+        requestUserLocation().finally(() => render(new Date(), { live: true }));
+      });
+    }
+
     els.todayBtn.addEventListener('click', () => render(new Date(), { live: true }));
 
     render(new Date(), { live: true });
+    loadKosherJava().finally(() => render(new Date(), { live: true }));
     requestUserLocation().finally(() => render(new Date(), { live: true }));
   </script>
 </body>
