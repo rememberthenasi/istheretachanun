@@ -990,9 +990,13 @@
       const gregorianDate = referenceDate;
       const shouldUseSunset = locationState.mode === 'sunset';
       const isBeforeBoundary = shouldUseSunset ? isBeforeSundown(referenceDate) : null;
+      const hasSunsetBoundary = shouldUseSunset && typeof isBeforeBoundary === 'boolean';
       const midnightBoundary = getMidnightTime(referenceDate);
       const isBeforeMidnight = referenceDate < midnightBoundary;
-      const hebrewDisplayDate = isLive && ((shouldUseSunset && isBeforeBoundary) || (!shouldUseSunset && isBeforeMidnight)) ? previousDay(referenceDate) : referenceDate;
+      const hebrewDisplayDate = isLive
+        && ((hasSunsetBoundary && isBeforeBoundary) || (!hasSunsetBoundary && isBeforeMidnight))
+        ? previousDay(referenceDate)
+        : referenceDate;
       const shacharitDate = makeDateAtNoon(hebrewDisplayDate);
       const minchaShemaDate = new Date(referenceDate);
 
@@ -1003,10 +1007,11 @@
       const shacharit = matchDayRule(shacharitHd, shacharitDate);
       const mincha = matchMinchaRule(minchaShemaHd, prevMinchaShemaHd, minchaShemaDate);
       const kriasShema = matchKriasShemaRule(minchaShemaHd, minchaShemaDate, referenceDate);
-      const isDaytime = shouldUseSunset ? Boolean(isBeforeBoundary) : false;
+      const isDaytime = hasSunsetBoundary ? isBeforeBoundary : false;
+      const dateStateMode = hasSunsetBoundary ? 'sunset' : locationState.mode;
 
       els.gregorianDate.textContent = formatGregorianDate(gregorianDate);
-      renderDateState(els.dateState, { mode: locationState.mode, isDaytime });
+      renderDateState(els.dateState, { mode: dateStateMode, isDaytime });
       els.hebrewDateHebrew.textContent = formatHebrewDateHebrew(shacharitDate);
       renderDecision(els.shacharitAnswer, shacharit);
       renderDecision(els.minchaAnswer, mincha);
