@@ -273,8 +273,8 @@
             <div class="date-chip mono clickable" id="gregorianDate" role="button" tabindex="0" aria-controls="dateInput" aria-label="Open date picker">—</div>
             <div class="date-chip hebrew-native clickable" id="hebrewDateHebrew" lang="he" role="button" tabindex="0" aria-controls="dateInput" aria-label="Open date picker">—</div>
             <button class="date-state" id="dateState" type="button" aria-expanded="false" title="Loading">
-              <span class="state-icon" aria-hidden="true">…</span>
-              <span class="state-label">Checking location...</span>
+                <span class="state-icon" aria-hidden="true">🧭</span>
+                <span class="state-label">Loading</span>
             </button>
           </div>
 
@@ -548,6 +548,7 @@
       latitude: null,
       longitude: null,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+      mode: 'loading',
       kosherJava: null,
       kosherJavaLoading: null,
       sunsetCache: new Map()
@@ -621,23 +622,30 @@
     }
 
     function isBeforeSundown(date) {
-      if (locationState.latitude === null || locationState.longitude === null) return date.getHours() < 18;
+      if (locationState.mode !== 'sunset' || locationState.latitude === null || locationState.longitude === null) return null;
       const sunset = getSunsetTime(date, locationState.latitude, locationState.longitude);
-      if (!sunset) return date.getHours() < 18;
+      if (!sunset) return null;
       return date < sunset;
     }
 
     function requestUserLocation() {
-      if (!navigator.geolocation) return Promise.resolve(false);
+      if (!navigator.geolocation) {
+        locationState.mode = 'midnight';
+        return Promise.resolve(false);
+      }
       return new Promise((resolve) => {
         navigator.geolocation.getCurrentPosition(
           (position) => {
             locationState.latitude = position.coords.latitude;
             locationState.longitude = position.coords.longitude;
+            locationState.mode = 'sunset';
             locationState.sunsetCache.clear();
             loadKosherJava().finally(() => resolve(true));
           },
-          () => resolve(false),
+          () => {
+            locationState.mode = 'midnight';
+            resolve(false);
+          },
           { enableHighAccuracy: false, timeout: 8000, maximumAge: 30 * 60 * 1000 }
         );
       });
@@ -867,18 +875,42 @@
       el.className = `decision ${result.omit ? 'skip' : 'say'}`;
     }
 
-    function renderDateState(el, isDaytime) {
+    function renderDateState(el, status) {
       if (!el) return;
       const icon = el.querySelector('.state-icon');
       const label = el.querySelector('.state-label');
       const expanded = el.classList.contains('expanded');
-      const stateLabel = isDaytime ? 'before Shkiah' : 'after Shkiah';
-      if (icon) icon.textContent = isDaytime ? '☀︎' : '☾';
-      if (label) label.textContent = expanded ? `It's currently ${stateLabel}` : (isDaytime ? 'Daytime' : 'After sunset');
-      el.classList.toggle('daytime', isDaytime);
-      el.classList.toggle('after-sunset', !isDaytime);
-      el.title = expanded ? `It's currently ${stateLabel}` : (isDaytime ? 'Daytime' : 'After sunset');
-      el.setAttribute('aria-label', expanded ? `It's currently ${stateLabel}` : (isDaytime ? 'Daytime' : 'After sunset'));
+      const mode = status?.mode || 'loading';
+      const isDaytime = Boolean(status?.isDaytime);
+
+      if (icon) icon.textContent = mode === 'sunset' ? (isDaytime ? '☀︎' : '☾') : '🧭';
+
+      if (mode === 'sunset') {
+        const compactLabel = isDaytime ? 'Before shkiah' : 'After shkiah';
+        const expandedLabel = isDaytime
+          ? "It's currently before Shkiah"
+          : "It's currently after Shkiah";
+        if (label) label.textContent = expanded ? expandedLabel : compactLabel;
+        el.classList.toggle('daytime', isDaytime);
+        el.classList.toggle('after-sunset', !isDaytime);
+        el.title = expanded ? expandedLabel : compactLabel;
+        el.setAttribute('aria-label', expanded ? expandedLabel : compactLabel);
+      } else if (mode === 'midnight') {
+        const compactLabel = 'Midnight only';
+        const expandedLabel = 'Please enable GPS for Shkiah features.';
+        if (label) label.textContent = expanded ? expandedLabel : compactLabel;
+        el.classList.remove('daytime');
+        el.classList.remove('after-sunset');
+        el.title = expanded ? expandedLabel : compactLabel;
+        el.setAttribute('aria-label', expanded ? expandedLabel : compactLabel);
+      } else {
+        const compactLabel = 'Loading';
+        if (label) label.textContent = compactLabel;
+        el.classList.remove('daytime');
+        el.classList.remove('after-sunset');
+        el.title = compactLabel;
+        el.setAttribute('aria-label', compactLabel);
+      }
       el.setAttribute('aria-expanded', expanded ? 'true' : 'false');
     }
 
@@ -919,7 +951,9 @@
       const isLive = Boolean(options.live);
       const referenceDate = new Date(date);
       const gregorianDate = referenceDate;
-      const hebrewDisplayDate = isLive && isBeforeSundown(referenceDate) ? previousDay(referenceDate) : referenceDate;
+      const shouldUseSunset = locationState.mode === 'sunset';
+      const isBeforeBoundary = shouldUseSunset ? isBeforeSundown(referenceDate) : null;
+      const hebrewDisplayDate = isLive && shouldUseSunset && isBeforeBoundary ? previousDay(referenceDate) : referenceDate;
       const shacharitDate = makeDateAtNoon(hebrewDisplayDate);
       const minchaShemaDate = new Date(referenceDate);
 
@@ -930,10 +964,10 @@
       const shacharit = matchDayRule(shacharitHd, shacharitDate);
       const mincha = matchMinchaRule(minchaShemaHd, prevMinchaShemaHd, minchaShemaDate);
       const kriasShema = matchKriasShemaRule(minchaShemaHd, minchaShemaDate, referenceDate);
-      const isDaytime = isBeforeSundown(referenceDate);
+      const isDaytime = shouldUseSunset ? Boolean(isBeforeBoundary) : false;
 
       els.gregorianDate.textContent = formatGregorianDate(gregorianDate);
-      renderDateState(els.dateState, isDaytime);
+      renderDateState(els.dateState, { mode: locationState.mode, isDaytime });
       els.hebrewDateHebrew.textContent = formatHebrewDateHebrew(shacharitDate);
       renderDecision(els.shacharitAnswer, shacharit);
       renderDecision(els.minchaAnswer, mincha);
