@@ -26,7 +26,12 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
   // Network-first for navigation and index.html so the page checks for updates.
-  if (event.request.mode === 'navigate' || url.pathname === '/' || url.pathname.endsWith('index.html')) {
+  if (
+    event.request.mode === 'navigate' ||
+    url.pathname === '/' ||
+    url.pathname.endsWith('index.html') ||
+    url.pathname === '/data/omissions.js'
+  ) {
     event.respondWith(
       fetch(event.request).then((networkResponse) => {
         // Update cache for offline fallback

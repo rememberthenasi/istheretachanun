@@ -26,7 +26,7 @@ window.OMISSIONS = {
     { label: 'Yud Gimmel Tammuz.', chabadCustom: true }
   ],
   variesNotes: [
-    '<li><strong>3 Tammuz:</strong> Public custom is generally to say Tachanun, though some individuals who feel significant joy may omit privately.</li>',
+    '<li><strong>3 Tammuz:</strong> Public custom is generally to say Tachanun, though some individuals may omit privately for personal reasons. Tachanun is omitted on days when significant joy is felt. </li>',
     '<li><strong>18 Elul:</strong> Some mention omitting Tachanun, but in the Rebbe’s minyan Tachanun was said.</li>',
     '<li><strong>5 Teves:</strong> Public custom is generally to say Tachanun, though a person who truly feels exceptional joy may have a personal practice.</li>'
   ],
