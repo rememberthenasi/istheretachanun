@@ -83,6 +83,15 @@
     }
     .panel { background:color-mix(in srgb, var(--color-surface) 92%, transparent); border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent); border-radius:var(--radius-xl); box-shadow:var(--shadow-md); backdrop-filter: blur(8px); }
     .status-card { padding:var(--space-6); display:grid; gap:var(--space-5); }
+    .one-time-banner {
+      margin: 0 0 var(--space-4);
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-lg);
+      border: 1px solid color-mix(in srgb, var(--color-primary) 28%, transparent);
+      background: color-mix(in srgb, var(--color-primary) 14%, var(--color-surface));
+      color: var(--color-text);
+      font-weight: 500;
+    }
     .date-row { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; }
     .date-chip { border-radius:var(--radius-full); padding:var(--space-2) var(--space-3); background:var(--color-surface-2); border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent); font-size:var(--text-sm); }
     .gps-indicator {
@@ -278,6 +287,7 @@
 
       <section class="grid" aria-label="Tachanun result and details">
         <article class="panel status-card" aria-live="polite">
+          <div id="oneTimeBanner" class="one-time-banner" hidden>No tachanun in Crown Heights, in honor of Siyum Sefer Torah</div>
           <div class="date-row">
             <div class="date-chip mono clickable" id="gregorianDate" role="button" tabindex="0" aria-controls="dateInput" aria-label="Open date picker">—</div>
             <div class="date-chip hebrew-native clickable" id="hebrewDateHebrew" lang="he" role="button" tabindex="0" aria-controls="dateInput" aria-label="Open date picker">—</div>
@@ -464,6 +474,7 @@
     })();
 
     const els = {
+      oneTimeBanner: document.getElementById('oneTimeBanner'),
       gregorianDate: document.getElementById('gregorianDate'),
       hebrewDateHebrew: document.getElementById('hebrewDateHebrew'),
       gpsIndicator: document.getElementById('gpsIndicator'),
@@ -551,6 +562,16 @@
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
       return `${year}-${month}-${day}`;
+    }
+    const ONE_TIME_BANNER_DATE = '2026-06-07';
+
+    function isOneTimeBannerDay(date) {
+      return formatDateInputValue(date) === ONE_TIME_BANNER_DATE;
+    }
+
+    function renderOneTimeBanner(date, isLive) {
+      if (!els.oneTimeBanner) return;
+      els.oneTimeBanner.hidden = !(isLive && isOneTimeBannerDay(date));
     }
 
     // Operator debug mode (enable with ?debug=1 or ?debug_mobile=1 or localStorage flag)
@@ -1029,6 +1050,7 @@
       const kriasShema = matchKriasShemaRule(minchaShemaHd, minchaShemaDate, referenceDate);
       const usingGpsHalachicTimes = hasSunsetBoundary;
 
+      renderOneTimeBanner(referenceDate, isLive);
       els.gregorianDate.textContent = formatGregorianDate(gregorianDate);
       els.hebrewDateHebrew.textContent = formatHebrewDateHebrew(shacharitDate);
       renderGpsIndicator(usingGpsHalachicTimes);
