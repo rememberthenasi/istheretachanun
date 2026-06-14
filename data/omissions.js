@@ -18,7 +18,7 @@ window.OMISSIONS = {
     { label: 'Rosh Chodesh Sivan - 12 Sivan (Sivan 1-12).' },
     { label: '9 Av, beginning from the afternoon before.' },
     { label: '15 Av, beginning from the afternoon before.' },
-    { label: '29 Elul.' },
+    { label: 'Erev Rosh Hashana.' },
     { label: '10 Kislev, beginning from the afternoon before.', chabadCustom: true },
     { label: 'Yud Tes Kislev, beginning from the afternoon before.', chabadCustom: true },
     { label: 'Chof Kislev, beginning from the afternoon before.', chabadCustom: true },

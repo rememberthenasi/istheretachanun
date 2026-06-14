@@ -858,7 +858,7 @@
       if (hd.month === 'Sivan' && hd.day >= 1 && hd.day <= 12 && !reasons.includes('Shavuos')) reasons.push('No Tachanun from Rosh Chodesh Sivan - 12th Sivan');
       if (hd.month === 'Av' && hd.day === 9) reasons.push('Tisha B’Av');
       if (hd.month === 'Av' && hd.day === 15) reasons.push('Tu B’Av');
-      if (hd.month === 'Elul' && hd.day === 29) reasons.push('29 Elul');
+      if (hd.month === 'Elul' && hd.day === 29) reasons.push('Erev Rosh Hashana');
       if (hd.month === 'Kislev' && hd.day === 10) reasons.push((DATA.dateNames || {})['Kislev-10'] || '10 Kislev');
       if (hd.month === 'Kislev' && hd.day === 19) reasons.push((DATA.dateNames || {})['Kislev-19'] || 'Yud Tes Kislev');
       if (hd.month === 'Kislev' && hd.day === 20) reasons.push((DATA.dateNames || {})['Kislev-20'] || 'Chof Kislev');
@@ -875,7 +875,8 @@
       const sameDayRule = matchDayRule(hd, secularDate);
       if (sameDayRule.omit) return sameDayRule;
       if (hd.day === 1 || hd.day === 30) return { omit: true, label: 'Rosh Chodesh day' };
-      if (prevHd.day === 29 || prevHd.day === 30) return { omit: true, label: 'Erev Rosh Chodesh' };
+      const tomorrowHd = getHebrewParts(nextDay(secularDate));
+      if (tomorrowHd.day === 1 || tomorrowHd.day === 30) return { omit: true, label: 'Erev Rosh Chodesh' };
       if (hd.month === 'Kislev' && hd.day === 24) return { omit: true, label: 'Erev Chanukah' };
       if (isPurimMonth(hd.month) && hd.day === 13) return { omit: true, label: 'Erev Purim' };
       if (hd.month === 'Shevat' && hd.day === 14) return { omit: true, label: 'Erev Tu B’Shevat' };
