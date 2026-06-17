@@ -31,9 +31,9 @@ window.OMISSIONS = {
     '<li><strong>5 Teves:</strong> Public custom is generally to say Tachanun, though a person who truly feels exceptional joy may have a personal practice.</li>'
   ],
   variesRules: {
-    'Tammuz-3': 'Public custom generally says Tachanun; some individuals who feel exceptional joy may omit privately.',
+    'Tammuz-3': 'Public custom is generally to say Tachanun, though some individuals may omit privately for personal reasons. Tachanun is omitted on days when significant joy is felt.',
     'Elul-18': 'Some mention omitting Tachanun, but in the Rebbe’s minyan it was said as usual.',
-    'Tevet-5': 'Public custom generally says Tachanun; some individuals may personally omit if they truly feel exceptional joy.'
+    'Tevet-5': 'Public custom is generally to say Tachanun, though a person who truly feels exceptional joy may have a personal practice.'
   },
   dateNames: {
     'Kislev-19': 'Yud Tes Kislev',

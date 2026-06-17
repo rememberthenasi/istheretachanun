@@ -956,6 +956,12 @@
         return { omit: true, label: `No tachanun tonight for ${tomorrowRule.label}`, note };
       }
 
+      // If tomorrow is a 'varies' date (e.g., 3 Tammuz) show that Tachanun is
+      // said but mark it as a custom/varies case — same behavior as daytime.
+      if (tomorrowRule.varies && isEveningOrNight && isBeforeMidnight) {
+        return { omit: false, label: tomorrowRule.label, note, varies: true };
+      }
+
       return { omit: false, label: '', note: '' };
     }
 
