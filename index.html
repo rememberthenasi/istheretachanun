@@ -888,6 +888,13 @@
       if (hd.month === 'Kislev' && hd.day === 19) return { omit: true, label: 'Erev ' + ((DATA.dateNames || {})['Kislev-20'] || 'Chof Kislev') };
       if (hd.month === 'Tammuz' && hd.day === 11) return { omit: true, label: 'Erev ' + ((DATA.dateNames || {})['Tammuz-12'] || 'Yud Beis Tammuz') };
       if ((DATA.variesRules || {})[keyOf(hd)]) return { omit: false, label: (DATA.variesRules || {})[keyOf(hd)], varies: true };
+
+      // If tomorrow is a 'varies' date (e.g., 3 Tammuz), show Mincha as
+      // 'Yes*' so the custom note is visible at Mincha time.
+      if ((DATA.variesRules || {})[keyOf(tomorrowHd)]) {
+        return { omit: false, label: (DATA.variesRules || {})[keyOf(tomorrowHd)], varies: true };
+      }
+
       return { omit: false, label: 'No listed omission date matched' };
     }
 
@@ -950,6 +957,12 @@
         return { omit: true, label: 'No tachanun', note };
       }
 
+      // If today is a 'varies' date (e.g., 3 Tammuz), show Krias Shema as
+      // 'Yes*' so the custom note is visible on the day itself.
+      if (todayRule.varies) {
+        return { omit: false, label: todayRule.label, note, varies: true };
+      }
+
       // If today is not omit but tomorrow is, show the "tonight" message
       // when we're in the evening (practical display window before midnight).
       if (tomorrowRule.omit && isEveningOrNight && isBeforeMidnight) {
@@ -959,6 +972,12 @@
       // If tomorrow is a 'varies' date (e.g., 3 Tammuz) show that Tachanun is
       // said but mark it as a custom/varies case — same behavior as daytime.
       if (tomorrowRule.varies && isEveningOrNight && isBeforeMidnight) {
+        return { omit: false, label: tomorrowRule.label, note, varies: true };
+      }
+
+      // If tomorrow is a 'varies' date during the day, show 'Yes*' so the
+      // custom note is visible for Krias Shema as well.
+      if (tomorrowRule.varies) {
         return { omit: false, label: tomorrowRule.label, note, varies: true };
       }
 
