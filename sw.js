@@ -1,4 +1,4 @@
-const CACHE_NAME = 'istheretachanun-v1';
+const CACHE_NAME = 'istheretachanun-v2';
 const APP_SHELL = [
   '/manifest.webmanifest',
   '/data/omissions.js',
