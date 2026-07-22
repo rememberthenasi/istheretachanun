@@ -963,19 +963,15 @@
         return { omit: false, label: todayRule.label, note, varies: true };
       }
 
-      // If today is not omit but tomorrow is, show the "tonight" message
-      // when we're in the evening (practical display window before midnight).
-      if (tomorrowRule.omit && isEveningOrNight && isBeforeMidnight) {
+      // If today is not omit but tomorrow is, show the "tonight" message.
+      // "Tonight" always means the night following the current secular date
+      // (from 12:00 AM onward), and that night follows tomorrow's rule, so
+      // no midnight cutoff applies — the whole night omits.
+      if (tomorrowRule.omit) {
         return { omit: true, label: `No tachanun tonight for ${tomorrowRule.label}`, note };
       }
 
-      // If tomorrow is a 'varies' date (e.g., 3 Tammuz) show that Tachanun is
-      // said but mark it as a custom/varies case — same behavior as daytime.
-      if (tomorrowRule.varies && isEveningOrNight && isBeforeMidnight) {
-        return { omit: false, label: tomorrowRule.label, note, varies: true };
-      }
-
-      // If tomorrow is a 'varies' date during the day, show 'Yes*' so the
+      // If tomorrow is a 'varies' date (e.g., 3 Tammuz), show 'Yes*' so the
       // custom note is visible for Krias Shema as well.
       if (tomorrowRule.varies) {
         return { omit: false, label: tomorrowRule.label, note, varies: true };

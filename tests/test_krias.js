@@ -20,7 +20,7 @@ function matchKriasShemaRuleStub(todayRule, tomorrowRule, referenceIso) {
     return { omit: true, label: 'No tachanun', note };
   }
 
-  if (tomorrowRule.omit && isEveningOrNight && isBeforeMidnight) {
+  if (tomorrowRule.omit) {
     return { omit: true, label: `No tachanun tonight for ${tomorrowRule.label}`, note };
   }
 
@@ -45,6 +45,18 @@ const tests = [
     todayRule: { omit: false },
     tomorrowRule: { omit: true, label: 'Rosh Chodesh' },
     ref: '2026-05-16T23:00:00'
+  },
+  {
+    name: 'Erev Tisha B’Av daytime (8 Av at noon, live clock)',
+    todayRule: { omit: false },
+    tomorrowRule: { omit: true, label: 'Tisha B’Av' },
+    ref: '2026-07-22T12:00:00'
+  },
+  {
+    name: 'Regular day followed by omit, just after midnight (shows the coming night)',
+    todayRule: { omit: false },
+    tomorrowRule: { omit: true, label: 'Tisha B’Av' },
+    ref: '2026-07-22T00:01:00'
   }
 ];
 
