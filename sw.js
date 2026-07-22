@@ -1,8 +1,8 @@
-const CACHE_NAME = 'istheretachanun-v2';
+const CACHE_NAME = 'istheretachanun-v3';
 const APP_SHELL = [
-  '/manifest.webmanifest',
+  '/manifest.webmanifest?v=3',
   '/data/omissions.js',
-  '/assets/app-icon.svg'
+  '/assets/app-icon.svg?v=3'
 ];
 
 self.addEventListener('install', (event) => {
