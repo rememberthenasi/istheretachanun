@@ -45,6 +45,12 @@ const tests = [
     todayRule: { omit: false },
     tomorrowRule: { omit: true, label: 'Rosh Chodesh' },
     ref: '2026-05-16T23:00:00'
+  },
+  {
+    name: '8 Av night going into Tisha B’Av',
+    todayRule: { omit: false },
+    tomorrowRule: { omit: true, label: 'Tisha B’Av' },
+    ref: '2026-07-22T23:00:00'
   }
 ];
 

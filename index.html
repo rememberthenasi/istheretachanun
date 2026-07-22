@@ -963,6 +963,11 @@
         return { omit: false, label: todayRule.label, note, varies: true };
       }
 
+      // Special-case 8 Av at night: omit Tachanun for Krias Shema on the eve of Tisha B'Av.
+      if (displayHd.month === 'Av' && displayHd.day === 8 && isEveningOrNight && isBeforeMidnight) {
+        return { omit: true, label: 'No tachanun tonight for Tisha B’Av', note };
+      }
+
       // If today is not omit but tomorrow is, show the "tonight" message
       // when we're in the evening (practical display window before midnight).
       if (tomorrowRule.omit && isEveningOrNight && isBeforeMidnight) {
