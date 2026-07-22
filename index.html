@@ -919,6 +919,10 @@
       const midnight = getMidnightTime(ref);
       const isBeforeMidnight = ref < midnight;
       const isEveningOrNight = ref.getHours() >= 18;
+      // From morning onward, "tonight" means the coming night, so tomorrow's
+      // rule governs the Shema answer all day — not just after 6 PM. Before
+      // 6 AM the night in progress still belongs to today's Hebrew date.
+      const isMorningOrLater = ref.getHours() >= 6;
 
       // Debug helper: log evaluation state to console for troubleshooting
       try {
@@ -928,7 +932,8 @@
           todayRule,
           tomorrowRule,
           isBeforeMidnight,
-          isEveningOrNight
+          isEveningOrNight,
+          isMorningOrLater
         });
       } catch (e) {
         // ignore console failures in some environments
@@ -964,8 +969,8 @@
       }
 
       // If today is not omit but tomorrow is, show the "tonight" message
-      // when we're in the evening (practical display window before midnight).
-      if (tomorrowRule.omit && isEveningOrNight && isBeforeMidnight) {
+      // from morning through midnight (the coming night follows tomorrow's rule).
+      if (tomorrowRule.omit && isMorningOrLater && isBeforeMidnight) {
         return { omit: true, label: `No tachanun tonight for ${tomorrowRule.label}`, note };
       }
 
