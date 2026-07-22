@@ -1038,9 +1038,14 @@
       }
     }
 
+    let currentRenderedDate = new Date();
+    let currentRenderOptions = { live: true };
+
     function render(date, options = {}) {
-      const isLive = Boolean(options.live);
       const referenceDate = new Date(date);
+      currentRenderedDate = new Date(referenceDate);
+      currentRenderOptions = { live: Boolean(options.live) };
+      const isLive = currentRenderOptions.live;
       const gregorianDate = referenceDate;
       const shouldUseSunset = locationState.mode === 'sunset';
       const isBeforeBoundary = shouldUseSunset ? isBeforeSundown(referenceDate) : null;
@@ -1072,9 +1077,13 @@
       els.dateInput.value = formatDateInputValue(gregorianDate);
     }
 
+    function rerenderCurrentView() {
+      render(new Date(currentRenderedDate), currentRenderOptions);
+    }
+
     els.dateInput.addEventListener('change', (e) => {
       if (!e.target.value) return;
-      render(new Date(`${e.target.value}T20:00:00`));
+      render(new Date(`${e.target.value}T20:00:00`), { live: false });
     });
 
     els.todayBtn.addEventListener('click', () => render(new Date(), { live: true }));
@@ -1089,11 +1098,11 @@
     render(new Date(), { live: true });
     loadKosherJava().finally(() => {
       try { updateDebugPanel(); } catch (e) {}
-      render(new Date(), { live: true });
+      rerenderCurrentView();
     });
     requestUserLocation().finally(() => {
       try { updateDebugPanel(); } catch (e) {}
-      render(new Date(), { live: true });
+      rerenderCurrentView();
     });
   </script>
 </body>
