@@ -4,7 +4,6 @@ function matchKriasShemaRuleStub(todayRule, tomorrowRule, referenceIso) {
   const midnight = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate() + 1, 0, 0, 0, 0);
   const isBeforeMidnight = ref < midnight;
   const isEveningOrNight = ref.getHours() >= 18;
-  const isMorningOrLater = ref.getHours() >= 6;
   const note = "Rebono Shel Olam and Lamnatzeach Mizmor L'Dovid should still be said.";
 
   // Simulate today's omit
@@ -21,7 +20,7 @@ function matchKriasShemaRuleStub(todayRule, tomorrowRule, referenceIso) {
     return { omit: true, label: 'No tachanun', note };
   }
 
-  if (tomorrowRule.omit && isMorningOrLater && isBeforeMidnight) {
+  if (tomorrowRule.omit) {
     return { omit: true, label: `No tachanun tonight for ${tomorrowRule.label}`, note };
   }
 
@@ -54,10 +53,10 @@ const tests = [
     ref: '2026-07-22T12:00:00'
   },
   {
-    name: 'Regular day followed by omit, small hours (night still belongs to today)',
+    name: 'Regular day followed by omit, just after midnight (shows the coming night)',
     todayRule: { omit: false },
     tomorrowRule: { omit: true, label: 'Tisha B’Av' },
-    ref: '2026-07-22T02:00:00'
+    ref: '2026-07-22T00:01:00'
   }
 ];
 

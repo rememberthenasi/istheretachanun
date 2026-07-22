@@ -919,10 +919,6 @@
       const midnight = getMidnightTime(ref);
       const isBeforeMidnight = ref < midnight;
       const isEveningOrNight = ref.getHours() >= 18;
-      // From morning onward, "tonight" means the coming night, so tomorrow's
-      // rule governs the Shema answer all day — not just after 6 PM. Before
-      // 6 AM the night in progress still belongs to today's Hebrew date.
-      const isMorningOrLater = ref.getHours() >= 6;
 
       // Debug helper: log evaluation state to console for troubleshooting
       try {
@@ -932,8 +928,7 @@
           todayRule,
           tomorrowRule,
           isBeforeMidnight,
-          isEveningOrNight,
-          isMorningOrLater
+          isEveningOrNight
         });
       } catch (e) {
         // ignore console failures in some environments
@@ -968,19 +963,15 @@
         return { omit: false, label: todayRule.label, note, varies: true };
       }
 
-      // If today is not omit but tomorrow is, show the "tonight" message
-      // from morning through midnight (the coming night follows tomorrow's rule).
-      if (tomorrowRule.omit && isMorningOrLater && isBeforeMidnight) {
+      // If today is not omit but tomorrow is, show the "tonight" message.
+      // "Tonight" always means the night following the current secular date
+      // (from 12:00 AM onward), and that night follows tomorrow's rule, so
+      // no midnight cutoff applies — the whole night omits.
+      if (tomorrowRule.omit) {
         return { omit: true, label: `No tachanun tonight for ${tomorrowRule.label}`, note };
       }
 
-      // If tomorrow is a 'varies' date (e.g., 3 Tammuz) show that Tachanun is
-      // said but mark it as a custom/varies case — same behavior as daytime.
-      if (tomorrowRule.varies && isEveningOrNight && isBeforeMidnight) {
-        return { omit: false, label: tomorrowRule.label, note, varies: true };
-      }
-
-      // If tomorrow is a 'varies' date during the day, show 'Yes*' so the
+      // If tomorrow is a 'varies' date (e.g., 3 Tammuz), show 'Yes*' so the
       // custom note is visible for Krias Shema as well.
       if (tomorrowRule.varies) {
         return { omit: false, label: tomorrowRule.label, note, varies: true };
