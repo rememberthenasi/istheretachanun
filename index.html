@@ -7,15 +7,16 @@
   <meta name="theme-color" content="#171614" />
   <meta name="color-scheme" content="dark light" />
   <script>
-    // Apply the saved theme before first paint so reloads don't flash the other theme.
+    // Apply the theme before first paint: follow the device's dark/light setting,
+    // unless the toggle was used in this tab (kept across reloads for this tab only).
     (function () {
+      var theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
       try {
-        var saved = localStorage.getItem('theme');
-        if (saved === 'light' || saved === 'dark') {
-          document.documentElement.setAttribute('data-theme', saved);
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', saved === 'dark' ? '#171614' : '#f7f6f2');
-        }
+        var override = sessionStorage.getItem('theme');
+        if (override === 'light' || override === 'dark') theme = override;
       } catch (e) { /* storage unavailable */ }
+      document.documentElement.setAttribute('data-theme', theme);
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', theme === 'dark' ? '#171614' : '#f7f6f2');
     })();
   </script>
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -451,8 +452,19 @@
       applyTheme(theme);
       toggle.addEventListener('click', () => {
         applyTheme(theme === 'dark' ? 'light' : 'dark');
-        try { localStorage.setItem('theme', theme); } catch (e) { /* storage unavailable */ }
+        try { sessionStorage.setItem('theme', theme); } catch (e) { /* storage unavailable */ }
       });
+
+      // Follow the device when its dark/light setting changes; this replaces any manual choice.
+      const systemLight = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+      if (systemLight) {
+        const onSystemChange = (e) => {
+          try { sessionStorage.removeItem('theme'); } catch (err) { /* storage unavailable */ }
+          applyTheme(e.matches ? 'light' : 'dark');
+        };
+        if (systemLight.addEventListener) systemLight.addEventListener('change', onSystemChange);
+        else if (systemLight.addListener) systemLight.addListener(onSystemChange);
+      }
 
       // Position the theme toggle so it aligns vertically with the hero heading
       // and horizontally with the right edge of the centered `.shell` container.
