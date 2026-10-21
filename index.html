@@ -5,6 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Is There Tachanun</title>
   <meta name="theme-color" content="#171614" />
+  <meta name="color-scheme" content="dark light" />
+  <script>
+    // Apply the saved theme before first paint so reloads don't flash the other theme.
+    (function () {
+      try {
+        var saved = localStorage.getItem('theme');
+        if (saved === 'light' || saved === 'dark') {
+          document.documentElement.setAttribute('data-theme', saved);
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', saved === 'dark' ? '#171614' : '#f7f6f2');
+        }
+      } catch (e) { /* storage unavailable */ }
+    })();
+  </script>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="Is There Tachanun" />
   <meta name="mobile-web-app-capable" content="yes" />
@@ -36,9 +49,11 @@
       --color-text: #cdccca; --color-text-muted: #797876; --color-text-faint: #5a5957; --color-text-inverse: #2b2a28;
       --color-primary: #4f98a3; --color-primary-hover: #227f8b; --color-primary-highlight: #313b3b; --color-success: #6daa45; --color-success-highlight: #314128; --color-warning: #bb653b; --color-warning-highlight: #4b3931;
       --shadow-sm: 0 1px 2px rgba(0,0,0,0.2); --shadow-md: 0 12px 32px rgba(0,0,0,0.35);
+      color-scheme: dark;
     }
+    [data-theme="light"] { color-scheme: light; }
     *, *::before, *::after { box-sizing: border-box; }
-    html { -webkit-text-size-adjust: none; text-size-adjust: none; }
+    html { -webkit-text-size-adjust: none; text-size-adjust: none; background-color: var(--color-bg); }
     html.force-mobile body { min-width: 320px; }
     html.force-kiosk body { min-width: var(--kiosk-portrait-width); }
     html.force-mobile .shell {
@@ -418,7 +433,8 @@
     (function () {
       const root = document.documentElement;
       const toggle = document.querySelector('[data-theme-toggle]');
-      let theme = 'dark';
+      const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+      let theme = root.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
       function icon(name) {
         return name === 'dark'
           ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
@@ -427,11 +443,16 @@
       function applyTheme(next) {
         theme = next;
         root.setAttribute('data-theme', theme);
+        // Keep the browser chrome (iOS status bar / toolbar tint) in sync with the page.
+        if (themeColorMeta) themeColorMeta.setAttribute('content', theme === 'dark' ? '#171614' : '#f7f6f2');
         toggle.innerHTML = icon(theme === 'dark' ? 'dark' : 'light');
         toggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
       }
       applyTheme(theme);
-      toggle.addEventListener('click', () => applyTheme(theme === 'dark' ? 'light' : 'dark'));
+      toggle.addEventListener('click', () => {
+        applyTheme(theme === 'dark' ? 'light' : 'dark');
+        try { localStorage.setItem('theme', theme); } catch (e) { /* storage unavailable */ }
+      });
 
       // Position the theme toggle so it aligns vertically with the hero heading
       // and horizontally with the right edge of the centered `.shell` container.
