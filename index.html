@@ -346,6 +346,7 @@
   </div>
 
   <script src="data/omissions.js"></script>
+  <script src="lib/tachanun.js"></script>
   <script>
     (() => {
       const search = new URLSearchParams(window.location.search);
@@ -534,8 +535,6 @@
       });
     });
 
-    const monthNames = { Tishri:'Tishrei', Heshvan:'Cheshvan', Kislev:'Kislev', Tevet:'Tevet', Shevat:'Shevat', Adar:'Adar', 'Adar I':'Adar I', 'Adar II':'Adar II', Nisan:'Nisan', Iyar:'Iyar', Sivan:'Sivan', Tamuz:'Tammuz', Av:'Av', Elul:'Elul' };
-
     // Populate UI lists from external data
     els.rulesList.innerHTML = (DATA.omissionRules || []).map(item => {
       const label = typeof item === 'string' ? item : item.label;
@@ -544,8 +543,9 @@
     }).join('');
     els.variesNotes.innerHTML = (DATA.variesNotes || []).join('');
 
-    function makeDateAtNoon(date) { return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0, 0); }
-    function previousDay(date) { const d = new Date(date); d.setDate(d.getDate() - 1); return makeDateAtNoon(d); }
+    // Decision logic lives in lib/tachanun.js (shared with the tests and the
+    // JSON feed); this page only renders what it returns.
+    const { makeDateAtNoon, previousDay, nextDay, getHebrewParts, matchDayRule, matchMinchaRule, matchKriasShemaRule } = window.Tachanun;
     function formatDateInputValue(date) {
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -739,15 +739,6 @@
         );
       });
     }
-    function getHebrewParts(date) {
-      const parts = new Intl.DateTimeFormat('en-u-ca-hebrew', { day:'numeric', month:'long', year:'numeric' }).formatToParts(date);
-      return {
-        day: Number(parts.find(p => p.type === 'day')?.value),
-        month: monthNames[parts.find(p => p.type === 'month')?.value] || parts.find(p => p.type === 'month')?.value,
-        year: Number(parts.find(p => p.type === 'year')?.value)
-      };
-    }
-    function formatHebrewDateEnglish(h) { return `${h.day} ${h.month} ${h.year}`; }
     function formatHebrewNumber(value) {
       // Special cases: use tes-vov (ט״ו) for 15 and tes-zayin (ט״ז) for 16 instead of yud-hei/yud-vav
       if (value === 15) return 'ט״ו';
@@ -795,191 +786,6 @@
       return `${formatHebrewNumber(parts.day)} ${displayMonth} ${displayYear}`;
     }
     function formatGregorianDate(date) { return new Intl.DateTimeFormat('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' }).format(date); }
-    function isShabbosDay(secularDate) { return secularDate.getDay() === 6; }
-    function nextDay(date) { const d = new Date(date); d.setDate(d.getDate() + 1); return makeDateAtNoon(d); }
-    function isRealYomTovDay(hd) {
-      return (hd.month === 'Tishrei' && (hd.day === 1 || hd.day === 2 || hd.day === 15 || hd.day === 21 || hd.day === 22))
-        || (hd.month === 'Nisan' && (hd.day === 15 || hd.day === 21 || hd.day === 22))
-        || (hd.month === 'Sivan' && (hd.day === 6 || hd.day === 7));
-    }
-    function isPurimMonth(month) { return month === 'Adar' || month === 'Adar II'; }
-    function keyOf(hd) { return `${hd.month}-${hd.day}`; }
-
-    function matchDayRule(hd, secularDate) {
-      const isShabbos = secularDate.getDay() === 6;
-      const isRoshChodesh = hd.day === 1 || hd.day === 30;
-      let yomTovReason = '';
-
-      if (hd.month === 'Tishrei' && (hd.day === 1 || hd.day === 2)) {
-        yomTovReason = 'Rosh Hashanah';
-      } else if (hd.month === 'Tishrei' && hd.day >= 15 && hd.day <= 22) {
-        yomTovReason = hd.day === 15 || hd.day === 21 || hd.day === 22 ? 'Sukkot (Yom Tov)' : 'Sukkot (Chol Hamoed)';
-      } else if (hd.month === 'Nisan' && hd.day >= 15 && hd.day <= 22) {
-        yomTovReason = hd.day === 15 || hd.day === 21 || hd.day === 22 ? 'Pesach (Yom Tov)' : 'Pesach (Chol Hamoed)';
-      } else if (hd.month === 'Sivan' && (hd.day === 6 || hd.day === 7)) {
-        yomTovReason = 'Shavuos';
-      }
-
-      if (yomTovReason) {
-        return { omit: true, label: isShabbos ? `Shabbos + ${yomTovReason}` : yomTovReason };
-      }
-
-      if (isShabbos) {
-        return { omit: true, label: 'Shabbos' };
-      }
-
-      if (isRoshChodesh) {
-        const reasons = ['Rosh Chodesh'];
-        if ((hd.month === 'Kislev' && hd.day >= 25) || (hd.month === 'Tevet' && hd.day <= 3)) reasons.push('Chanukah');
-        return { omit: true, label: reasons.join(' + ') };
-      }
-
-      const reasons = [];
-      if ((hd.month === 'Tishrei' && hd.day >= 9) || (hd.month === 'Cheshvan' && hd.day <= 1)) {
-        reasons.push('9 Tishrei through 1 Cheshvan');
-      }
-
-      if ((hd.month === 'Kislev' && hd.day >= 25) || (hd.month === 'Tevet' && hd.day <= 3)) reasons.push('Chanukah');
-      if (hd.month === 'Shevat' && hd.day === 15) reasons.push('Tu B’Shevat');
-      if (isPurimMonth(hd.month) && hd.day >= 14 && hd.day <= 15) reasons.push('Purim / Shushan Purim');
-      if (hd.month === 'Adar I' && hd.day === 14) reasons.push('Purim Katan');
-      if (hd.month === 'Adar I' && hd.day === 15) reasons.push('Shushan Purim Katan');
-
-      if (hd.month === 'Nisan' && hd.day >= 15 && hd.day <= 22) {
-        reasons.push(hd.day === 15 || hd.day === 21 || hd.day === 22 ? 'Pesach (Yom Tov)' : 'Pesach (Chol Hamoed)');
-      } else if (hd.month === 'Nisan') {
-        reasons.push('Nisan');
-      }
-
-      if ((hd.month === 'Nisan' && (hd.day === 23))) reasons.push('Issru Chag');
-      if (hd.month === 'Iyar' && hd.day === 14) reasons.push('Pesach Sheni');
-      if (hd.month === 'Iyar' && hd.day === 18) reasons.push('Lag BaOmer');
-      if (hd.month === 'Sivan' && (hd.day === 6 || hd.day === 7)) reasons.push('Shavuos');
-      if (hd.month === 'Sivan' && hd.day >= 1 && hd.day <= 12 && !reasons.includes('Shavuos')) reasons.push('No Tachanun from Rosh Chodesh Sivan - 12th Sivan');
-      if (hd.month === 'Av' && hd.day === 9) reasons.push('Tisha B’Av');
-      if (hd.month === 'Av' && hd.day === 15) reasons.push('Tu B’Av');
-      if (hd.month === 'Elul' && hd.day === 29) reasons.push('Erev Rosh Hashana');
-      if (hd.month === 'Kislev' && hd.day === 10) reasons.push((DATA.dateNames || {})['Kislev-10'] || '10 Kislev');
-      if (hd.month === 'Kislev' && hd.day === 19) reasons.push((DATA.dateNames || {})['Kislev-19'] || 'Yud Tes Kislev');
-      if (hd.month === 'Kislev' && hd.day === 20) reasons.push((DATA.dateNames || {})['Kislev-20'] || 'Chof Kislev');
-      if (hd.month === 'Tammuz' && hd.day === 12) reasons.push((DATA.dateNames || {})['Tammuz-12'] || 'Yud Beis Tammuz');
-      if (hd.month === 'Tammuz' && hd.day === 13) reasons.push((DATA.dateNames || {})['Tammuz-13'] || 'Yud Gimmel Tammuz');
-
-      if (reasons.length > 0) return { omit: true, label: reasons.join(' + ') };
-      if ((DATA.variesRules || {})[keyOf(hd)]) return { omit: false, label: (DATA.variesRules || {})[keyOf(hd)], varies: true };
-      return { omit: false, label: 'No listed omission date matched' };
-    }
-
-    function matchMinchaRule(hd, prevHd, secularDate) {
-      if (secularDate.getDay() === 5) return { omit: true, label: 'Friday Mincha' };
-      const sameDayRule = matchDayRule(hd, secularDate);
-      if (sameDayRule.omit) return sameDayRule;
-      if (hd.day === 1 || hd.day === 30) return { omit: true, label: 'Rosh Chodesh day' };
-      const tomorrowHd = getHebrewParts(nextDay(secularDate));
-      if (tomorrowHd.day === 1 || tomorrowHd.day === 30) return { omit: true, label: 'Erev Rosh Chodesh' };
-      if (hd.month === 'Kislev' && hd.day === 24) return { omit: true, label: 'Erev Chanukah' };
-      if (isPurimMonth(hd.month) && hd.day === 13) return { omit: true, label: 'Erev Purim' };
-      if (hd.month === 'Shevat' && hd.day === 14) return { omit: true, label: 'Erev Tu B’Shevat' };
-      if (hd.month === 'Iyar' && hd.day === 17) return { omit: true, label: 'Erev Lag BaOmer' };
-      if (hd.month === 'Av' && hd.day === 8) return { omit: true, label: 'Erev Tisha B’Av' };
-      if (hd.month === 'Av' && hd.day === 14) return { omit: true, label: 'Erev Tu B’Av Av' };
-      if (hd.month === 'Kislev' && hd.day === 9) return { omit: true, label: 'Erev Yud Kislev' };
-      if (hd.month === 'Kislev' && hd.day === 18) return { omit: true, label: 'Erev ' + ((DATA.dateNames || {})['Kislev-19'] || 'Yud Tes Kislev') };
-      if (hd.month === 'Kislev' && hd.day === 19) return { omit: true, label: 'Erev ' + ((DATA.dateNames || {})['Kislev-20'] || 'Chof Kislev') };
-      if (hd.month === 'Tammuz' && hd.day === 11) return { omit: true, label: 'Erev ' + ((DATA.dateNames || {})['Tammuz-12'] || 'Yud Beis Tammuz') };
-      if ((DATA.variesRules || {})[keyOf(hd)]) return { omit: false, label: (DATA.variesRules || {})[keyOf(hd)], varies: true };
-
-      // If tomorrow is a 'varies' date (e.g., 3 Tammuz), show Mincha as
-      // 'Yes*' so the custom note is visible at Mincha time.
-      if ((DATA.variesRules || {})[keyOf(tomorrowHd)]) {
-        return { omit: false, label: (DATA.variesRules || {})[keyOf(tomorrowHd)], varies: true };
-      }
-
-      return { omit: false, label: 'No listed omission date matched' };
-    }
-
-    function matchKriasShemaRule(hd, secularDate, referenceDate) {
-      // Determine which secular day to evaluate based on the reference time
-      const ref = referenceDate ? new Date(referenceDate) : new Date();
-      const displaySecular = makeDateAtNoon(ref);
-      const displayHd = getHebrewParts(displaySecular);
-      const tomorrow = nextDay(displaySecular);
-      const tomorrowHd = getHebrewParts(tomorrow);
-
-      const todayRule = matchDayRule(displayHd, displaySecular);
-      const tomorrowRule = matchDayRule(tomorrowHd, tomorrow);
-
-      const note = 'Rebono Shel Olam and Lamnatzeach Mizmor L\'Dovid should still be said.';
-
-      // Treat Fridays as Shabbos for Krias Shema: always omit Tachanun on Fridays.
-      if (displaySecular.getDay() === 5) {
-        return { omit: true, label: 'No tachanun'};
-      }
-
-      const midnight = getMidnightTime(ref);
-      const isBeforeMidnight = ref < midnight;
-      const isEveningOrNight = ref.getHours() >= 18;
-
-      // Debug helper: log evaluation state to console for troubleshooting
-      try {
-        console.debug('kriasShema', {
-          ref: ref.toString(),
-          displayHd,
-          todayRule,
-          tomorrowRule,
-          isBeforeMidnight,
-          isEveningOrNight
-        });
-      } catch (e) {
-        // ignore console failures in some environments
-      }
-
-      // If today is an omit day
-      if (todayRule.omit) {
-        // If tomorrow is also an omit day
-        if (tomorrowRule.omit) {
-          // In the evening before midnight, indicate it's "tonight";
-          // during the day show the plain omit label.
-          if (isEveningOrNight && isBeforeMidnight) {
-            return { omit: true, label: 'No tachanun tonight', note };
-          }
-          return { omit: true, label: 'No tachanun', note };
-        }
-
-        // If this is the last omit day in a run, show the midnight-cutoff
-        // for the whole day up until midnight. After midnight the page
-        // will evaluate the next day instead.
-        if (isBeforeMidnight) {
-          return { omit: true, label: 'No tachanun until midnight', note };
-        }
-
-        // Fallback (should rarely be hit because display day follows ref):
-        return { omit: true, label: 'No tachanun', note };
-      }
-
-      // If today is a 'varies' date (e.g., 3 Tammuz), show Krias Shema as
-      // 'Yes*' so the custom note is visible on the day itself.
-      if (todayRule.varies) {
-        return { omit: false, label: todayRule.label, note, varies: true };
-      }
-
-      // If today is not omit but tomorrow is, show the "tonight" message.
-      // "Tonight" always means the night following the current secular date
-      // (from 12:00 AM onward), and that night follows tomorrow's rule, so
-      // no midnight cutoff applies — the whole night omits.
-      if (tomorrowRule.omit) {
-        return { omit: true, label: `No tachanun tonight for ${tomorrowRule.label}`, note };
-      }
-
-      // If tomorrow is a 'varies' date (e.g., 3 Tammuz), show 'Yes*' so the
-      // custom note is visible for Krias Shema as well.
-      if (tomorrowRule.varies) {
-        return { omit: false, label: tomorrowRule.label, note, varies: true };
-      }
-
-      return { omit: false, label: '', note: '' };
-    }
-
     function renderDecision(el, result) {
       const base = result.omit ? 'No' : 'Yes';
       el.innerHTML = result.varies ? `${base}<span class="asterisk">*</span>` : base;
@@ -1036,19 +842,20 @@
       const shouldUseSunset = locationState.mode === 'sunset';
       const isBeforeBoundary = shouldUseSunset ? isBeforeSundown(referenceDate) : null;
       const hasSunsetBoundary = shouldUseSunset && typeof isBeforeBoundary === 'boolean';
-      const hebrewDisplayDate = isLive && hasSunsetBoundary && isBeforeBoundary
-        ? previousDay(referenceDate)
+      // After local sunset the Hebrew date has already turned over, so the
+      // Shacharis box answers for the day that is beginning.
+      const hebrewDisplayDate = isLive && hasSunsetBoundary && !isBeforeBoundary
+        ? nextDay(referenceDate)
         : referenceDate;
       const shacharitDate = makeDateAtNoon(hebrewDisplayDate);
       const minchaShemaDate = new Date(referenceDate);
 
       const shacharitHd = getHebrewParts(shacharitDate);
       const minchaShemaHd = getHebrewParts(minchaShemaDate);
-      const prevMinchaShemaHd = getHebrewParts(previousDay(minchaShemaDate));
 
       const shacharit = matchDayRule(shacharitHd, shacharitDate);
-      const mincha = matchMinchaRule(minchaShemaHd, prevMinchaShemaHd, minchaShemaDate);
-      const kriasShema = matchKriasShemaRule(minchaShemaHd, minchaShemaDate, referenceDate);
+      const mincha = matchMinchaRule(minchaShemaHd, minchaShemaDate);
+      const kriasShema = matchKriasShemaRule(referenceDate, { midnight: getMidnightTime(referenceDate) });
       const usingGpsHalachicTimes = hasSunsetBoundary;
 
       els.gregorianDate.textContent = formatGregorianDate(gregorianDate);

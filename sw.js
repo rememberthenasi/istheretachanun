@@ -1,7 +1,8 @@
-const CACHE_NAME = 'istheretachanun-v1';
+const CACHE_NAME = 'istheretachanun-v2';
 const APP_SHELL = [
   '/manifest.webmanifest',
   '/data/omissions.js',
+  '/lib/tachanun.js',
   '/assets/app-icon.svg'
 ];
 
@@ -25,12 +26,16 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
 
-  // Network-first for navigation and index.html so the page checks for updates.
+  // Network-first for navigation, index.html, the data file, the rules module
+  // and the JSON feed, so a rule change is picked up on the next online load
+  // and the cached copy is only a fallback for offline.
   if (
     event.request.mode === 'navigate' ||
     url.pathname === '/' ||
     url.pathname.endsWith('index.html') ||
-    url.pathname === '/data/omissions.js'
+    url.pathname === '/data/omissions.js' ||
+    url.pathname.startsWith('/lib/') ||
+    url.pathname.startsWith('/feed/')
   ) {
     event.respondWith(
       fetch(event.request).then((networkResponse) => {

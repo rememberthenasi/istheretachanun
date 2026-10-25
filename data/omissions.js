@@ -1,5 +1,7 @@
 // Data file for omission dates and notes
-window.OMISSIONS = {
+// Attached to globalThis so the same file serves the page (window), the tests
+// and the feed generator (Node).
+globalThis.OMISSIONS = {
   omissionRules: [
     { label: 'Shabbos, beginning from Friday Mincha.' },
     { label: 'Rosh Chodesh, beginning from Mincha of the day before.' },
