@@ -88,8 +88,11 @@ test('overlapping reasons: the label names the most common one only', () => {
   // A plain Chanukah weekday has no `also`
   assert.equal(dayRule('Kislev', 27).also, undefined);
   // The night before shows only that one reason too, and the feed carries `also`
-  assert.equal(T.shemaForNight(T.previousDay(rh)).reason, 'Shabbos');
+  const nightBefore = T.shemaForNight(T.previousDay(rh));
+  assert.equal(nightBefore.reason, 'Shabbos');
+  assert.deepEqual(nightBefore.also, ['Rosh Hashanah']);
   assert.deepEqual(T.decide(rh).shacharit.also, ['Rosh Hashanah']);
+  assert.deepEqual(T.decide(T.previousDay(rh)).krias_shema.also, ['Rosh Hashanah']);
 });
 
 test('Chabad days: 10, 19, 20 Kislev and 12, 13 Tammuz', () => {

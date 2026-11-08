@@ -933,7 +933,8 @@
         el.textContent = '';
         return;
       }
-      const label = String(result.label || '');
+      const alsoList = Array.isArray(result.also) ? result.also.filter(Boolean) : [];
+      const label = String(result.label || '') + (alsoList.length ? ` (also ${alsoList.join(', ')})` : '');
       const note = String(result.note || '');
       const text = [label, note].filter(Boolean).join(label && note ? ' — ' : '');
       if (isKioskMode) {
@@ -991,9 +992,9 @@
         return { omit: false, label: '', note: `Tachanun is said again after midnight (${formatTime(box.midnight)}).` };
       }
       if (rule.untilMidnight) {
-        return { omit: true, label: `No tachanun until midnight (${formatTime(box.midnight)}) · ${rule.reason}`, note: rule.note };
+        return { omit: true, label: `No tachanun until midnight (${formatTime(box.midnight)}) · ${rule.reason}`, also: rule.also, note: rule.note };
       }
-      if (rule.omit) return { omit: true, label: `No tachanun tonight · ${rule.reason}`, note: rule.note };
+      if (rule.omit) return { omit: true, label: `No tachanun tonight · ${rule.reason}`, also: rule.also, note: rule.note };
       if (rule.varies) return { omit: false, varies: true, label: rule.reason, note: rule.note, key: rule.key };
       return { omit: false, label: '', note: '' };
     }
