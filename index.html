@@ -981,9 +981,17 @@
       el.append(document.createTextNode(rest));
     }
 
-    function shemaResult(rule, midnight) {
+    // box: { rule, midnight, afterMidnight, dayAfterRule } as liveView() returns.
+    function shemaResult(box) {
+      const rule = box.rule;
+      if (rule.untilMidnight && box.afterMidnight) {
+        // The omission ended at midnight; the next day's rule applies now.
+        const after = box.dayAfterRule;
+        if (after && after.varies) return { omit: false, varies: true, label: after.label, note: rule.note, key: after.key };
+        return { omit: false, label: '', note: `Tachanun is said again after midnight (${formatTime(box.midnight)}).` };
+      }
       if (rule.untilMidnight) {
-        return { omit: true, label: `No tachanun until midnight (${formatTime(midnight)}) · ${rule.reason}`, note: rule.note };
+        return { omit: true, label: `No tachanun until midnight (${formatTime(box.midnight)}) · ${rule.reason}`, note: rule.note };
       }
       if (rule.omit) return { omit: true, label: `No tachanun tonight · ${rule.reason}`, note: rule.note };
       if (rule.varies) return { omit: false, varies: true, label: rule.reason, note: rule.note, key: rule.key };
@@ -1071,13 +1079,11 @@
       };
       renderBox('shacharis', dayBox(v.shacharis));
       renderBox('mincha', dayBox(v.mincha));
-      const tomorrowNight = v.shema.when === 'tomorrow-night';
       renderBox('shema', {
-        result: shemaResult(v.shema.rule, v.shema.midnight),
+        result: shemaResult(v.shema),
         isNow: v.shema.isNow,
-        pill: tomorrowNight ? 'Tomorrow night' : 'Tonight',
-        isTomorrow: tomorrowNight,
-        whenText: `${shortDate(v.shema.date)} night`
+        pill: 'Tonight',
+        whenText: `${shortDate(v.shema.date)} night${v.shema.afterMidnight ? ' · after midnight' : ''}`
       });
     }
 
@@ -1093,7 +1099,7 @@
       const whenText = `${shortDate(day)} · ${hebrewShort(day)}`;
       renderBox('shacharis', { result: matchDayRule(hd, day), isNow: false, pill: 'Morning', whenText });
       renderBox('mincha', { result: matchMinchaRule(hd, day), isNow: false, pill: 'Afternoon', whenText });
-      renderBox('shema', { result: shemaResult(shemaForNight(day), z.chatzosLaila), isNow: false, pill: 'Night', whenText: `${shortDate(day)} night` });
+      renderBox('shema', { result: shemaResult({ rule: shemaForNight(day), midnight: z.chatzosLaila, afterMidnight: false }), isNow: false, pill: 'Night', whenText: `${shortDate(day)} night` });
     }
 
     function refresh() {

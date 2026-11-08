@@ -12,7 +12,7 @@ A streamlined, responsive static web app designed to answer the daily question: 
 * **Hebrew Calendar Integration:** Runs entirely in the browser using the Hebrew calendar (no server-side API).
 * **Halachic Times:** Sunset, nightfall, midday and halachic midnight are calculated in the browser (`lib/zmanim.js`, Baal HaTanya opinions, matching Chabad.org to the minute). Each box answers for the next time that tefillah is said and is labelled *Today*, *Tomorrow*, *Tonight* or *Tomorrow night*; the box(es) that apply right now are highlighted with a **Now** tag.
   * Shacharis and Mincha switch to tomorrow at nightfall (tzeis).
-  * Krias Shema switches to the next night only after halachic midnight.
+  * Krias Shema shows the current night from nightfall until dawn. The night before a no-Tachanun day omits all night; a night *after* a no-Tachanun day omits only until halachic midnight, after which the next day's rule shows.
   * The Hebrew date turns over at sunset.
 * **Location without GPS:** Times use the visitor's GPS (only after they tap *Use my location*), a city they pick from a worldwide list (`data/cities.json`), or an estimate from the device's time zone. The choice is saved on the device, so the browser is not asked again on every visit. Kiosks can pass `?city=Crown Heights` or `?lat=..&lng=..&tz=..`.
 * **Smart Date Picker:** Look up any past or future date to check its status.

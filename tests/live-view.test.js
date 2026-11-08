@@ -40,8 +40,7 @@ test('morning: Shacharis is now, everything is for today', () => {
   assert.equal(v.shacharis.isNow, true);
   assert.equal(v.shacharis.rule.omit, false);
   assert.equal(v.mincha.isNow, false);
-  assert.equal(v.shema.when, 'tonight');
-  assert.equal(iso(v.shema.date), iso(D));
+  assert.equal(iso(v.shema.date), iso(D)); // the coming night
   assert.equal(v.shema.isNow, false);
   assert.equal(v.shema.rule.omit, true); // night before Yud Tes Kislev
   assert.equal(iso(v.hebrewDate), iso(D));
@@ -70,35 +69,57 @@ test('after tzeis: Shacharis and Mincha move to tomorrow, Shema is now', () => {
   assert.equal(v.shacharis.isNow, false);
   assert.equal(v.mincha.when, 'tomorrow');
   assert.equal(v.mincha.isNow, false);
-  assert.equal(v.shema.when, 'tonight');
   assert.equal(v.shema.isNow, true);
   assert.equal(iso(v.shema.date), iso(D));
+  assert.equal(v.shema.afterMidnight, false);
 });
 
-test('Shema moves to the next night only after halachic midnight', () => {
-  // Midnight at 23:45: at 23:40 still tonight, at 23:50 the next night.
-  const before = T.liveView(at(D, 23, 40), D, zmanim(23.75));
-  assert.equal(before.shema.when, 'tonight');
-  assert.equal(iso(before.shema.date), iso(D));
-  const after = T.liveView(at(D, 23, 50), D, zmanim(23.75));
-  assert.equal(after.shema.when, 'tomorrow-night');
-  assert.equal(iso(after.shema.date), iso(D1));
-  assert.equal(after.shema.isNow, false);
-
-  // Summer: midnight at 00:50. At 00:30 (civil D+1) it is still last night.
-  const late = T.liveView(at(D1, 0, 30), D1, zmanim(24 + 50 / 60)); // 00:50 the next civil day
-  assert.equal(late.shema.when, 'tonight');
+test('the night before a no-Tachanun day omits all night, until dawn', () => {
+  // Midnight at 23:45: still the same night afterwards, still omitted.
+  const late = T.liveView(at(D, 23, 50), D, zmanim(23.75));
   assert.equal(iso(late.shema.date), iso(D));
   assert.equal(late.shema.isNow, true);
-  assert.equal(late.shacharis.when, 'today');
-  assert.equal(iso(late.shacharis.date), iso(D1));
-  const later = T.liveView(at(D1, 1, 0), D1, zmanim(24 + 50 / 60));
-  assert.equal(iso(later.shema.date), iso(D1));
-  assert.equal(later.shema.isNow, false);
+  assert.equal(late.shema.afterMidnight, true);
+  assert.equal(late.shema.rule.omit, true);
+  assert.equal(late.shema.rule.untilMidnight, false);
+  // 4 AM (dawn is 5:00): still the night of D; Shacharis already for D+1.
+  const small = T.liveView(at(D1, 4), D1, zmanim(23.75));
+  assert.equal(iso(small.shema.date), iso(D));
+  assert.equal(small.shema.isNow, true);
+  assert.equal(small.shacharis.when, 'today');
+  assert.equal(iso(small.shacharis.date), iso(D1));
+  assert.equal(small.shacharis.isNow, false);
+  // After dawn the box shows the coming night and Shacharis is now.
+  const dawn = T.liveView(at(D1, 5, 30), D1, zmanim(23.75));
+  assert.equal(iso(dawn.shema.date), iso(D1));
+  assert.equal(dawn.shema.isNow, false);
+  assert.equal(dawn.shacharis.isNow, true);
+});
+
+test('the night after a no-Tachanun day omits only until halachic midnight', () => {
+  const chof = plainWeekdayFor('Kislev', 20); // Chof Kislev; 21 Kislev is regular
+  const before = T.liveView(at(chof, 23, 0), chof, zmanim(23.75));
+  assert.equal(before.shema.rule.omit, true);
+  assert.equal(before.shema.rule.untilMidnight, true);
+  assert.equal(before.shema.afterMidnight, false);
+  const after = T.liveView(at(chof, 23, 50), chof, zmanim(23.75));
+  assert.equal(iso(after.shema.date), iso(chof)); // same night
+  assert.equal(after.shema.afterMidnight, true);
+  assert.equal(after.shema.dayAfterRule.omit, false); // Tachanun resumes
+  assert.equal(after.shema.isNow, true);
+
+  // Summer: midnight at 00:50 the next civil day.
+  const next = T.nextDay(chof);
+  const early = T.liveView(at(next, 0, 30), next, zmanim(24 + 50 / 60));
+  assert.equal(iso(early.shema.date), iso(chof));
+  assert.equal(early.shema.afterMidnight, false);
+  const past = T.liveView(at(next, 1, 0), next, zmanim(24 + 50 / 60));
+  assert.equal(iso(past.shema.date), iso(chof));
+  assert.equal(past.shema.afterMidnight, true);
 });
 
 test('a night after a no-Tachanun day omits only until midnight', () => {
-  const chof = plainWeekdayFor('Kislev', 20); // 21 Kislev is a regular day
+  const chof = plainWeekdayFor('Kislev', 20);
   const r = T.shemaForNight(chof);
   assert.equal(r.omit, true);
   assert.equal(r.untilMidnight, true);
