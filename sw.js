@@ -1,8 +1,9 @@
-const CACHE_NAME = 'istheretachanun-v2';
+const CACHE_NAME = 'istheretachanun-v3';
 const APP_SHELL = [
   '/manifest.webmanifest',
   '/data/omissions.js',
   '/lib/tachanun.js',
+  '/lib/zmanim.js',
   '/assets/app-icon.svg'
 ];
 
@@ -26,6 +27,10 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
 
+  // Leave other sites' requests to the browser (place search, visit counter):
+  // caching them would serve stale answers. Fonts are the one exception.
+  if (url.origin !== self.location.origin && !url.hostname.endsWith('fontshare.com')) return;
+
   // Network-first for navigation, index.html, the data file, the rules module
   // and the JSON feed, so a rule change is picked up on the next online load
   // and the cached copy is only a fallback for offline.
@@ -48,7 +53,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // For other assets, prefer cache-first, then network and cache the result.
+  // Other assets (including the versioned city list, data/cities.json?v=N)
+  // are cache-first., then network and cache the result.
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) return cachedResponse;
