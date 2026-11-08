@@ -69,6 +69,9 @@ Each file carries `schema_version`, `logic_version` and `generated_at`. Each
 date has `today` (daytime Shacharis and Mincha, with the Hebrew date),
 `after_sunset` (the Hebrew day that begins at nightfall, for displays that
 switch at their own local sunset) and `krias_shema` (the night that follows).
+`reason` names one reason only; when reasons overlap (Shabbos Yom Tov, Rosh
+Chodesh in Chanukah, Issru Chag in Nisan) the most common one is given and the
+others are listed in an optional `also` array.
 The three "custom varies" days (3 Tammuz, 18 Elul, 5 Teves) are published with
 `varies: true` and `recite: true`; a display with its own setting for them
 should apply it. Consumers should cache by civil date and keep serving the

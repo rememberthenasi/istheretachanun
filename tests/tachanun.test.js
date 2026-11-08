@@ -73,6 +73,25 @@ test('Tishrei run and Chanukah', () => {
   assert.equal(minchaRule('Kislev', 24).label, 'Erev Chanukah');
 });
 
+test('overlapping reasons: the label names the most common one only', () => {
+  // Shabbos Rosh Hashanah (1 Tishrei 5787 is a Shabbos)
+  const rh = civilFor('Tishrei', 1, 5787);
+  assert.equal(rh.getDay(), 6);
+  const rhRule = T.matchDayRule(T.getHebrewParts(rh), rh);
+  assert.deepEqual([rhRule.omit, rhRule.label, rhRule.also], [true, 'Shabbos', ['Rosh Hashanah']]);
+  // Rosh Chodesh Tevet during Chanukah
+  const rcRule = dayRule('Tevet', 1);
+  assert.deepEqual([rcRule.label, rcRule.also], ['Rosh Chodesh', ['Chanukah']]);
+  // Issru Chag Pesach, in the month of Nisan
+  const icRule = dayRule('Nisan', 23);
+  assert.deepEqual([icRule.label, icRule.also], ['Nisan', ['Issru Chag']]);
+  // A plain Chanukah weekday has no `also`
+  assert.equal(dayRule('Kislev', 27).also, undefined);
+  // The night before shows only that one reason too, and the feed carries `also`
+  assert.equal(T.shemaForNight(T.previousDay(rh)).reason, 'Shabbos');
+  assert.deepEqual(T.decide(rh).shacharit.also, ['Rosh Hashanah']);
+});
+
 test('Chabad days: 10, 19, 20 Kislev and 12, 13 Tammuz', () => {
   assert.equal(dayRule('Kislev', 10).label, '10 Kislev');
   assert.equal(dayRule('Kislev', 19).label, 'Yud Tes Kislev');
