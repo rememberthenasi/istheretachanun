@@ -26,7 +26,7 @@
       --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem; --space-8: 2rem; --space-10: 2.5rem; --space-12: 3rem; --space-16: 4rem;
       --color-bg: #f7f6f2; --color-surface: #f9f8f5; --color-surface-2: #fbfbf9; --color-surface-offset: #f3f0ec; --color-border: #d4d1ca; --color-divider: #dcd9d5;
       --color-text: #28251d; --color-text-muted: #7a7974; --color-text-faint: #bab9b4; --color-text-inverse: #f9f8f4;
-      --color-primary: #01696f; --color-primary-hover: #0c4e54; --color-primary-highlight: #cedcd8; --color-success: #437a22; --color-success-highlight: #d4dfcc; --color-warning: #964219; --color-warning-highlight: #ddcfc6;
+      --color-primary: #01696f; --color-primary-hover: #0c4e54; --color-primary-highlight: #cedcd8; --color-success: #437a22; --color-success-highlight: #d4dfcc; --color-warning: #964219; --color-warning-highlight: #ddcfc6; --color-live: #c62828;
       --radius-sm: 0.375rem; --radius-md: 0.5rem; --radius-lg: 0.75rem; --radius-xl: 1rem; --radius-full: 9999px;
       --shadow-sm: 0 1px 2px rgba(30,28,24,0.06); --shadow-md: 0 6px 24px rgba(30,28,24,0.08);
       --font-body: 'Chillax', Inter, system-ui, -apple-system, sans-serif; --font-display: 'Chillax', Inter, system-ui, -apple-system, sans-serif; --transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -34,7 +34,7 @@
     [data-theme="dark"] {
       --color-bg: #171614; --color-surface: #1c1b19; --color-surface-2: #201f1d; --color-surface-offset: #1d1c1a; --color-border: #393836; --color-divider: #262523;
       --color-text: #cdccca; --color-text-muted: #797876; --color-text-faint: #5a5957; --color-text-inverse: #2b2a28;
-      --color-primary: #4f98a3; --color-primary-hover: #227f8b; --color-primary-highlight: #313b3b; --color-success: #6daa45; --color-success-highlight: #314128; --color-warning: #bb653b; --color-warning-highlight: #4b3931;
+      --color-primary: #4f98a3; --color-primary-hover: #227f8b; --color-primary-highlight: #313b3b; --color-success: #6daa45; --color-success-highlight: #314128; --color-warning: #bb653b; --color-warning-highlight: #4b3931; --color-live: #ef5350;
       --shadow-sm: 0 1px 2px rgba(0,0,0,0.2); --shadow-md: 0 12px 32px rgba(0,0,0,0.35);
     }
     *, *::before, *::after { box-sizing: border-box; }
@@ -71,7 +71,7 @@
     .theme-toggle:hover { transform: translateY(-1px); background:color-mix(in srgb, var(--color-primary) 14%, var(--color-surface)); }
     .theme-toggle { position:fixed; right:calc(env(safe-area-inset-right, 0px) + var(--space-4)); top:calc(env(safe-area-inset-top, 0px) + var(--space-4)); z-index:60; }
     .hero { display:grid; gap:var(--space-6); padding-block:clamp(var(--space-6), 6vw, var(--space-12)); }
-    .hero-head { display:flex; align-items:center; justify-content:flex-start; gap:var(--space-3); width:100%; }
+    .hero-head { display:flex; align-items:center; justify-content:flex-start; flex-wrap:wrap; gap:var(--space-3); width:100%; padding-right:3.5rem; }
     .eyebrow { display:inline-flex; align-items:center; gap:var(--space-2); padding:var(--space-2) var(--space-3); border-radius:var(--radius-full); background:color-mix(in srgb, var(--color-primary) 10%, var(--color-surface)); color:var(--color-primary); font-size:var(--text-xs); font-weight:700; letter-spacing:.08em; text-transform:uppercase; width:fit-content; }
     h1 { margin:0; font-family:var(--font-display); font-size:var(--text-xl); line-height:1.08; max-width:15ch; }
     .lede { margin:0; color:var(--color-text-muted); max-width:62ch; }
@@ -85,38 +85,50 @@
     .status-card { padding:var(--space-6); display:grid; gap:var(--space-5); }
     .date-row { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; }
     .date-chip { border-radius:var(--radius-full); padding:var(--space-2) var(--space-3); background:var(--color-surface-2); border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent); font-size:var(--text-sm); }
-    .gps-indicator {
-      display: none;
-      min-height: 2rem;
-      min-width: 2rem;
-      padding: 0.25rem 0.5rem;
-      border-radius: 9999px;
-      align-items: center;
-      justify-content: center;
-      gap: 0.35rem;
-      border: 1px solid color-mix(in srgb, var(--color-primary) 28%, transparent);
-      background: color-mix(in srgb, var(--color-primary) 12%, var(--color-surface-2));
-      color: var(--color-primary);
-      font-size: 0.95rem;
-      line-height: 1;
-      flex: 0 0 auto;
-      cursor: pointer;
-      transition: transform var(--transition), background var(--transition), border-color var(--transition);
+    .location-chip {
+      display:inline-flex; align-items:center; gap:0.45rem; min-height:2rem; padding:0.3rem 0.75rem; border-radius:var(--radius-full);
+      border:1px solid color-mix(in srgb, var(--color-text) 14%, transparent); background:var(--color-surface-2); color:var(--color-text-muted);
+      font-size:var(--text-xs); font-weight:600; min-width:0; width:fit-content; justify-self:start; max-width:min(60vw, 22rem); transition: transform var(--transition), background var(--transition), border-color var(--transition);
     }
-    .gps-indicator.active { display: inline-flex; }
-    .gps-indicator:hover { transform: translateY(-1px); }
-    .gps-indicator .gps-label {
-      white-space: nowrap;
-      overflow: hidden;
-      max-width: 0;
-      opacity: 0;
-      transition: max-width var(--transition), opacity var(--transition);
-      font-size: 0.8rem;
-    }
-    .gps-indicator.expanded .gps-label {
-      max-width: 24ch;
-      opacity: 1;
-    }
+    .location-chip[hidden] { display:none; }
+    .location-chip:hover { transform:translateY(-1px); }
+    .location-chip-label { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .location-chip .on-air { display:none; position:relative; width:0.55rem; height:0.55rem; border-radius:50%; background:var(--color-live); flex:0 0 auto; }
+    .location-chip .on-air::after { content:''; position:absolute; inset:-0.3rem; border-radius:50%; border:2px solid var(--color-live); opacity:0; animation:on-air 2s ease-out infinite; }
+    .location-chip.live { color:var(--color-text); border-color:color-mix(in srgb, var(--color-live) 45%, transparent); background:color-mix(in srgb, var(--color-live) 9%, var(--color-surface-2)); }
+    .location-chip.live .on-air { display:inline-block; }
+    @keyframes on-air { 0% { transform:scale(0.5); opacity:0.9; } 100% { transform:scale(1.4); opacity:0; } }
+    .zmanim-line { margin:calc(-1 * var(--space-2)) 0 0; font-size:var(--text-xs); color:var(--color-text-muted); }
+    .zmanim-line:empty { display:none; }
+    .location-banner { display:grid; gap:var(--space-3); padding:var(--space-3) var(--space-4); border-radius:var(--radius-lg); background:color-mix(in srgb, var(--color-primary) 8%, var(--color-surface-2)); border:1px solid color-mix(in srgb, var(--color-primary) 25%, transparent); }
+    .location-banner[hidden] { display:none; }
+    .location-banner p { margin:0; font-size:var(--text-sm); }
+    .banner-actions { display:flex; flex-wrap:wrap; gap:var(--space-2); align-items:center; }
+    .banner-close { margin-left:auto; border:0; background:transparent; color:var(--color-text-muted); width:2rem; height:2rem; border-radius:var(--radius-full); }
+    .btn-small { min-height:36px; padding:0.45rem 0.8rem; font-size:var(--text-sm); }
+    .btn-ghost { background:transparent; color:var(--color-primary); border-color:color-mix(in srgb, var(--color-primary) 35%, transparent); }
+    .link-button { border:0; background:none; padding:0; color:var(--color-primary); text-decoration:underline; font-size:inherit; }
+    .location-current p { margin:0; }
+    .location-name { font-weight:700; font-size:var(--text-base); }
+    .location-source, .fine-print, .location-status { margin:0; font-size:var(--text-xs); color:var(--color-text-muted); }
+    .location-status:empty { display:none; }
+    .location-status.error { color:var(--color-warning); }
+    .zmanim-list { display:grid; grid-template-columns:auto 1fr; gap:var(--space-1) var(--space-4); margin:0; font-size:var(--text-sm); }
+    .zmanim-list dt { color:var(--color-text-muted); }
+    .zmanim-list dd { margin:0; }
+    .text-input { min-height:48px; width:100%; border-radius:var(--radius-lg); border:1px solid color-mix(in srgb, var(--color-text) 12%, transparent); background:var(--color-surface-2); color:var(--color-text); padding:0.7rem 1rem; }
+    .city-results { list-style:none; margin:0; padding:0; display:grid; gap:var(--space-1); }
+    .city-results:empty { display:none; }
+    .city-results button { width:100%; text-align:left; border:1px solid color-mix(in srgb, var(--color-text) 8%, transparent); background:var(--color-surface-2); color:var(--color-text); border-radius:var(--radius-md); padding:0.55rem 0.8rem; }
+    .city-results button:hover, .city-results button:focus-visible { background:color-mix(in srgb, var(--color-primary) 10%, var(--color-surface-2)); }
+    .city-results small { color:var(--color-text-muted); }
+    .status-box.is-now { background:color-mix(in srgb, var(--color-primary) 13%, var(--color-surface-2)); border-color:color-mix(in srgb, var(--color-primary) 60%, transparent); box-shadow:0 0 0 1px color-mix(in srgb, var(--color-primary) 35%, transparent); }
+    .now-tag { display:inline-block; margin-left:var(--space-2); padding:0.1rem 0.5rem; border-radius:var(--radius-full); background:var(--color-primary); color:var(--color-text-inverse); font-size:0.68rem; letter-spacing:.08em; vertical-align:middle; }
+    .now-tag[hidden] { display:none; }
+    .when-line { margin:0 0 var(--space-2); font-size:var(--text-xs); color:var(--color-text-muted); }
+    .when-line:empty { display:none; }
+    .when-pill { display:inline-block; margin-right:0.4rem; padding:0.05rem 0.5rem; border-radius:var(--radius-full); font-weight:700; text-transform:uppercase; letter-spacing:.06em; font-size:0.68rem; background:color-mix(in srgb, var(--color-text) 8%, transparent); color:var(--color-text); }
+    .when-pill.tomorrow { background:var(--color-warning-highlight); color:var(--color-warning); }
     .status-grid { display:grid; gap:var(--space-4); grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); }
     .status-box { padding:var(--space-4); border-radius:var(--radius-lg); background:var(--color-surface-2); border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent); }
     .status-label { margin:0 0 var(--space-2); font-size:var(--text-xs); letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:var(--color-text-muted); }
@@ -245,7 +257,7 @@
     html.force-mobile .theme-toggle { width:40px; height:40px; right:calc(env(safe-area-inset-right, 0px) + var(--space-3)); top:calc(env(safe-area-inset-top, 0px) + var(--space-3)); }
     html.force-kiosk #main { min-height: 100%; display:grid; grid-template-rows:auto 1fr auto; }
     html.force-kiosk .hero { gap:var(--space-3); padding-block:var(--space-4); }
-    html.force-kiosk .eyebrow, html.force-kiosk .lede, html.force-kiosk .theme-toggle, html.force-kiosk #datePickerCard, html.force-kiosk .rules-card { display:none; }
+    html.force-kiosk .eyebrow, html.force-kiosk .lede, html.force-kiosk .theme-toggle, html.force-kiosk #datePickerCard, html.force-kiosk #locationCard, html.force-kiosk .location-banner, html.force-kiosk .rules-card { display:none; }
     html.force-kiosk h1 { max-width: none; font-size: 4rem; }
     html.force-kiosk .grid { display:block; height:100%; }
     html.force-kiosk .status-card { height:100%; padding:var(--space-8); align-content:center; gap:var(--space-8); }
@@ -268,6 +280,10 @@
       <section class="hero">
         <div class="hero-head">
           <div class="eyebrow">Daily Tachanun Checker</div>
+          <button class="location-chip" id="locationChip" type="button" aria-controls="locationCard" hidden>
+            <span class="on-air" aria-hidden="true"></span>
+            <span class="location-chip-label" id="locationChipLabel">Set location</span>
+          </button>
           <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch theme"></button>
         </div>
         <div>
@@ -281,30 +297,62 @@
           <div class="date-row">
             <div class="date-chip mono clickable" id="gregorianDate" role="button" tabindex="0" aria-controls="dateInput" aria-label="Open date picker">—</div>
             <div class="date-chip hebrew-native clickable" id="hebrewDateHebrew" lang="he" role="button" tabindex="0" aria-controls="dateInput" aria-label="Open date picker">—</div>
-            <button class="gps-indicator" id="gpsIndicator" type="button" aria-expanded="false" aria-label="Using GPS for halachic times" title="Using GPS for halachic times">
-              <span class="gps-icon" aria-hidden="true">🧭</span>
-              <span class="gps-label">Using GPS for halachic times</span>
-            </button>
+          </div>
+          <p class="zmanim-line mono" id="zmanimLine"></p>
+
+          <div class="location-banner" id="locationBanner" role="region" aria-label="Location" hidden>
+            <p id="locationBannerText">Times are estimated from your time zone.</p>
+            <div class="banner-actions">
+              <button class="btn btn-primary btn-small" type="button" data-use-gps>Use my location</button>
+              <button class="btn btn-ghost btn-small" type="button" data-choose-city>Choose a city</button>
+              <button class="banner-close" type="button" id="locationBannerClose" aria-label="Dismiss">✕</button>
+            </div>
           </div>
 
           <div class="status-grid">
-            <section class="status-box">
-              <p class="status-label">🌅 Shacharis</p>
+            <section class="status-box" id="shacharitBox">
+              <p class="status-label">🌅 Shacharis <span class="now-tag" hidden>Now</span></p>
+              <p class="when-line" id="shacharitWhen"></p>
               <h2 id="shacharitAnswer" class="decision">Loading…</h2>
               <div id="shacharitDetail" class="reason-line">Checking today’s rule.</div>
             </section>
-            <section class="status-box">
-              <p class="status-label">🌇 Mincha</p>
+            <section class="status-box" id="minchaBox">
+              <p class="status-label">🌇 Mincha <span class="now-tag" hidden>Now</span></p>
+              <p class="when-line" id="minchaWhen"></p>
               <h2 id="minchaAnswer" class="decision">Loading…</h2>
               <div id="minchaDetail" class="reason-line">Checking today’s rule.</div>
             </section>
-            <section class="status-box">
-              <p class="status-label">🌙 Shema</p>
+            <section class="status-box" id="kriasShemaBox">
+              <p class="status-label">🌙 Shema <span class="now-tag" hidden>Now</span></p>
+              <p class="when-line" id="kriasShemaWhen"></p>
               <h2 id="kriasShemaAnswer" class="decision">Loading…</h2>
               <div id="kriasShemaDetail" class="reason-line">Checking tonight’s rule.</div>
             </section>
           </div>
         </article>
+
+        <details class="panel detail-card dropdown-card" id="locationCard">
+          <summary class="card-summary">Location &amp; zmanim</summary>
+          <div class="dropdown-body">
+            <div class="location-current">
+              <p class="label">Showing times for</p>
+              <p class="location-name" id="locationName">—</p>
+              <p class="location-source" id="locationSource"></p>
+            </div>
+            <dl class="zmanim-list mono" id="zmanimList"></dl>
+            <div class="action-row">
+              <button class="btn btn-primary" type="button" data-use-gps>📡 Use my current location</button>
+            </div>
+            <p class="location-status" id="locationStatus" role="status" aria-live="polite"></p>
+            <div class="input-row">
+              <label for="citySearch" class="label">Or choose a city</label>
+              <input id="citySearch" class="text-input" type="search" placeholder="Search any city, town or neighborhood…" autocomplete="off" spellcheck="false" />
+              <ul class="city-results" id="cityResults" role="listbox" aria-label="Matching cities"></ul>
+            </div>
+            <p class="fine-print">Your choice is saved on this device, so you won't be asked again. <button class="link-button" type="button" id="clearLocation">Clear saved location</button></p>
+            <p class="fine-print">Place search by <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a> (GeoNames data). Zmanim follow Chabad.org’s opinions.</p>
+          </div>
+        </details>
 
         <details class="panel detail-card dropdown-card" id="datePickerCard">
           <summary class="card-summary">Check another date</summary>
@@ -347,6 +395,7 @@
 
   <script src="data/omissions.js"></script>
   <script src="lib/tachanun.js"></script>
+  <script src="lib/zmanim.js"></script>
   <script>
     (() => {
       const search = new URLSearchParams(window.location.search);
@@ -467,7 +516,6 @@
     const els = {
       gregorianDate: document.getElementById('gregorianDate'),
       hebrewDateHebrew: document.getElementById('hebrewDateHebrew'),
-      gpsIndicator: document.getElementById('gpsIndicator'),
       datePickerCard: document.getElementById('datePickerCard'),
       rulesCard: document.querySelector('.rules-card'),
       shacharitAnswer: document.getElementById('shacharitAnswer'),
@@ -479,14 +527,28 @@
       dateInput: document.getElementById('dateInput'),
       todayBtn: document.getElementById('todayBtn'),
       rulesList: document.getElementById('rulesList'),
-      variesNotes: document.getElementById('variesNotes')
+      variesNotes: document.getElementById('variesNotes'),
+      locationChip: document.getElementById('locationChip'),
+      locationChipLabel: document.getElementById('locationChipLabel'),
+      locationCard: document.getElementById('locationCard'),
+      locationName: document.getElementById('locationName'),
+      locationSource: document.getElementById('locationSource'),
+      zmanimList: document.getElementById('zmanimList'),
+      zmanimLine: document.getElementById('zmanimLine'),
+      locationStatus: document.getElementById('locationStatus'),
+      citySearch: document.getElementById('citySearch'),
+      cityResults: document.getElementById('cityResults'),
+      clearLocation: document.getElementById('clearLocation'),
+      locationBanner: document.getElementById('locationBanner'),
+      locationBannerText: document.getElementById('locationBannerText'),
+      locationBannerClose: document.getElementById('locationBannerClose')
     };
 
     // Load external data (fallback to empty structures if not present)
     const DATA = window.OMISSIONS || { omissionRules: [], variesNotes: [], variesRules: {} };
     const isKioskMode = document.documentElement.classList.contains('force-kiosk');
 
-    const dropdownCards = [els.datePickerCard, els.rulesCard].filter(Boolean);
+    const dropdownCards = [els.locationCard, els.datePickerCard, els.rulesCard].filter(Boolean);
     dropdownCards.forEach((dropdown) => {
       const summary = dropdown.querySelector('summary');
       if (!summary) return;
@@ -543,16 +605,6 @@
     }).join('');
     els.variesNotes.innerHTML = (DATA.variesNotes || []).join('');
 
-    // Decision logic lives in lib/tachanun.js (shared with the tests and the
-    // JSON feed); this page only renders what it returns.
-    const { makeDateAtNoon, previousDay, nextDay, getHebrewParts, matchDayRule, matchMinchaRule, matchKriasShemaRule } = window.Tachanun;
-    function formatDateInputValue(date) {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    }
-
     // Operator debug mode (enable with ?debug=1 or ?debug_mobile=1 or localStorage flag)
     const _urlSearch = new URLSearchParams(window.location.search);
     const DEBUG = _urlSearch.get('debug') === '1' || _urlSearch.get('debug_mobile') === '1' || localStorage.getItem('istheretachanun_debug') === '1';
@@ -574,171 +626,254 @@
       const panel = ensureDebugPanel();
       if (!panel) return;
       const info = {
-        mode: locationState.mode,
-        latitude: locationState.latitude,
-        longitude: locationState.longitude,
-        gpsError: locationState.gpsError,
-        kosherLoaded: Boolean(locationState.kosherJava),
-        timezone: locationState.timezone,
+        location: currentLocation,
+        deviceTimeZone,
+        viewMode,
         time: new Date().toISOString()
       };
       try { panel.textContent = JSON.stringify(info, null, 2); } catch (e) { panel.textContent = String(info); }
     }
 
-    const locationState = {
-      latitude: null,
-      longitude: null,
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
-      mode: 'loading',
-      kosherJava: null,
-      kosherJavaLoading: null,
-      sunsetCache: new Map(),
-      gpsError: null
-    };
+    // Decision logic lives in lib/tachanun.js (shared with the tests and the
+    // JSON feed) and zmanim in lib/zmanim.js; this page only renders them.
+    const { makeDateAtNoon, previousDay, nextDay, getHebrewParts, matchDayRule, matchMinchaRule, shemaForNight, liveView, isoDate } = window.Tachanun;
+    function formatDateInputValue(date) { return isoDate(date); }
 
-    function resolveKosherJavaModule(mod) {
-      if (!mod) return null;
-      if (mod.GeoLocation && mod.ZmanimCalendar) return mod;
-      if (mod.default && mod.default.GeoLocation && mod.default.ZmanimCalendar) return mod.default;
+    // ---- Location ---------------------------------------------------------
+    // Where we get coordinates from, best first:
+    //   url       ?lat=&lng=(&tz=) or ?city=Name — for kiosks, never saved
+    //   gps       the visitor tapped "Use my location" (saved on this device)
+    //   city      the visitor picked a city (saved on this device)
+    //   timezone  biggest city in the device's time zone (approximate)
+    //   offset    longitude from the UTC offset (rough, until cities load)
+    // The browser is only asked for GPS when the visitor taps the button, so
+    // a "no" is never asked again and a saved "yes" needs no new prompt.
+    const LOCATION_KEY = 'istheretachanun.location';
+    const BANNER_KEY = 'istheretachanun.locationBannerDismissed';
+    const CITIES_URL = 'data/cities.json?v=1';
+    const deviceTimeZone = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch (e) { return 'UTC'; } })();
+    const storage = {
+      get(key) { try { return window.localStorage.getItem(key); } catch (e) { return null; } },
+      set(key, value) { try { window.localStorage.setItem(key, value); } catch (e) { /* private mode */ } },
+      remove(key) { try { window.localStorage.removeItem(key); } catch (e) { /* ignore */ } }
+    };
+    const PRECISE_SOURCES = new Set(['url', 'gps', 'city']);
+
+    function isValidTimeZone(tz) {
+      if (!tz || typeof tz !== 'string') return false;
+      try { new Intl.DateTimeFormat('en-US', { timeZone: tz }); return true; } catch (e) { return false; }
+    }
+    function validLocation(loc) {
+      return loc && Number.isFinite(loc.lat) && Number.isFinite(loc.lng)
+        && Math.abs(loc.lat) <= 90 && Math.abs(loc.lng) <= 180 && isValidTimeZone(loc.tz);
+    }
+    function offsetLocation() {
+      const offsetMinutes = -new Date().getTimezoneOffset();
+      const southern = /^(Australia|Antarctica|America\/(Argentina|Sao_Paulo|Santiago|Montevideo|Asuncion)|Africa\/Johannesburg|Pacific\/Auckland)/.test(deviceTimeZone);
+      return { source: 'offset', name: 'your time zone', detail: deviceTimeZone, lat: southern ? -33 : 40, lng: Math.max(-180, Math.min(180, offsetMinutes / 4)), tz: deviceTimeZone };
+    }
+    function readSavedLocation() {
+      const raw = storage.get(LOCATION_KEY);
+      if (!raw) return null;
+      try {
+        const loc = JSON.parse(raw);
+        if (validLocation(loc) && (loc.source === 'gps' || loc.source === 'city')) return loc;
+      } catch (e) { /* fall through */ }
+      storage.remove(LOCATION_KEY);
+      return null;
+    }
+    function saveLocation(loc) {
+      storage.set(LOCATION_KEY, JSON.stringify({
+        source: loc.source, name: loc.name, detail: loc.detail || '', lat: loc.lat, lng: loc.lng, tz: loc.tz, savedAt: Date.now()
+      }));
+    }
+    function urlLocation() {
+      const lat = parseFloat(_urlSearch.get('lat'));
+      const lng = parseFloat(_urlSearch.get('lng') || _urlSearch.get('lon'));
+      const tz = _urlSearch.get('tz') || deviceTimeZone;
+      if (Number.isFinite(lat) && Number.isFinite(lng)) {
+        const loc = { source: 'url', name: _urlSearch.get('name') || `${lat.toFixed(2)}, ${lng.toFixed(2)}`, detail: '', lat, lng, tz };
+        if (validLocation(loc)) return loc;
+      }
       return null;
     }
 
-    function loadKosherJava() {
-      if (locationState.kosherJava) return Promise.resolve(locationState.kosherJava);
-      if (locationState.kosherJavaLoading) return locationState.kosherJavaLoading;
-
-      const moduleUrls = [
-        'https://cdn.jsdelivr.net/npm/@kosher-zmanim/kosher-zmanim/+esm',
-        'https://unpkg.com/@kosher-zmanim/kosher-zmanim?module'
-      ];
-
-      locationState.kosherJavaLoading = (async () => {
-        for (const url of moduleUrls) {
-          try {
-            const mod = await import(url);
-            const api = resolveKosherJavaModule(mod);
-            if (api) {
-              locationState.kosherJava = api;
-              return api;
-            }
-          } catch (error) {
-            console.warn('KosherJava load failed for', url, error);
-          }
-        }
-        return null;
-      })();
-
-      return locationState.kosherJavaLoading;
+    // City list: loaded on demand (searching, naming a GPS fix, time-zone guess).
+    let citiesPromise = null;
+    function normalizeText(text) {
+      return String(text || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
     }
-
-    function getSunsetTime(date, latitude, longitude) {
-      const cacheKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${latitude.toFixed(4)}-${longitude.toFixed(4)}`;
-      if (locationState.sunsetCache.has(cacheKey)) return locationState.sunsetCache.get(cacheKey);
-
-      const api = locationState.kosherJava;
-      if (!api) return null;
-
-      try {
-        const geoLocation = new api.GeoLocation('Current location', latitude, longitude, 0, locationState.timezone);
-        const calendar = new api.ZmanimCalendar(geoLocation);
-        if (typeof calendar.setCalendarDate === 'function') {
-          calendar.setCalendarDate(date);
-        } else if (typeof calendar.setDate === 'function') {
-          calendar.setDate(date);
-        }
-
-        const sunset = typeof calendar.getSunset === 'function'
-          ? calendar.getSunset()
-          : typeof calendar.getSeaLevelSunset === 'function'
-            ? calendar.getSeaLevelSunset()
-            : null;
-
-        if (!(sunset instanceof Date) || Number.isNaN(sunset.getTime())) return null;
-
-        locationState.sunsetCache.set(cacheKey, sunset);
-        return sunset;
-      } catch (error) {
-        console.warn('KosherJava sunset calculation failed', error);
-        return null;
-      }
-    }
-
-    function getMidnightTime(date) {
-      const fallbackMidnight = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, 0, 0, 0, 0);
-      if (locationState.latitude === null || locationState.longitude === null) return fallbackMidnight;
-
-      const cacheKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${locationState.latitude.toFixed(4)}-${locationState.longitude.toFixed(4)}-midnight`;
-      if (locationState.sunsetCache.has(cacheKey)) return locationState.sunsetCache.get(cacheKey);
-
-      const api = locationState.kosherJava;
-      if (!api) return fallbackMidnight;
-
-      try {
-        const geoLocation = new api.GeoLocation('Current location', locationState.latitude, locationState.longitude, 0, locationState.timezone);
-        const calendar = new api.ZmanimCalendar(geoLocation);
-        if (typeof calendar.setCalendarDate === 'function') {
-          calendar.setCalendarDate(date);
-        } else if (typeof calendar.setDate === 'function') {
-          calendar.setDate(date);
-        }
-
-        const midnight = typeof calendar.getSolarMidnight === 'function'
-          ? calendar.getSolarMidnight()
-          : typeof calendar.getMidnight === 'function'
-            ? calendar.getMidnight()
-            : typeof calendar.getHalachicMidnight === 'function'
-              ? calendar.getHalachicMidnight()
-              : null;
-
-        if (!(midnight instanceof Date) || Number.isNaN(midnight.getTime())) return fallbackMidnight;
-
-        locationState.sunsetCache.set(cacheKey, midnight);
-        return midnight;
-      } catch (error) {
-        console.warn('KosherJava midnight calculation failed', error);
-        return fallbackMidnight;
-      }
-    }
-
-    function isBeforeSundown(date) {
-      if (locationState.mode !== 'sunset' || locationState.latitude === null || locationState.longitude === null) return null;
-      const sunset = getSunsetTime(date, locationState.latitude, locationState.longitude);
-      if (!sunset) return null;
-      return date < sunset;
-    }
-
-    function requestUserLocation() {
-      if (!navigator.geolocation) {
-        locationState.mode = 'gps-unavailable';
-        locationState.gpsError = { code: 0, message: 'Geolocation not supported' };
-        return Promise.resolve(false);
-      }
-      return new Promise((resolve) => {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            locationState.latitude = position.coords.latitude;
-            locationState.longitude = position.coords.longitude;
-            locationState.mode = 'sunset';
-            locationState.gpsError = null;
-            locationState.sunsetCache.clear();
-            loadKosherJava().finally(() => {
-              try { updateDebugPanel(); } catch (e) {}
-              resolve(true);
-            });
-          },
-          (error) => {
-            // error.code: 1=PERMISSION_DENIED,2=POSITION_UNAVAILABLE,3=TIMEOUT
-            locationState.mode = 'gps-unavailable';
-            locationState.gpsError = { code: error?.code || -1, message: error?.message || '' };
-            // Log details for operators without exposing to visitors
-            try { console.debug('Geolocation error', locationState.gpsError); } catch (e) {}
-            try { updateDebugPanel(); } catch (e) {}
-            resolve(false);
-          },
-          { enableHighAccuracy: false, timeout: 8000, maximumAge: 30 * 60 * 1000 }
-        );
+    function loadCities() {
+      if (citiesPromise) return citiesPromise;
+      citiesPromise = fetch(CITIES_URL).then((res) => {
+        if (!res.ok) throw new Error(`cities ${res.status}`);
+        return res.json();
+      }).then((data) => data.cities.map((row) => {
+        const [name, province, iso2, lat, lng, tzIndex, pop, aliases] = row;
+        const country = data.countries[iso2] || iso2;
+        const city = { name, province, iso2, country, lat, lng, tz: data.tz[tzIndex], pop, aliases: aliases || [] };
+        city.keys = [name, ...city.aliases].map(normalizeText);
+        city.place = normalizeText([province, country, iso2].join(' '));
+        return city;
+      })).catch((error) => {
+        console.warn('City list failed to load', error);
+        citiesPromise = null;
+        return [];
       });
+      return citiesPromise;
     }
+    function cityDetail(city) {
+      return [city.province, city.country].filter((part, i, all) => part && all.indexOf(part) === i && part !== city.name).join(', ');
+    }
+    function cityToLocation(city, source) {
+      return { source, name: city.name, detail: cityDetail(city), lat: city.lat, lng: city.lng, tz: city.tz };
+    }
+    function searchCities(cities, query, limit = 8) {
+      const [placeQuery, ...rest] = String(query).split(',');
+      const q = normalizeText(placeQuery);
+      const where = normalizeText(rest.join(' '));
+      if (!q) return [];
+      const scored = [];
+      for (const city of cities) {
+        if (where && !city.place.includes(where)) continue;
+        let score = Infinity;
+        for (const key of city.keys) {
+          if (key === q) score = Math.min(score, 0);
+          else if (key.startsWith(q)) score = Math.min(score, 1);
+          else if (key.includes(` ${q}`)) score = Math.min(score, 2);
+          else if (q.length >= 3 && key.includes(q)) score = Math.min(score, 3);
+        }
+        if (score < Infinity) scored.push({ city, score });
+      }
+      // The list is sorted by population, so a stable sort keeps big cities first.
+      return scored.sort((a, b) => a.score - b.score).slice(0, limit).map((x) => x.city);
+    }
+    function distanceKm(aLat, aLng, bLat, bLng) {
+      const r = Math.PI / 180;
+      const dLat = (bLat - aLat) * r, dLng = (bLng - aLng) * r;
+      const h = Math.sin(dLat / 2) ** 2 + Math.cos(aLat * r) * Math.cos(bLat * r) * Math.sin(dLng / 2) ** 2;
+      return 12742 * Math.asin(Math.sqrt(h));
+    }
+    function nearestCity(cities, lat, lng) {
+      let best = null, bestKm = Infinity;
+      for (const city of cities) {
+        const km = distanceKm(lat, lng, city.lat, city.lng);
+        if (km < bestKm) { best = city; bestKm = km; }
+      }
+      return best ? { city: best, km: bestKm } : null;
+    }
+
+    let currentLocation = urlLocation() || readSavedLocation() || offsetLocation();
+
+    function setLocation(loc, { save = false } = {}) {
+      currentLocation = loc;
+      zmanimCache.clear();
+      if (save) saveLocation(loc);
+      refresh();
+    }
+
+    // Kiosk/URL ?city=Name, then the time-zone guess, both need the list.
+    (async () => {
+      const cityParam = _urlSearch.get('city');
+      if (cityParam && currentLocation.source !== 'url') {
+        const match = searchCities(await loadCities(), cityParam, 1)[0];
+        if (match) { setLocation(cityToLocation(match, 'url')); return; }
+      }
+      if (currentLocation.source === 'offset') {
+        const cities = await loadCities();
+        const guess = cities.find((c) => c.tz === deviceTimeZone);
+        if (guess && currentLocation.source === 'offset') setLocation(cityToLocation(guess, 'timezone'));
+      }
+    })();
+
+    function setLocationStatus(message, isError = false) {
+      if (!els.locationStatus) return;
+      els.locationStatus.textContent = message || '';
+      els.locationStatus.classList.toggle('error', Boolean(isError));
+    }
+
+    async function locationFromPosition(position, source) {
+      const lat = Math.round(position.coords.latitude * 1000) / 1000;
+      const lng = Math.round(position.coords.longitude * 1000) / 1000;
+      const near = nearestCity(await loadCities(), lat, lng);
+      const named = near && near.km <= 40;
+      return {
+        source,
+        name: named ? `Near ${near.city.name}` : 'Current location',
+        detail: named ? cityDetail(near.city) : `${lat.toFixed(3)}, ${lng.toFixed(3)}`,
+        lat, lng,
+        tz: deviceTimeZone
+      };
+    }
+
+    function useGps() {
+      if (!navigator.geolocation) {
+        setLocationStatus('This browser cannot share its location. Choose a city instead.', true);
+        openLocationCard(true);
+        return;
+      }
+      setLocationStatus('Getting your location…');
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const loc = await locationFromPosition(position, 'gps');
+        storage.set(BANNER_KEY, '1');
+        setLocation(loc, { save: true });
+        setLocationStatus('Location saved on this device.');
+      }, (error) => {
+        const denied = error && error.code === 1;
+        setLocationStatus(denied
+          ? 'Location access is turned off for this site in your browser settings. You can choose a city instead.'
+          : 'Could not get your location. Try again, or choose a city instead.', true);
+        openLocationCard(true);
+        try { console.debug('Geolocation error', error && error.code, error && error.message); } catch (e) {}
+      }, { enableHighAccuracy: false, timeout: 15000, maximumAge: 10 * 60 * 1000 });
+    }
+
+    // A saved GPS location is refreshed silently, and only when the browser
+    // already grants permission; otherwise the saved spot is used as-is.
+    (async () => {
+      if (currentLocation.source !== 'gps' || !navigator.geolocation || !navigator.permissions) return;
+      try {
+        const status = await navigator.permissions.query({ name: 'geolocation' });
+        if (status.state !== 'granted') return;
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          if (currentLocation.source !== 'gps') return;
+          const moved = distanceKm(currentLocation.lat, currentLocation.lng, position.coords.latitude, position.coords.longitude);
+          if (moved < 2) return;
+          setLocation(await locationFromPosition(position, 'gps'), { save: true });
+        }, () => {}, { enableHighAccuracy: false, timeout: 15000, maximumAge: 30 * 60 * 1000 });
+      } catch (e) { /* Permissions API unsupported for geolocation */ }
+    })();
+
+    // ---- Zmanim & dates in the location's time zone ------------------------
+    const zmanimCache = new Map();
+    function zmanimFor(date) {
+      const key = `${isoDate(date)}|${currentLocation.lat}|${currentLocation.lng}`;
+      if (!zmanimCache.has(key)) {
+        if (zmanimCache.size > 64) zmanimCache.clear();
+        zmanimCache.set(key, window.Zmanim.forDate(date, currentLocation.lat, currentLocation.lng));
+      }
+      return zmanimCache.get(key);
+    }
+    /** The location's civil date at `now`, as a local-noon Date. */
+    function locationToday(now) {
+      try {
+        const parts = new Intl.DateTimeFormat('en-CA', { timeZone: currentLocation.tz, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(now);
+        const get = (type) => Number(parts.find((p) => p.type === type).value);
+        return new Date(get('year'), get('month') - 1, get('day'), 12);
+      } catch (e) {
+        return makeDateAtNoon(now);
+      }
+    }
+    function formatTime(exact) {
+      // Nearest minute, as Chabad.org prints (nightfall is already rounded up).
+      const date = new Date(Math.round(exact.getTime() / 60000) * 60000);
+      try {
+        return new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit', timeZone: currentLocation.tz }).format(date);
+      } catch (e) {
+        return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      }
+    }
+
     function formatHebrewNumber(value) {
       // Special cases: use tes-vov (ט״ו) for 15 and tes-zayin (ט״ז) for 16 instead of yud-hei/yud-vav
       if (value === 15) return 'ט״ו';
@@ -825,74 +960,286 @@
       }
     }
 
-    function renderGpsIndicator(isUsingHalachicTimes) {
-      if (!els.gpsIndicator) return;
-      const isUsing = Boolean(isUsingHalachicTimes);
-      els.gpsIndicator.classList.toggle('active', isUsing);
-      if (!isUsing) {
-        els.gpsIndicator.classList.remove('expanded');
-        els.gpsIndicator.setAttribute('aria-expanded', 'false');
+    // ---- Rendering ----------------------------------------------------------
+    const BOXES = {
+      shacharis: { box: 'shacharitBox', when: 'shacharitWhen', answer: 'shacharitAnswer', detail: 'shacharitDetail' },
+      mincha: { box: 'minchaBox', when: 'minchaWhen', answer: 'minchaAnswer', detail: 'minchaDetail' },
+      shema: { box: 'kriasShemaBox', when: 'kriasShemaWhen', answer: 'kriasShemaAnswer', detail: 'kriasShemaDetail' }
+    };
+    const byId = (id) => document.getElementById(id);
+    const shortDate = (date) => new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).format(date);
+    const hebrewShort = (date) => { const hd = getHebrewParts(date); return `${hd.day} ${hd.month}`; };
+
+    function renderWhen(el, pillText, isTomorrow, rest) {
+      el.replaceChildren();
+      if (pillText) {
+        const pill = document.createElement('span');
+        pill.className = `when-pill${isTomorrow ? ' tomorrow' : ''}`;
+        pill.textContent = pillText;
+        el.append(pill);
+      }
+      el.append(document.createTextNode(rest));
+    }
+
+    function shemaResult(rule, midnight) {
+      if (rule.untilMidnight) {
+        return { omit: true, label: `No tachanun until midnight (${formatTime(midnight)}) · ${rule.reason}`, note: rule.note };
+      }
+      if (rule.omit) return { omit: true, label: `No tachanun tonight · ${rule.reason}`, note: rule.note };
+      if (rule.varies) return { omit: false, varies: true, label: rule.reason, note: rule.note, key: rule.key };
+      return { omit: false, label: '', note: '' };
+    }
+
+    function renderBox(name, { result, isNow, pill, isTomorrow, whenText }) {
+      const ids = BOXES[name];
+      const box = byId(ids.box);
+      box.classList.toggle('is-now', Boolean(isNow));
+      box.querySelector('.now-tag').hidden = !isNow;
+      renderWhen(byId(ids.when), pill, isTomorrow, whenText);
+      renderDecision(byId(ids.answer), result);
+      renderDetail(byId(ids.detail), result);
+    }
+
+    function renderLocation(zToday) {
+      const loc = currentLocation;
+      const precise = PRECISE_SOURCES.has(loc.source);
+      const chip = els.locationChip;
+      if (chip) {
+        chip.hidden = false;
+        chip.classList.toggle('live', precise);
+        els.locationChipLabel.textContent = precise ? loc.name : 'Set your location';
+        chip.title = precise
+          ? `Times for ${loc.name}${loc.detail ? `, ${loc.detail}` : ''}`
+          : `Times estimated for ${loc.name}. Tap to set your location.`;
+        chip.setAttribute('aria-label', chip.title);
+      }
+      els.locationName.textContent = [loc.name === 'your time zone' ? `Your time zone (${loc.tz})` : loc.name, loc.detail].filter(Boolean).join(' — ');
+      els.locationSource.textContent = {
+        url: 'Set by this page’s link.',
+        gps: 'From your device’s location.',
+        city: 'City you chose.',
+        timezone: 'Estimated from your time zone — set your location for exact times.',
+        offset: 'Rough estimate — set your location for exact times.'
+      }[loc.source] || '';
+      const rows = [
+        ['Dawn', zToday.alos], ['Sunrise', zToday.sunrise], ['Midday', zToday.chatzos],
+        ['Sunset', zToday.sunset], ['Nightfall', zToday.tzeis], ['Midnight', zToday.chatzosLaila]
+      ];
+      els.zmanimList.replaceChildren(...rows.flatMap(([label, time]) => {
+        const dt = document.createElement('dt'); dt.textContent = label;
+        const dd = document.createElement('dd'); dd.textContent = `${zToday.approximate ? '≈ ' : ''}${formatTime(time)}`;
+        return [dt, dd];
+      }));
+
+      const showBanner = !precise && !isKioskMode && storage.get(BANNER_KEY) !== '1';
+      els.locationBanner.hidden = !showBanner;
+      if (showBanner) {
+        els.locationBannerText.textContent = loc.source === 'timezone'
+          ? `Times are estimated for ${loc.name} from your time zone. For exact sunset and nightfall, set your location.`
+          : 'Times are a rough estimate from your time zone. For exact sunset and nightfall, set your location.';
       }
     }
 
-    function render(date, options = {}) {
-      const isLive = Boolean(options.live);
-      const referenceDate = new Date(date);
-      const gregorianDate = referenceDate;
-      const shouldUseSunset = locationState.mode === 'sunset';
-      const isBeforeBoundary = shouldUseSunset ? isBeforeSundown(referenceDate) : null;
-      const hasSunsetBoundary = shouldUseSunset && typeof isBeforeBoundary === 'boolean';
-      // After local sunset the Hebrew date has already turned over, so the
-      // Shacharis box answers for the day that is beginning.
-      const hebrewDisplayDate = isLive && hasSunsetBoundary && !isBeforeBoundary
-        ? nextDay(referenceDate)
-        : referenceDate;
-      const shacharitDate = makeDateAtNoon(hebrewDisplayDate);
-      const minchaShemaDate = new Date(referenceDate);
-
-      const shacharitHd = getHebrewParts(shacharitDate);
-      const minchaShemaHd = getHebrewParts(minchaShemaDate);
-
-      const shacharit = matchDayRule(shacharitHd, shacharitDate);
-      const mincha = matchMinchaRule(minchaShemaHd, minchaShemaDate);
-      const kriasShema = matchKriasShemaRule(referenceDate, { midnight: getMidnightTime(referenceDate) });
-      const usingGpsHalachicTimes = hasSunsetBoundary;
-
-      els.gregorianDate.textContent = formatGregorianDate(gregorianDate);
-      els.hebrewDateHebrew.textContent = formatHebrewDateHebrew(shacharitDate);
-      renderGpsIndicator(usingGpsHalachicTimes);
-      renderDecision(els.shacharitAnswer, shacharit);
-      renderDecision(els.minchaAnswer, mincha);
-      renderDecision(els.kriasShemaAnswer, kriasShema);
-      renderDetail(els.shacharitDetail, shacharit);
-      renderDetail(els.minchaDetail, mincha);
-      renderDetail(els.kriasShemaDetail, kriasShema);
-      els.dateInput.value = formatDateInputValue(gregorianDate);
+    function renderZmanimLine(z, prefix) {
+      const approx = z.approximate || !PRECISE_SOURCES.has(currentLocation.source) ? '≈ ' : '';
+      els.zmanimLine.textContent = `${prefix}${approx}Sunset ${formatTime(z.sunset)} · Nightfall ${formatTime(z.tzeis)} · Midnight ${formatTime(z.chatzosLaila)}`;
     }
 
-    els.dateInput.addEventListener('change', (e) => {
-      if (!e.target.value) return;
-      render(new Date(`${e.target.value}T20:00:00`));
-    });
+    let viewMode = { live: true, date: null };
 
-    els.todayBtn.addEventListener('click', () => render(new Date(), { live: true }));
+    function renderLive() {
+      const now = new Date();
+      const today = locationToday(now);
+      const zToday = zmanimFor(today);
+      const v = liveView(now, today, zmanimFor);
 
-    if (els.gpsIndicator) {
-      els.gpsIndicator.addEventListener('click', () => {
-        const expanded = els.gpsIndicator.classList.toggle('expanded');
-        els.gpsIndicator.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      els.gregorianDate.textContent = formatGregorianDate(today);
+      els.hebrewDateHebrew.textContent = formatHebrewDateHebrew(v.hebrewDate);
+      els.dateInput.value = formatDateInputValue(today);
+      renderZmanimLine(zToday, 'Today: ');
+      renderLocation(zToday);
+
+      const dayBox = (box) => {
+        const tomorrow = box.when === 'tomorrow';
+        return {
+          result: box.rule,
+          isNow: box.isNow,
+          pill: tomorrow ? 'Tomorrow' : 'Today',
+          isTomorrow: tomorrow,
+          whenText: `${shortDate(box.date)} · ${hebrewShort(box.date)}`
+        };
+      };
+      renderBox('shacharis', dayBox(v.shacharis));
+      renderBox('mincha', dayBox(v.mincha));
+      const tomorrowNight = v.shema.when === 'tomorrow-night';
+      renderBox('shema', {
+        result: shemaResult(v.shema.rule, v.shema.midnight),
+        isNow: v.shema.isNow,
+        pill: tomorrowNight ? 'Tomorrow night' : 'Tonight',
+        isTomorrow: tomorrowNight,
+        whenText: `${shortDate(v.shema.date)} night`
       });
     }
 
-    render(new Date(), { live: true });
-    loadKosherJava().finally(() => {
+    function renderDate(date) {
+      const day = makeDateAtNoon(date);
+      const z = zmanimFor(day);
+      const hd = getHebrewParts(day);
+      els.gregorianDate.textContent = formatGregorianDate(day);
+      els.hebrewDateHebrew.textContent = formatHebrewDateHebrew(day);
+      els.dateInput.value = formatDateInputValue(day);
+      renderZmanimLine(z, `${shortDate(day)}: `);
+      renderLocation(zmanimFor(locationToday(new Date())));
+      const whenText = `${shortDate(day)} · ${hebrewShort(day)}`;
+      renderBox('shacharis', { result: matchDayRule(hd, day), isNow: false, pill: 'Morning', whenText });
+      renderBox('mincha', { result: matchMinchaRule(hd, day), isNow: false, pill: 'Afternoon', whenText });
+      renderBox('shema', { result: shemaResult(shemaForNight(day), z.chatzosLaila), isNow: false, pill: 'Night', whenText: `${shortDate(day)} night` });
+    }
+
+    function refresh() {
+      try {
+        if (viewMode.live) renderLive();
+        else renderDate(viewMode.date);
+      } catch (error) {
+        console.error('Render failed', error);
+      }
       try { updateDebugPanel(); } catch (e) {}
-      render(new Date(), { live: true });
+    }
+
+    function goLive() { viewMode = { live: true, date: null }; refresh(); }
+
+    els.dateInput.addEventListener('change', (e) => {
+      if (!e.target.value) return;
+      const picked = Tachanun.fromIso(e.target.value);
+      if (isoDate(picked) === isoDate(locationToday(new Date()))) { goLive(); return; }
+      viewMode = { live: false, date: picked };
+      refresh();
     });
-    requestUserLocation().finally(() => {
-      try { updateDebugPanel(); } catch (e) {}
-      render(new Date(), { live: true });
-    });
+    els.todayBtn.addEventListener('click', goLive);
+
+    // ---- Location controls --------------------------------------------------
+    function openLocationCard(focusSearch) {
+      if (!els.locationCard || isKioskMode) return;
+      dropdownCards.forEach((other) => { if (other !== els.locationCard) other.open = false; });
+      els.locationCard.open = true;
+      els.locationCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      loadCities();
+      if (focusSearch) setTimeout(() => { try { els.citySearch.focus({ preventScroll: true }); } catch (e) {} }, 150);
+    }
+    if (els.locationChip) {
+      els.locationChip.addEventListener('click', () => openLocationCard(!PRECISE_SOURCES.has(currentLocation.source)));
+      if (isKioskMode) els.locationChip.disabled = true;
+    }
+    document.querySelectorAll('[data-use-gps]').forEach((btn) => btn.addEventListener('click', () => {
+      openLocationCard(false);
+      useGps();
+    }));
+    document.querySelectorAll('[data-choose-city]').forEach((btn) => btn.addEventListener('click', () => openLocationCard(true)));
+    if (els.locationBannerClose) {
+      els.locationBannerClose.addEventListener('click', () => { storage.set(BANNER_KEY, '1'); els.locationBanner.hidden = true; });
+    }
+    if (els.clearLocation) {
+      els.clearLocation.addEventListener('click', async () => {
+        storage.remove(LOCATION_KEY);
+        storage.remove(BANNER_KEY);
+        setLocationStatus('Saved location cleared.');
+        const cities = await loadCities();
+        const guess = cities.find((c) => c.tz === deviceTimeZone);
+        setLocation(urlLocation() || (guess ? cityToLocation(guess, 'timezone') : offsetLocation()));
+      });
+    }
+
+    // Search: the built-in list answers instantly (and offline); for towns it
+    // lacks, Open-Meteo's free place search (no API key, returns the time
+    // zone) adds more matches a moment later.
+    const ONLINE_SEARCH_URL = 'https://geocoding-api.open-meteo.com/v1/search';
+    let searchToken = 0;
+    let onlineTimer = null;
+    async function searchOnline(query) {
+      const name = String(query).split(',')[0].trim();
+      if (name.length < 3) return [];
+      const url = `${ONLINE_SEARCH_URL}?name=${encodeURIComponent(name)}&count=10&language=en&format=json`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`place search ${res.status}`);
+      const data = await res.json();
+      return (data.results || []).filter((r) => Number.isFinite(r.latitude) && Number.isFinite(r.longitude) && isValidTimeZone(r.timezone)).map((r) => ({
+        name: r.name,
+        province: [r.admin2, r.admin1].filter(Boolean).join(', '),
+        country: r.country || r.country_code || '',
+        lat: Math.round(r.latitude * 10000) / 10000,
+        lng: Math.round(r.longitude * 10000) / 10000,
+        tz: r.timezone,
+        pop: r.population || 0
+      }));
+    }
+    function mergeResults(local, online, limit = 10) {
+      const merged = local.slice();
+      for (const place of online) {
+        const dup = merged.some((c) => normalizeText(c.name) === normalizeText(place.name) && distanceKm(c.lat, c.lng, place.lat, place.lng) < 10);
+        if (!dup) merged.push(place);
+      }
+      return merged.slice(0, limit);
+    }
+    function renderCityResults(cities) {
+      els.cityResults.replaceChildren(...cities.map((city) => {
+        const li = document.createElement('li');
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.setAttribute('role', 'option');
+        const strong = document.createElement('strong');
+        strong.textContent = city.name;
+        const small = document.createElement('small');
+        const detail = cityDetail(city);
+        small.textContent = detail ? ` — ${detail}` : '';
+        btn.append(strong, small);
+        btn.addEventListener('click', () => {
+          storage.set(BANNER_KEY, '1');
+          setLocation(cityToLocation(city, 'city'), { save: true });
+          els.citySearch.value = '';
+          els.cityResults.replaceChildren();
+          setLocationStatus(`Saved: ${city.name}.`);
+        });
+        li.append(btn);
+        return li;
+      }));
+    }
+    if (els.citySearch) {
+      els.citySearch.addEventListener('input', async () => {
+        const token = ++searchToken;
+        clearTimeout(onlineTimer);
+        const query = els.citySearch.value;
+        if (normalizeText(query).length < 2) { els.cityResults.replaceChildren(); setLocationStatus(''); return; }
+        const cities = await loadCities();
+        if (token !== searchToken) return;
+        const local = searchCities(cities, query);
+        renderCityResults(local);
+        setLocationStatus(local.length ? '' : 'Searching more places…');
+        onlineTimer = setTimeout(async () => {
+          try {
+            const online = await searchOnline(query);
+            if (token !== searchToken) return;
+            const merged = mergeResults(local, online);
+            renderCityResults(merged);
+            setLocationStatus(merged.length ? '' : 'No matching place. Try a nearby larger city.');
+          } catch (error) {
+            if (token !== searchToken) return;
+            if (!local.length) setLocationStatus('No matching city in the built-in list, and the online search is unavailable right now.');
+          }
+        }, 400);
+      });
+      els.citySearch.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const first = els.cityResults.querySelector('button');
+          if (first) { e.preventDefault(); first.click(); }
+        }
+      });
+    }
+
+    // Keep "now" current: re-render every 30 seconds and on return to the tab.
+    setInterval(() => { if (viewMode.live && !document.hidden) refresh(); }, 30 * 1000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && viewMode.live) refresh(); });
+
+    refresh();
   </script>
 </body>
 </html>
