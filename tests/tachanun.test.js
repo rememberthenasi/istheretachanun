@@ -85,6 +85,14 @@ test('overlapping reasons: the label names the most common one only', () => {
   // Issru Chag Pesach, in the month of Nisan
   const icRule = dayRule('Nisan', 23);
   assert.deepEqual([icRule.label, icRule.also], ['Nisan', ['Issru Chag']]);
+  // Friday Mincha keeps the day's own reasons: 1 Tevet 5787 is a Friday
+  const fri = civilFor('Tevet', 1, 5787);
+  assert.equal(fri.getDay(), 5);
+  const friMincha = T.matchMinchaRule(T.getHebrewParts(fri), fri);
+  assert.deepEqual([friMincha.label, friMincha.also], ['Friday Mincha', ['Rosh Chodesh', 'Chanukah']]);
+  // A plain Friday has none
+  const plainFri = T.matchMinchaRule(T.getHebrewParts(new Date(2026, 10, 13, 12)), new Date(2026, 10, 13, 12));
+  assert.deepEqual([plainFri.label, plainFri.also], ['Friday Mincha', undefined]);
   // A plain Chanukah weekday has no `also`
   assert.equal(dayRule('Kislev', 27).also, undefined);
   // The night before shows only that one reason too, and the feed carries `also`
