@@ -4,10 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Redirecting…</title>
-  <meta http-equiv="refresh" content="0; url=../?kiosk=1" />
   <script>
-    window.location.replace('../?kiosk=1');
+    // Forward to the main page in kiosk mode, keeping any parameters
+    // (e.g. /kiosk?city=Crown%20Heights).
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      params.set('kiosk', '1');
+      window.location.replace('../?' + params.toString() + window.location.hash);
+    })();
   </script>
+  <noscript><meta http-equiv="refresh" content="0; url=../?kiosk=1" /></noscript>
 </head>
 <body>
   <p>Redirecting to kiosk mode… <a href="../?kiosk=1">Continue</a></p>

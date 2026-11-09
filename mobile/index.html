@@ -4,10 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Redirecting…</title>
-  <meta http-equiv="refresh" content="0; url=../?mobile=1" />
   <script>
-    window.location.replace('../?mobile=1');
+    // Forward to the main page in mobile mode, keeping any parameters
+    // (e.g. /mobile?city=Crown%20Heights).
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      params.set('mobile', '1');
+      window.location.replace('../?' + params.toString() + window.location.hash);
+    })();
   </script>
+  <noscript><meta http-equiv="refresh" content="0; url=../?mobile=1" /></noscript>
 </head>
 <body>
   <p>Redirecting to mobile mode… <a href="../?mobile=1">Continue</a></p>

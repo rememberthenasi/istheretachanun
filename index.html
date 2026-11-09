@@ -255,21 +255,36 @@
     html.force-mobile .footer-note { margin-top:var(--space-4); padding:var(--space-3) 0 var(--space-6); gap:var(--space-2); }
     html.force-mobile .footer-note .meta { max-width:100%; }
     html.force-mobile .theme-toggle { width:40px; height:40px; right:calc(env(safe-area-inset-right, 0px) + var(--space-3)); top:calc(env(safe-area-inset-top, 0px) + var(--space-3)); }
-    html.force-kiosk #main { min-height: 100%; display:grid; grid-template-rows:auto 1fr auto; }
-    html.force-kiosk .hero { gap:var(--space-3); padding-block:var(--space-4); }
-    html.force-kiosk .eyebrow, html.force-kiosk .lede, html.force-kiosk .theme-toggle, html.force-kiosk #datePickerCard, html.force-kiosk #locationCard, html.force-kiosk .location-banner, html.force-kiosk .rules-card { display:none; }
-    html.force-kiosk h1 { max-width: none; font-size: 4rem; }
-    html.force-kiosk .grid { display:block; height:100%; }
-    html.force-kiosk .status-card { height:100%; padding:var(--space-8); align-content:center; gap:var(--space-8); }
-    html.force-kiosk .status-grid { grid-template-columns:1fr; gap:var(--space-6); }
-    html.force-kiosk .status-box { padding:var(--space-6); }
-    html.force-kiosk .status-label { font-size: var(--text-base); }
-    html.force-kiosk .decision { font-size: 5rem; }
-    html.force-kiosk .reason-line { margin-top: var(--space-3); font-size: var(--text-base); }
-    html.force-kiosk .inline-dropdown summary { font-size: var(--text-sm); }
-    html.force-kiosk .footer-note { margin-top:var(--space-4); padding:var(--space-2) 0 var(--space-3); font-size:0.78rem; gap:var(--space-2); }
-    html.force-kiosk .footer-note .author { font-size:0.78rem; }
-    html.force-kiosk .footer-note .meta { font-size:0.72rem; }
+    /* Kiosk: a 1080x1920 portrait wall display, read from across a room. */
+    html.force-kiosk, html.force-kiosk body { height:100%; overflow:hidden; }
+    html.force-kiosk .shell { height:var(--kiosk-portrait-height); min-height:0; padding:56px 56px 40px; display:flex; }
+    html.force-kiosk #main { flex:1; min-height:0; display:grid; grid-template-rows:auto minmax(0, 1fr) auto; gap:36px; }
+    html.force-kiosk .hero { gap:24px; padding-block:0; }
+    html.force-kiosk .eyebrow, html.force-kiosk .lede, html.force-kiosk .theme-toggle, html.force-kiosk #datePickerCard, html.force-kiosk #locationCard, html.force-kiosk .location-banner, html.force-kiosk .rules-card, html.force-kiosk .skip-link { display:none; }
+    html.force-kiosk .hero-head { padding-right:0; }
+    html.force-kiosk .location-chip { font-size:1.35rem; padding:0.55rem 1.2rem 0.55rem 1rem; max-width:none; gap:0.7rem; }
+    html.force-kiosk .location-chip .on-air { width:0.8rem; height:0.8rem; }
+    html.force-kiosk .location-chip .on-air::after { inset:-0.4rem; border-width:3px; }
+    html.force-kiosk h1 { max-width:none; font-size:4.4rem; letter-spacing:-0.03em; white-space:nowrap; }
+    html.force-kiosk .grid { display:block; min-height:0; }
+    html.force-kiosk .status-card { height:100%; min-height:0; padding:40px; display:grid; grid-template-rows:auto auto minmax(0, 1fr); gap:24px; }
+    html.force-kiosk .date-row { gap:20px; }
+    html.force-kiosk .date-chip { font-size:1.7rem; padding:0.55rem 1.3rem; }
+    html.force-kiosk .zmanim-line { margin:0; font-size:1.45rem; }
+    html.force-kiosk .status-grid { grid-template-columns:1fr; grid-template-rows:repeat(3, minmax(0, 1fr)); gap:24px; min-height:0; }
+    html.force-kiosk .status-box { min-height:0; padding:32px 44px; display:grid; align-content:center; gap:12px; border-left:10px solid transparent; overflow:hidden; }
+    html.force-kiosk .status-box.is-now { border-left-color:var(--color-primary); }
+    html.force-kiosk .status-label { margin:0; font-size:1.7rem; letter-spacing:.1em; }
+    html.force-kiosk .now-tag { font-size:1.05rem; padding:0.25rem 0.9rem; margin-left:1rem; }
+    html.force-kiosk .when-line { margin:0; font-size:1.5rem; }
+    html.force-kiosk .when-pill { font-size:1.1rem; padding:0.15rem 0.8rem; margin-right:0.8rem; }
+    html.force-kiosk .decision { font-size:8rem; line-height:0.9; }
+    html.force-kiosk .reason-line { margin:0; font-size:1.6rem; line-height:1.3; display:grid; gap:6px; }
+    html.force-kiosk .reason-line p { margin:0; }
+    html.force-kiosk .reason-line .reason-note { font-size:1.2rem; color:var(--color-text-faint); }
+    html.force-kiosk .footer-note { margin:0; padding:0; border:0; font-size:1.1rem; gap:4px; line-height:1.4; }
+    html.force-kiosk .footer-note .author { font-size:1.1rem; }
+    html.force-kiosk .footer-note .meta { font-size:1rem; max-width:none; }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; } }
   </style>
 </head>
@@ -938,15 +953,15 @@
       const note = String(result.note || '');
       const text = [label, note].filter(Boolean).join(label && note ? ' — ' : '');
       if (isKioskMode) {
-        const details = document.createElement('details');
-        details.className = 'inline-dropdown';
-        details.open = true;
-        const summary = document.createElement('summary');
-        summary.textContent = 'Reason';
-        const paragraph = document.createElement('p');
-        paragraph.textContent = text;
-        details.append(summary, paragraph);
-        el.replaceChildren(details);
+        const main = document.createElement('p');
+        main.textContent = label || note;
+        el.replaceChildren(main);
+        if (label && note) {
+          const small = document.createElement('p');
+          small.className = 'reason-note';
+          small.textContent = note;
+          el.append(small);
+        }
       } else if (result.varies) {
         const details = document.createElement('details');
         details.className = 'inline-dropdown';
