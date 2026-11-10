@@ -184,6 +184,8 @@
     .footer-note .author { font-weight:700; color:var(--color-text); font-size:var(--text-sm); }
     .footer-note .meta { color:var(--color-text-muted); font-size:var(--text-xs); max-width:62ch; }
     .footer-note a { color:#666666; text-decoration:none; }
+    .footer-note .powered-by { color:inherit; }
+    .footer-note .powered-url { display:none; }
     .footer-note a:hover { text-decoration:underline; }
     [data-theme="dark"] .footer-note a { color:#aaaaaa; }
     .date-chip.clickable { cursor: pointer; transition: transform var(--transition), background var(--transition), color var(--transition); }
@@ -284,6 +286,9 @@
     html.force-kiosk .reason-line .reason-note { font-size:1.2rem; color:var(--color-text-faint); }
     html.force-kiosk .footer-note { margin:0; padding:0; border:0; font-size:1.1rem; gap:4px; line-height:1.4; }
     html.force-kiosk .footer-note .author { font-size:1.1rem; }
+    html.force-kiosk .footer-note .powered-by { pointer-events:none; }
+    html.force-kiosk .footer-note .powered-url + br { display:none; }
+    html.force-kiosk .footer-note .powered-url { display:block; font-weight:400; color:var(--color-text-muted); font-size:1rem; }
     html.force-kiosk .footer-note .meta { font-size:1rem; max-width:none; }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; } }
   </style>
@@ -402,7 +407,7 @@
       </section>
 
       <section class="footer-note notes">
-        <p class="author"><strong>Site by Menachem Spielman</strong><br>Email: <a href="mailto:istheretachanun@mspielman.com">istheretachanun@mspielman.com</a></p>
+        <p class="author"><strong><a class="powered-by" href="https://totalis.one" target="_blank" rel="noopener noreferrer">Powered by TOTALIS</a></strong><span class="powered-url">totalis.one</span><br>Email: <a href="mailto:tachanun@totalis.one">tachanun@totalis.one</a></p>
         <p class="meta">Sources: <a href="https://www.chabad.org/library/article_cdo/aid/5776805/jewish/Tachanun.htm" target="_blank" rel="noopener noreferrer">chabad.org</a> & <a href="https://shulchanaruchharav.com/halacha/chapter-31-tachanun/" target="_blank" rel="noopener noreferrer">shulchanaruchharav.com</a>. <br>If you spot any errors, please get in touch.<br>Inspired by the legacy site <a href="https://istheretachanuntoday.com" target="_blank" rel="noopener noreferrer">istheretachanuntoday.com</a></p>
       </section>
     </main>
