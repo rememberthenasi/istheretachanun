@@ -1,0 +1,41 @@
+# Is There Tachanun?
+
+> Is there Tachanun today? istheretachanun.com answers whether Tachanun (תחנון) is said at Shacharis, at Mincha and in the bedtime Shema, for any date, according to Chabad-Lubavitch custom (Diaspora calendar), using halachic times for the visitor's location.
+
+## Main
+- [Is there Tachanun today?](https://istheretachanun.com/): Live answer for today, with any date selectable.
+- [Tachanun calendar](https://istheretachanun.com/tachanun-calendar/): Every day with no Tachanun, by year.
+- [Jewish holidays and Tachanun](https://istheretachanun.com/holidays/): Upcoming holidays and whether Tachanun is said.
+- [What is Tachanun?](https://istheretachanun.com/what-is-tachanun/): Guide to Tachanun and when it is skipped.
+- [FAQ](https://istheretachanun.com/faq/): Common questions about Tachanun.
+
+## Holidays
+- [Rosh Chodesh](https://istheretachanun.com/holidays/rosh-chodesh/): No. Tachanun is not said on Rosh Chodesh, at Shacharis or at Mincha, and it is also left out at Mincha on the afternoon before (Erev Rosh Chodesh).
+- [Shabbos](https://istheretachanun.com/holidays/shabbos/): No. Tachanun is never said on Shabbos, and it is also left out at Mincha on Friday afternoon. Friday Shacharis has Tachanun as usual, unless Friday is itself a no-Tachanun day.
+- [Rosh Hashanah](https://istheretachanun.com/holidays/rosh-hashanah/): No. Tachanun is not said on Erev Rosh Hashanah (29 Elul) or on the two days of Rosh Hashanah. It is said again from the day after Rosh Hashanah (Tzom Gedaliah) until Erev Yom Kippur.
+- [Yom Kippur](https://istheretachanun.com/holidays/yom-kippur/): No. Tachanun is not said from Erev Yom Kippur (9 Tishrei) onward. In Chabad custom it is then left out for the rest of Tishrei and on Rosh Chodesh Cheshvan.
+- [Sukkos](https://istheretachanun.com/holidays/sukkos/): Tachanun is not said on Sukkos, Shemini Atzeres, Simchas Torah or Isru Chag. In Chabad custom it is left out until after Rosh Chodesh Cheshvan, and starts again on 2 Cheshvan.
+- [Yud Kislev](https://istheretachanun.com/holidays/yud-kislev/): No, according to Chabad custom. Tachanun is not said on 10 Kislev, or at Mincha on the afternoon before (9 Kislev).
+- [Yud Tes Kislev](https://istheretachanun.com/holidays/yud-tes-kislev/): No, according to Chabad custom. Tachanun is not said on 19 Kislev or 20 Kislev (Chof Kislev), or at Mincha on 18 Kislev.
+- [Chanukah](https://istheretachanun.com/holidays/chanukah/): No. Tachanun is not said on any of the eight days of Chanukah, and it is also left out at Mincha on Erev Chanukah (24 Kislev).
+- [Hei Teves](https://istheretachanun.com/holidays/hei-teves/): Yes. The public custom is to say Tachanun on 5 Teves, though a person who truly feels exceptional joy may have a personal practice.
+- [Tu B’Shevat](https://istheretachanun.com/holidays/tu-bishvat/): No. Tachanun is not said on Tu B’Shevat (15 Shevat), and it is also left out at Mincha on the afternoon before.
+- [Purim](https://istheretachanun.com/holidays/purim/): No. Tachanun is not said on Purim (14 Adar) or Shushan Purim (15 Adar), and it is left out at Mincha on 13 Adar, the Fast of Esther. In a leap year it is also not said on Purim Katan and Shushan Purim Katan (14–15 Adar I).
+- [Nissan](https://istheretachanun.com/holidays/nissan/): No. Tachanun is not said for the entire month of Nissan, from Rosh Chodesh through the end of the month, including Pesach and Isru Chag. It is also left out at Mincha on the afternoon before Rosh Chodesh Nissan.
+- [Pesach Sheni](https://istheretachanun.com/holidays/pesach-sheni/): No. Tachanun is not said on Pesach Sheni (14 Iyar). It is said as usual at Mincha the afternoon before.
+- [Lag BaOmer](https://istheretachanun.com/holidays/lag-baomer/): No. Tachanun is not said on Lag BaOmer (18 Iyar), and it is also left out at Mincha on the afternoon before (17 Iyar).
+- [Shavuos](https://istheretachanun.com/holidays/shavuos/): Tachanun is not said from Rosh Chodesh Sivan through 12 Sivan, including Shavuos and Isru Chag. It is said again from 13 Sivan. It is also left out at Mincha on Erev Rosh Chodesh Sivan.
+- [Gimmel Tammuz](https://istheretachanun.com/holidays/gimmel-tammuz/): Yes. The public custom is generally to say Tachanun on 3 Tammuz, though some individuals may omit it privately.
+- [Yud Beis Tammuz](https://istheretachanun.com/holidays/yud-beis-tammuz/): No, according to Chabad custom. Tachanun is not said on 12 or 13 Tammuz, or at Mincha on the afternoon of 11 Tammuz.
+- [Tisha B’Av](https://istheretachanun.com/holidays/tisha-bav/): No. Although Tisha B’Av is a day of mourning, Tachanun is not said on it, and it is also left out at Mincha on Erev Tisha B’Av (8 Av).
+- [Tu B’Av](https://istheretachanun.com/holidays/tu-bav/): No. Tachanun is not said on Tu B’Av (15 Av), and it is also left out at Mincha on the afternoon before (14 Av).
+- [Chai Elul](https://istheretachanun.com/holidays/chai-elul/): Yes. Some mention omitting Tachanun on 18 Elul, but in the Rebbe’s minyan it was said as usual.
+
+## Calendars
+- [Tachanun calendar 2025](https://istheretachanun.com/tachanun-calendar/2025/): Every day in 2025 with no Tachanun.
+- [Tachanun calendar 2026](https://istheretachanun.com/tachanun-calendar/2026/): Every day in 2026 with no Tachanun.
+- [Tachanun calendar 2027](https://istheretachanun.com/tachanun-calendar/2027/): Every day in 2027 with no Tachanun.
+- [Tachanun calendar 2028](https://istheretachanun.com/tachanun-calendar/2028/): Every day in 2028 with no Tachanun.
+
+## Data
+- [JSON feed](https://istheretachanun.com/feed/latest.json): every date's Shacharis, Mincha and bedtime Shema decisions. CC BY-NC 4.0.
