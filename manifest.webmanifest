@@ -1,7 +1,7 @@
 {
   "name": "Is There Tachanun",
   "short_name": "Is There Tachanun",
-  "description": "Check whether Tachanun is said today, according to Chabad custom.",
+  "description": "Is there Tachanun today? Check whether Tachanun is said at Shacharis, Mincha and the bedtime Shema, for any date, according to Chabad custom.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -32,5 +32,11 @@
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "categories": [
+    "lifestyle",
+    "education",
+    "reference"
+  ],
+  "lang": "en"
 }

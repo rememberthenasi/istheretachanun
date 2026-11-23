@@ -1,0 +1,5 @@
+# Is There Tachanun? — https://istheretachanun.com
+User-agent: *
+Allow: /
+
+Sitemap: https://istheretachanun.com/sitemap.xml
