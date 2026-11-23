@@ -56,3 +56,18 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+      # Tell IndexNow search engines (Bing, Yandex, Seznam, Naver...) that the
+      # pages changed. The key file at the site root proves we own the domain.
+      # Only on pushes, so the weekly rebuild does not ping every week; a
+      # failure here never fails the deploy.
+      - name: Notify search engines (IndexNow)
+        if: github.event_name == 'push'
+        continue-on-error: true
+        env:
+          INDEXNOW_KEY: 725463dddd5a6c71c5fe930895549e67
+        run: |
+          grep -o '<loc>[^<]*</loc>' sitemap.xml | sed -e 's/<loc>//' -e 's#</loc>##' \
+            | jq -R . | jq -s --arg key "$INDEXNOW_KEY" \
+              '{host: "istheretachanun.com", key: $key, keyLocation: ("https://istheretachanun.com/" + $key + ".txt"), urlList: .}' > indexnow.json
+          curl -sS -o /dev/null -w 'IndexNow: HTTP %{http_code}\n' -X POST \
+            -H 'Content-Type: application/json; charset=utf-8' --data @indexnow.json https://api.indexnow.org/indexnow

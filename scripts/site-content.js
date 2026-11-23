@@ -23,6 +23,8 @@
  *   related     slugs of related occasion pages
  */
 
+const T = require('../lib/tachanun.js');
+
 const isAdar = (m) => m === 'Adar' || m === 'Adar II';
 
 const OCCASIONS = [
@@ -175,9 +177,9 @@ const OCCASIONS = [
     body: [
       'Chanukah celebrates the victory of the Chashmona’im and the miracle of the oil. Its eight days, from 25 Kislev, were set aside “for thanks and praise”: full Hallel is said every day and <em>Al HaNissim</em> is added. Tachanun, a prayer of contrition, is not said.',
       'The joy of the festival begins in the afternoon before, so Tachanun is also left out at Mincha on 24 Kislev.',
-      'Rosh Chodesh Teves always falls during Chanukah, so on one or two of these days there is also Rosh Chodesh.'
+      'Rosh Chodesh Teves always falls during Chanukah, so on one or two of these days there is also Rosh Chodesh. When Kislev has 30 days, Chanukah ends on 2 Teves; when it has 29, on 3 Teves.'
     ],
-    match: (hd) => (hd.month === 'Kislev' && hd.day >= 25) || (hd.month === 'Tevet' && hd.day <= 3),
+    match: (hd, date) => T.isChanukah(hd, date),
     limit: 3,
     related: ['yud-tes-kislev', 'rosh-chodesh', 'hei-teves', 'purim']
   },
@@ -353,7 +355,7 @@ const OCCASIONS = [
   {
     slug: 'tisha-bav',
     name: 'Tisha B’Av',
-    aka: ['Tisha BeAv', '9 Av', 'Erev Tisha B’Av'],
+    aka: ['Tisha BeAv', '9 Av', 'Erev Tisha B’Av', 'Tisha B’Av nidche'],
     hebrew: 'תשעה באב',
     title: 'Is There Tachanun on Tisha B’Av? Why Not & Dates',
     description: 'Tachanun is not said on Tisha B’Av or at Mincha on Erev Tisha B’Av, because the day is called a “mo’ed”. Upcoming Tisha B’Av dates, according to Chabad custom.',
@@ -363,9 +365,10 @@ const OCCASIONS = [
     body: [
       'Tisha B’Av, the 9th of Av, mourns the destruction of both Batei HaMikdash. It may seem surprising that Tachanun is not said on the saddest day of the year.',
       'The reason is that Megillas Eichah (1:15) calls this day a <em>mo’ed</em>, a festival. Tisha B’Av is destined to become a day of rejoicing with the coming of Moshiach, and that inner festive quality is already reflected now in leaving out Tachanun.',
-      'Tachanun is also left out at Mincha on 8 Av, the afternoon before.'
+      'Tachanun is also left out at Mincha on 8 Av, the afternoon before.',
+      'When 9 Av falls on Shabbos, the fast is postponed to Sunday, 10 Av (<em>nidche</em>), and the Tisha B’Av rules move with it: there is no Tachanun on that Sunday. Mincha the afternoon before is on Shabbos, when Tachanun is not said in any case.'
     ],
-    match: (hd) => hd.month === 'Av' && hd.day === 9,
+    match: (hd, date) => T.isTishaBav(hd, date),
     limit: 3,
     related: ['tu-bav', 'yud-beis-tammuz', 'shabbos']
   },

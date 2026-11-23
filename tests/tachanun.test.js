@@ -68,9 +68,47 @@ test('Tishrei run and Chanukah', () => {
   assert.equal(dayRule('Cheshvan', 1).omit, true);
   assert.equal(dayRule('Cheshvan', 2).omit, false);
   assert.equal(dayRule('Kislev', 25).omit, true);
-  assert.equal(dayRule('Tevet', 3).label, 'Chanukah');
   assert.equal(dayRule('Tevet', 4).omit, false);
   assert.equal(minchaRule('Kislev', 24).label, 'Erev Chanukah');
+});
+
+test('Chanukah lasts eight days: to 2 Tevet after a 30-day Kislev, 3 Tevet after a 29-day one', () => {
+  const rule = (iso) => { const d = T.fromIso(iso); return T.matchDayRule(T.getHebrewParts(d), d); };
+  // 5787: Kislev has 30 days. 2 Tevet = Sat 2026-12-12 (last day), 3 Tevet = Sun 2026-12-13.
+  assert.equal(T.chanukahDay(T.getHebrewParts(T.fromIso('2026-12-12')), T.fromIso('2026-12-12')), 8);
+  assert.equal(rule('2026-12-13').omit, false);
+  assert.equal(T.decide('2026-12-13').shacharit.recite, true);
+  assert.equal(rule('2025-12-23').omit, false); // 3 Tevet 5786, also after a 30-day Kislev
+  // 5790: Kislev has 29 days, so 3 Tevet (Sun 2029-12-09) is the eighth day.
+  assert.equal(T.getHebrewParts(T.fromIso('2029-12-09')).day, 3);
+  assert.equal(rule('2029-12-09').label, 'Chanukah');
+  // Every year has exactly eight days of Chanukah.
+  for (let hy = 5786; hy <= 5800; hy++) {
+    const start = civilFor('Kislev', 25, hy);
+    let n = 0;
+    for (let d = new Date(start); n < 12; d.setDate(d.getDate() + 1)) {
+      if (!T.isChanukah(T.getHebrewParts(d), d)) break;
+      n++;
+    }
+    assert.equal(n, 8, `Chanukah ${hy}`);
+  }
+});
+
+test('Tisha B’Av on Shabbos: the rules move to Sunday, 10 Av', () => {
+  // 9 Av 5789 is Shabbos 2029-07-21; the fast is Sunday 2029-07-22.
+  assert.equal(T.fromIso('2029-07-21').getDay(), 6);
+  const sun = T.decide('2029-07-22');
+  assert.equal(sun.shacharit.recite, false);
+  assert.equal(sun.shacharit.reason, 'Tisha B’Av (postponed from Shabbos)');
+  assert.equal(sun.mincha.recite, false);
+  assert.equal(sun.krias_shema.until_midnight, true);
+  assert.equal(T.decide('2029-07-23').shacharit.recite, true); // Monday 11 Av
+  // Shabbos night leads into the fast: no Tachanun in the bedtime Shema.
+  assert.equal(T.decide('2029-07-21').krias_shema.recite, false);
+  // In an ordinary year 10 Av is a regular day.
+  const tenAv = civilFor('Av', 10, 5786);
+  assert.notEqual(tenAv.getDay(), 0);
+  assert.equal(T.matchDayRule(T.getHebrewParts(tenAv), tenAv).omit, false);
 });
 
 test('overlapping reasons: the label names the most common one only', () => {

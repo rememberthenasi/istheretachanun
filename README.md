@@ -104,6 +104,7 @@ The home page stays a single app; a set of plain HTML pages around it gives sear
 * `npm run build:pages` builds them locally (into the repository root); `npm test` checks titles, descriptions, links, structured data, the sitemap, and that each holiday page's wording matches the rules.
 * The home page carries the meta description, Open Graph/Twitter tags, canonical URL and JSON-LD (`WebSite`, `Organization`, `WebApplication`). The share image is `assets/og-image.png` (re-render with `node scripts/make-og-image.js`).
 * `/kiosk`, `/mobile` and `/visits` are marked `noindex`.
+* After each push deploy, the workflow pings [IndexNow](https://www.indexnow.org/) (Bing, Yandex and others) with every URL in the sitemap. The key file `725463dddd5a6c71c5fe930895549e67.txt` at the root proves ownership of the domain; keep it in place. Google does not use IndexNow.
 
 After deploying, submit `https://istheretachanun.com/sitemap.xml` in [Google Search Console](https://search.google.com/search-console) and [Bing Webmaster Tools](https://www.bing.com/webmasters).
 
