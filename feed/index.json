@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "logic_version": "2026.11.23",
+  "generated_at": "2026-11-23T00:00:00.000Z",
+  "source": "https://istheretachanun.com",
+  "minhag": "Chabad-Lubavitch",
+  "calendar": "Hebrew dates by civil day (ICU); fixed-date omissions only, diaspora",
+  "license": "CC BY-NC 4.0 — \"Is There Tachanun?\" by Menachem Spielman. Attribution required; non-commercial.",
+  "varies_policy": "Entries with varies:true (3 Tammuz, 18 Elul, 5 Teves) are decided by the consumer's own setting; recite is the public default.",
+  "files": [
+    {
+      "file": "tachanun-2026.json",
+      "year": 2026,
+      "range": {
+        "from": "2026-01-01",
+        "to": "2026-12-31"
+      },
+      "days": 365
+    },
+    {
+      "file": "tachanun-2027.json",
+      "year": 2027,
+      "range": {
+        "from": "2027-01-01",
+        "to": "2027-12-31"
+      },
+      "days": 365
+    },
+    {
+      "file": "latest.json",
+      "range": {
+        "from": "2026-01-01",
+        "to": "2027-12-31"
+      },
+      "days": 730
+    }
+  ]
+}

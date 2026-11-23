@@ -14,9 +14,10 @@ on:
   schedule:
     - cron: '17 4 * * 0'
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages,
+# and to commit the regenerated feed and pages back to the branch.
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -42,10 +43,13 @@ jobs:
           node-version: '22'
       - name: Test the rules module
         run: npm test
-      - name: Build the JSON feed (feed/)
-        run: npm run build:feed
-      - name: Build the SEO pages (holidays/, tachanun-calendar/, sitemap.xml, ...)
-        run: npm run build:pages
+      # One timestamp per UTC day, so rebuilding on the same day produces
+      # identical files and the commit step below has nothing to commit.
+      - name: Build the JSON feed (feed/) and the SEO pages (holidays/, tachanun-calendar/, sitemap.xml, ...)
+        run: |
+          NOW="$(date -u +%F)T00:00:00Z"
+          node scripts/build-feed.js --out feed --now "$NOW"
+          node scripts/build-pages.js --now "$NOW"
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
@@ -71,3 +75,15 @@ jobs:
               '{host: "istheretachanun.com", key: $key, keyLocation: ("https://istheretachanun.com/" + $key + ".txt"), urlList: .}' > indexnow.json
           curl -sS -o /dev/null -w 'IndexNow: HTTP %{http_code}\n' -X POST \
             -H 'Content-Type: application/json; charset=utf-8' --data @indexnow.json https://api.indexnow.org/indexnow
+      # The generated files are committed too, so hosts that publish the
+      # repository as-is (Cloudflare Pages with any build command, or none)
+      # serve them. Pushes made with GITHUB_TOKEN do not start this workflow
+      # again, so this cannot loop.
+      - name: Commit the regenerated feed and pages
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A feed holidays tachanun-calendar what-is-tachanun faq 404.html sitemap.xml llms.txt
+          if git diff --cached --quiet; then echo "Generated files are already up to date."; exit 0; fi
+          git commit -m "Regenerate the JSON feed and SEO pages"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

@@ -89,7 +89,7 @@ City coordinates come from the [`city-timezones`](https://www.npmjs.com/package/
 
 ## 🔎 SEO pages and search engines
 
-The home page stays a single app; a set of plain HTML pages around it gives search engines something to rank for searches like *"no tachanun days 2027"*, *"tachanun lag baomer"* or *"what is tachanun"*. They are **generated at deploy time** by `scripts/build-pages.js` (not committed, see `.gitignore`), using `lib/tachanun.js`, so every date on them agrees with the checker:
+The home page stays a single app; a set of plain HTML pages around it gives search engines something to rank for searches like *"no tachanun days 2027"*, *"tachanun lag baomer"* or *"what is tachanun"*. They are **generated** by `scripts/build-pages.js` from `lib/tachanun.js`, so every date on them agrees with the checker:
 
 | Path | What it is |
 | --- | --- |
@@ -100,7 +100,7 @@ The home page stays a single app; a set of plain HTML pages around it gives sear
 | `/sitemap.xml`, `/llms.txt`, `/404.html` | Sitemap, summary for AI search tools, not-found page |
 
 * The words live in `scripts/site-content.js`; the page shell and styles in `scripts/build-pages.js` and `assets/site.css`.
-* The Pages workflow rebuilds them on every push **and weekly**, so "upcoming dates" stay current.
+* The Pages workflow rebuilds them (and `feed/`) on every push **and weekly**, so "upcoming dates" stay current, and **commits the regenerated files back to the branch**. They are committed so that a host publishing the repository as-is, such as Cloudflare Pages, serves them whatever its build command (or none). Builds use one timestamp per UTC day, so a same-day rebuild changes nothing and makes no commit. Don't edit the generated files by hand; change `scripts/site-content.js` or the rules instead.
 * `npm run build:pages` builds them locally (into the repository root); `npm test` checks titles, descriptions, links, structured data, the sitemap, and that each holiday page's wording matches the rules.
 * The home page carries the meta description, Open Graph/Twitter tags, canonical URL and JSON-LD (`WebSite`, `Organization`, `WebApplication`). The share image is `assets/og-image.png` (re-render with `node scripts/make-og-image.js`).
 * `/kiosk`, `/mobile` and `/visits` are marked `noindex`.
