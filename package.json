@@ -3,9 +3,13 @@
   "private": true,
   "description": "Is There Tachanun? — static site, rules module and JSON feed",
   "license": "CC-BY-NC-4.0",
-  "engines": { "node": ">=18" },
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "test": "node --test",
-    "build:feed": "node scripts/build-feed.js --out feed"
+    "build:feed": "node scripts/build-feed.js --out feed",
+    "build:pages": "node scripts/build-pages.js",
+    "build": "npm run build:feed && npm run build:pages"
   }
 }

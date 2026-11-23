@@ -87,6 +87,29 @@ City coordinates come from the [`city-timezones`](https://www.npmjs.com/package/
 
 ---
 
+## 🔎 SEO pages and search engines
+
+The home page stays a single app; a set of plain HTML pages around it gives search engines something to rank for searches like *"no tachanun days 2027"*, *"tachanun lag baomer"* or *"what is tachanun"*. They are **generated at deploy time** by `scripts/build-pages.js` (not committed, see `.gitignore`), using `lib/tachanun.js`, so every date on them agrees with the checker:
+
+| Path | What it is |
+| --- | --- |
+| `/holidays/` and `/holidays/<slug>/` | Every occasion that affects Tachanun (Rosh Chodesh, Chanukah, Purim, Nissan, Lag BaOmer, Shavuos, Tishrei, Chabad Yomim Tovim, the "varies" days), with its upcoming dates and Mincha the day before |
+| `/tachanun-calendar/` and `/tachanun-calendar/<year>/` | Every day in a civil year with no Tachanun, with English and Hebrew dates |
+| `/what-is-tachanun/` | Guide |
+| `/faq/` | FAQ |
+| `/sitemap.xml`, `/llms.txt`, `/404.html` | Sitemap, summary for AI search tools, not-found page |
+
+* The words live in `scripts/site-content.js`; the page shell and styles in `scripts/build-pages.js` and `assets/site.css`.
+* The Pages workflow rebuilds them on every push **and weekly**, so "upcoming dates" stay current.
+* `npm run build:pages` builds them locally (into the repository root); `npm test` checks titles, descriptions, links, structured data, the sitemap, and that each holiday page's wording matches the rules.
+* The home page carries the meta description, Open Graph/Twitter tags, canonical URL and JSON-LD (`WebSite`, `Organization`, `WebApplication`). The share image is `assets/og-image.png` (re-render with `node scripts/make-og-image.js`).
+* `/kiosk`, `/mobile` and `/visits` are marked `noindex`.
+* After each push deploy, the workflow pings [IndexNow](https://www.indexnow.org/) (Bing, Yandex and others) with every URL in the sitemap. The key file `725463dddd5a6c71c5fe930895549e67.txt` at the root proves ownership of the domain; keep it in place. Google does not use IndexNow.
+
+After deploying, submit `https://istheretachanun.com/sitemap.xml` in [Google Search Console](https://search.google.com/search-console) and [Bing Webmaster Tools](https://www.bing.com/webmasters).
+
+---
+
 ## 🤝 Contributing
 
 If you find a missing date or a bug in the calendar logic, feel free to open an issue or submit a pull request. 

@@ -18,7 +18,7 @@ globalThis.OMISSIONS = {
     { label: '18 Iyar, Lag BaOmer, beginning from the afternoon before.' },
     { label: 'Shavuos (Sivan 6-7).' },
     { label: 'Rosh Chodesh Sivan - 12 Sivan (Sivan 1-12).' },
-    { label: '9 Av, beginning from the afternoon before.' },
+    { label: '9 Av, beginning from the afternoon before (Sunday 10 Av when the fast is postponed from Shabbos).' },
     { label: '15 Av, beginning from the afternoon before.' },
     { label: 'Erev Rosh Hashana.' },
     { label: '10 Kislev, beginning from the afternoon before.', chabadCustom: true },
