@@ -65,14 +65,19 @@ jobs:
           git push origin "HEAD:${GITHUB_REF_NAME}"
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      # Each attempt uploads under its own name: a re-run otherwise finds the
+      # earlier attempt's "github-pages" artifact too and refuses to deploy.
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload entire repository
           path: '.'
+          name: github-pages-${{ github.run_attempt }}
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}
       # Tell IndexNow search engines (Bing, Yandex, Seznam, Naver...) that the
       # pages changed. The key file at the site root proves we own the domain.
       # Only on pushes, so the weekly rebuild does not ping every week; a
