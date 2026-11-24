@@ -50,16 +50,34 @@ jobs:
           NOW="$(date -u +%F)T00:00:00Z"
           node scripts/build-feed.js --out feed --now "$NOW"
           node scripts/build-pages.js --now "$NOW"
+      # The generated files are committed too, so hosts that publish the
+      # repository as-is (Cloudflare Pages with any build command, or none)
+      # serve them. This runs before the GitHub Pages steps so a failed Pages
+      # deploy cannot stop the refresh. Pushes made with GITHUB_TOKEN do not
+      # start this workflow again, so this cannot loop.
+      - name: Commit the regenerated feed and pages
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A feed holidays tachanun-calendar what-is-tachanun faq 404.html sitemap.xml llms.txt
+          if git diff --cached --quiet; then echo "Generated files are already up to date."; exit 0; fi
+          git commit -m "Regenerate the JSON feed and SEO pages"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      # Each attempt uploads under its own name: a re-run otherwise finds the
+      # earlier attempt's "github-pages" artifact too and refuses to deploy.
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload entire repository
           path: '.'
+          name: github-pages-${{ github.run_attempt }}
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}
       # Tell IndexNow search engines (Bing, Yandex, Seznam, Naver...) that the
       # pages changed. The key file at the site root proves we own the domain.
       # Only on pushes, so the weekly rebuild does not ping every week; a
@@ -75,15 +93,3 @@ jobs:
               '{host: "istheretachanun.com", key: $key, keyLocation: ("https://istheretachanun.com/" + $key + ".txt"), urlList: .}' > indexnow.json
           curl -sS -o /dev/null -w 'IndexNow: HTTP %{http_code}\n' -X POST \
             -H 'Content-Type: application/json; charset=utf-8' --data @indexnow.json https://api.indexnow.org/indexnow
-      # The generated files are committed too, so hosts that publish the
-      # repository as-is (Cloudflare Pages with any build command, or none)
-      # serve them. Pushes made with GITHUB_TOKEN do not start this workflow
-      # again, so this cannot loop.
-      - name: Commit the regenerated feed and pages
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A feed holidays tachanun-calendar what-is-tachanun faq 404.html sitemap.xml llms.txt
-          if git diff --cached --quiet; then echo "Generated files are already up to date."; exit 0; fi
-          git commit -m "Regenerate the JSON feed and SEO pages"
-          git push origin "HEAD:${GITHUB_REF_NAME}"
